@@ -1,0 +1,7 @@
+.eggs/
+*.swp
+build/
+dist/
+__pycache__/
+src/*.egg-info/
+results/

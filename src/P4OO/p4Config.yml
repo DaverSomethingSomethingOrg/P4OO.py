@@ -1,0 +1,615 @@
+%YAML 1.2
+---
+######################################################################
+#  Copyright (c)2011-2012,2015 David L. Armstrong.
+#  Copyright (c)2012-2013 Cisco Systems, Inc.
+#
+#  p4Config.yml
+#
+#  See COPYRIGHT AND LICENSE section below for usage
+#   and distribution rights.
+#
+######################################################################
+
+# p4Config.yml configures P4OO to talk to P4Python and P4PERL,
+# describing the command syntax supported per command, and what
+# to do with the results of executing Perforce commands.
+
+COMMANDS:
+  branch:
+    specCmd: branch
+    idAttr: branch
+    idRequired: True
+    p4ooType: Branch
+    specAttrs:
+      description: Description
+      branch: Branch
+      owner: Owner
+      options: Options
+      view: View
+    dateAttrs:
+      update: Update
+      access: Access
+    forceOption: -f
+  branches:
+    output:
+      idAttr: branch
+      p4ooType: Branch
+    queryOptions:
+      user: &branches_user
+        type: [ string, User ]
+        option: -u
+        multiplicity: 1
+      owner: *branches_user
+
+
+  change: &change
+    specCmd: change
+    idAttr: change
+    idRequired: True
+    p4ooType: Change
+    specAttrs:
+      change: Change
+      client: Client
+      description: Description
+      user: User
+      status: Status
+      type: Type
+      jobs: Jobs
+      files: Files
+    dateAttrs:
+      date: Date
+    forceOption: -f
+  changes: &changes
+    output:
+      idAttr: change
+      p4ooType: Change
+    queryOptions:
+      user: &changes_user
+        type: [ string, User ]
+        option: -u
+        multiplicity: 1
+      owner: *changes_user
+      client:
+        type: [ string, Client ]
+        option: -c
+        multiplicity: 1
+      status:
+        type: [ string ]
+        option: -s
+        multiplicity: 1
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      longoutput:
+        option: -l
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # Changelist is the same as Change
+  changelist: *change
+  changelists: *changes
+
+
+  client: &client
+    specCmd: client
+    idAttr: client
+    idRequired: False
+    p4ooType: Client
+    specAttrs:
+      client: Client
+      owner: Owner
+      host: Host
+      description: Description
+      root: Root
+      altroots: AltRoots
+      options: Options
+      submitoptions: SubmitOptions
+      lineend: LineEnd
+      view: View
+    dateAttrs:
+      update: Update
+      access: Access
+    forceOption: -f
+  clients: &clients
+    output:
+      idAttr: client
+      p4ooType: Client
+    queryOptions:
+      user: &clients_user
+        type: [ string, User ]
+        option: -u
+        multiplicity: 1
+      owner: *clients_user
+      namefilter:
+        type: [ string ]
+        option: -e
+        multiplicity: 1
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+
+  # Workspace is the same as Client
+  workspace: *client
+  workspaces: *clients
+
+
+  depot:
+    specCmd: depot
+    idAttr: depot
+    idRequired: True
+    p4ooType: Depot
+    specAttrs:
+      depot: Depot
+      owner: Owner
+      description: Description
+      type: Type
+      address: Address
+      suffix: Suffix
+      map: Map
+    dateAttrs:
+      date: Date
+  depots:
+    output:
+      idAttr: depot
+      p4ooType: Depot
+    queryOptions:
+
+
+  group:
+    specCmd: group
+    idAttr: group
+    idRequired: True
+    p4ooType: Group
+    specAttrs:
+      group: Group
+      owners: Owners
+      users: Users
+      maxresults: MaxResults
+      maxscanrows: MaxScanRows
+      maxlocktime: MaxLockTime
+      timeout: Timeout
+      subgroups: Subgroups
+  groups:
+    output:
+      idAttr: group
+      p4ooType: Group
+    queryOptions:
+      user:
+        type: [ string, User ]
+        option: -u
+        multiplicity: 1
+
+
+  job:
+    specCmd: job
+    idAttr: job
+    idRequired: False
+    p4ooType: Job
+    specAttrs:
+      job: Job
+      status: Status
+      user: User
+      description: Description
+    dateAttrs:
+      date: Date
+    forceOption: -f
+  jobs:
+    output:
+      idAttr: job
+      p4ooType: Job
+    queryOptions:
+      jobview:
+        type: [ string ]
+        option: -e
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+
+  label:
+    specCmd: label
+    idAttr: label
+    idRequired: True
+    p4ooType: Label
+    specAttrs:
+      label: Label
+      owner: Owner
+      description: Description
+      options: Options
+      revision: Revision
+      view: View
+    dateAttrs:
+      update: Update
+      access: Access
+    forceOption: -f
+  labels:
+    output:
+      idAttr: label
+      p4ooType: Label
+    queryOptions:
+      user: &labels_user
+        type: [ string, User ]
+        option: -u
+        multiplicity: 1
+      owner: *labels_user
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      namefilter:
+        type: [ string ]
+        option: -e
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+
+  user:
+    specCmd: user
+    idAttr: user
+    idRequired: False
+    p4ooType: User
+    specAttrs:
+      user: User
+      email: Email
+      fullname: FullName
+      jobview: JobView
+      password: Password
+      reviews: Reviews
+    dateAttrs:
+      update: Update
+      access: Access
+    forceOption: -f
+  users:
+    output:
+      idAttr: User
+      p4ooType: User
+    queryOptions:
+      max:
+        type: [ string ]
+        option: -m
+        multiplicity: 1
+      allusers:
+        option: -a
+        multiplicity: 0
+      longoutput:
+        option: -l
+        multiplicity: 0
+      users:
+        type: [ string, User, UserSet ]
+
+
+# other p4 commands that don't return specs natively
+  counter:
+    specCmd: counter
+    idAttr: counter
+    idRequired: True
+  counters:
+    output:
+      idAttr: counter
+      p4ooType: Counter
+    queryOptions:
+
+#TODO
+###subcommands:
+### increment
+### delete
+### set
+
+  # p4 describe [-d<flags> -s -S -f] changelist# ...
+  describe:
+    output:
+      idAttr: change
+      p4ooType: Change
+    queryOptions:
+      diffoptions:
+        type: [ string ]
+        option: -d
+        multiplicity: 1
+        bundledArgs: 1
+      omitdiffs:
+        option: -s
+        multiplicity: 0
+      shelved:
+        option: -S
+        multiplicity: 0
+      force:
+        option: -f
+        multiplicity: 0
+      changes:
+        type: [ string, Change, ChangeSet ]
+
+
+  # p4 diff [-d<flags> -f -m max -s<flag> -t] [file[rev] ...]
+  diff:
+    output:
+      idAttr: clientFile
+      p4ooType: File
+    queryOptions:
+      diffOptions:
+        type: [ string ]
+        option: -d
+        multiplicity: 1
+        bundledArgs: 1
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      missingonclient:
+        option: -sd
+        multiplicity: 0
+      unopenedstatus:
+        option: -sl
+        multiplicity: 0
+      diffbinary:
+        option: -t
+        multiplicity: 0
+      diffallfiles:
+        option: -f
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 diff2 [ -d<flags> -q -t -u ] file1 file2
+  # p4 diff2 [ -d<flags> -q -t -u ] -b branch [ [ file1 ] file2 ]
+  diff2:
+    config:
+      tagged: 0
+    output:
+      idAttr: depotFile
+      p4ooType: File
+    queryOptions:
+      branch:
+        type: [ string, Branch ]
+        option: -b
+        multiplicity: 1
+      diffoptions:
+        type: [ string ]
+        option: -d
+        multiplicity: 1
+        bundledArgs: 1
+      omitdiffs:
+        option: -q
+        multiplicity: 0
+      diffbinary:
+        option: -t
+        multiplicity: 0
+      unifieddiff:
+        option: -u
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 files [ -a ] [ -A ] [ -m max ] file[revRange] ...
+  files:
+    output:
+      idAttr: depotFile
+      p4ooType: File
+    queryOptions:
+      diffoptions:
+        type: [ string ]
+        option: -d
+        multiplicity: 1
+        bundledArgs: 1
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      archived:
+        option: -A
+        multiplicity: 0
+      allrevisions:
+        option: -a
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 have [file ...]
+  have:
+    output:
+      idAttr: depotFile
+      p4ooType: File
+    queryOptions:
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 info [-s]
+  info:
+    queryOptions:
+      shortoutput:
+        option: -s
+        multiplicity: 0
+
+  # p4 interchanges [options] fromFile[revRange] toFile
+  # p4 interchanges [options] -b branch [toFile[revRange] ...]
+  # p4 interchanges [options] -b branch -s fromFile[revRange] [toFile ...]
+  interchanges:
+    output:
+      idAttr: change
+      p4ooType: Change
+    queryOptions:
+      branch:
+        type: [ string, Branch ]
+        option: -b
+        multiplicity: 1
+      change:
+        type: [ integer, Change ]
+        option: -C
+        multiplicity: 1
+      reversemap:
+        option: -r
+        multiplicity: 0
+      showtime:
+        option: -s
+        multiplicity: 0
+      longoutput:
+        option: -l
+        multiplicity: 0
+      listfiles:
+        option: -f
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 opened [-a -c changelist# -C client -u user -m max] [file ...]
+  opened:
+    output:
+      idAttr: clientFile
+      p4ooType: File
+    queryOptions:
+      allclients:
+        option: -a
+        multiplicity: 0
+      change:
+        type: [ integer, Change ]
+        option: -c
+        multiplicity: 1
+      client:
+        type: [ string, Client ]
+        option: -C
+        multiplicity: 1
+      user:
+        type: [ string, User ]
+        option: -u
+        multiplicity: 1
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 sync [-f -n -k -q ] [-m max] [file[revRange] ...]
+  # p4 sync [-n -p -q] [-m max] [file[revRange] ...]
+  sync:
+#    output:
+#      idAttr: clientFile
+#      p4ooType: File
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+        option: client
+        multiplicity: 1
+    queryOptions:
+      force:
+        option: -f
+        multiplicity: 0
+      server_update:
+        option: -k
+        multiplicity: 0
+      populate_only:
+        option: -p
+        multiplicity: 0
+      quiet:
+        option: -q
+        multiplicity: 0
+      preview:
+        option: -n
+        multiplicity: 0
+      max:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 reopen [ -c changelist# ] [ -t filetype ] file ...
+  reopen:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+        option: client
+        multiplicity: 1
+    queryOptions:
+      change:
+        type: [ string, Change ]
+        option: -c
+        multiplicity: 1
+      filetype:
+        type: [ string ]
+        option: -t
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+  # p4 revert [ -a -n -k -c changelist# ] file ...
+  revert:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+        option: client
+        multiplicity: 1
+    queryOptions:
+      change:
+        type: [ string, Change ]
+        option: -c
+        multiplicity: 1
+      noclientrefresh:
+        option: -k
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+  # p4 shelve [ files ]
+  # p4 shelve -i [ -f | -r ]
+  # p4 shelve -r -c changelist#
+  # p4 shelve -c changelist# [ -f ] [ file ... ]
+  # p4 shelve -d -c changelist# [ -f ] [ file ... ]
+  shelve:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+        option: client
+        multiplicity: 1
+    queryOptions:
+      change:
+        type: [ string, Change ]
+        option: -c
+        multiplicity: 1
+      delete:
+        option: -d
+        multiplicity: 0
+      replace:
+        option: -r
+        multiplicity: 0
+      force:
+        option: -f
+        multiplicity: 0
+      files:
+        type: [ string, File, FileSet ]
+
+
+######################################################################
+# Standard authorship and copyright for documentation
+#
+# AUTHOR
+#
+#  David L. Armstrong <armstd@cpan.org>
+#
+# COPYRIGHT AND LICENSE
+#
+# Copyright (c)2011-2012,2015 David L. Armstrong.
+# Copyright (c)2012-2013 Cisco Systems, Inc.
+#
+#   This module is distributed under the terms of the Artistic License
+# 2.0.  For more details, see the full text of the license in the file
+# LICENSE.
+#
+# SUPPORT AND WARRANTY
+#
+#   This program is distributed in the hope that it will be
+# useful, but it is provided "as is" and without any expressed
+# or implied warranties.
+#

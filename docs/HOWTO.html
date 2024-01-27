@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<!--
+######################################################################
+#  Copyright (c)2015, David L. Armstrong.
+#
+#  HOWTO.html
+#
+#  See COPYRIGHT AND LICENSE section in pod text below for usage
+#   and distribution rights.
+#
+######################################################################
+-->
+<HEAD>
+<TITLE>P4OO.py - HOWTO</TITLE>
+</HEAD>
+<BODY>
+<H1>Initializing a connection</H1>
+<H2>Using dependency injection</H2>
+Dependency injection is the most straightforward way to initialize P4OO, giving clear and direct control to the caller.
+
+<H3>Establish a connection using P4Python</H3>
+<pre>
+    p4Handle = P4.P4(port="p4-server:1666", user="perforce_user").connect()
+</pre>
+<H3>Create P4OO.py objects using that connection</H3>
+<p>
+When constructing any P4OO.py object, simply pass in your p4Handle object as p4PythonObj
+<pre>
+    changeCounter = P4OOCounter(id="change", p4PythonObj=p4Handle)
+  OR
+    lastSubmittedChange = P4OOChangeSet(p4PythonObj=p4Handle).query(status="submitted", max=1)[0]
+</pre>
+</p>
+
+<H2>Using the environment or p4 defaults</H2>
+<p>
+Just like 'p4' and P4Python, P4OO.py can be used without any special initialization.  P4OO.py will provide its own P4Python connection and work with P4Python's defaults or environment.
+No special syntax, just construct P4OO.py objects without passing in the 'p4PythonObj' argument.
+</p>
+<pre>
+    changeCounter = P4OOCounter(id="change")
+</pre>
+<p>
+<b>WARNING:</b> When using defaults, watch out for P4 environment changes between calls.  You may get inconsistent results across different P4OO.py objects as they get initialized with different connections.
+</p>
+
+<H2>Connection persistence</H2>
+As new P4OO.py objects are returned from P4OO.py operations, they are seeded with the connection attributes of the object creating them.  Objects created from different connections can be used simultaneously without conflict.
+<H2>Working with multiple connections simultaneously</H2>
+In an offline backup situation, we might want to examine our offline replica and compare its content to our production server.  With P4OO.py it is very easy to accomplish this.
+<pre>
+    offlineP4Port = "rsh:%s -r %s -J off -i" % (p4d_bin, p4Root,)
+
+    offlineP4Handle = P4.P4(port=offlineP4Port, user=p4SysUser).connect()
+    masterP4Handle = P4.P4(port=masterP4Port, user=p4SysUser).connect()
+
+    offlineJournalCounter = P4OOCounter(id="journal", p4PythonObj=offlineP4Handle)
+    masterJournalCounter = P4OOCounter(id="journal", p4PythonObj=masterP4Handle)
+</pre>
+
+<H1>Working with P4OO.py Objects</H1>
+<H2>Objects as arguments</H2>
+In P4OO.py, P4OO.py objects can be passed around as arguments to operations on other objects.  Where a client name or user name is required, the string name can be provided.  A P4OO.py object identified by that id may also be provided, it is not necessary to serialize objects within P4OO.py.
+
+<H3>Example</H3>
+Given these variables
+<pre>
+    userName = "dave"
+    p4UserObj = P4OOCounter(id=userName, p4PythonObj=p4Handle)
+</pre>
+The following will produce the same results:
+<pre>
+    userClients = P4OOClientSet(p4PythonObj=p4Handle).query(user=userName)
+    userClients = P4OOClientSet(p4PythonObj=p4Handle).query(user=p4UserObj)
+</pre>
+
+<H2>Sets of objects</H2>
+<H3>Set Operations</H3>
+<H4>addObjects</H4>
+<H4>delObjects</H4>
+<H4>listObjectIDs</H4>
+Method to help convert a set of objects into a list of the names of the objects.
+
+<H2>Lazy Initialization and Caching for Performance</H2>
+Wherever possible, P4OO.py uses lazy initialization.  Specs are not read until attributes are requested from the spec.  Additionally, spec attributes are cached once read.  Changes to specs made within P4OO.py will clear the cache as appropriate, but changes outside of P4OO.py may cause inconsistency.  No accommodation is made for thread safety, it's fair to assume P4OO.py is not at all thread safe.
+<H2>Parsing, parsing, parsing</H2>
+P4OO.py avoids parsing as much as possible, but in some cases it simply cannot be avoided.  P4Python is a handy interface into Perforce, but it sometimes resembles commandline output a little bit too much.  When creating or deleting a spec it will return a string describing what it did or did not accomplish for instance, and P4OO.py has to parse that output.  P4OO.py does leverage P4Python's ability to accept list parameters in command execution, and so it does not need nor attempt to construct properly escaped commandlines.  P4OO.py parses so you don't have to.
+<H1>The Nitty Gritty details</H1>
+<H2>Counters</H2>
+<H3>Reading</H3>
+<H3>Setting</H3>
+<H2>Spec Objects</H2>
+<H3>Reading attributes from an existing spec</H3>
+<H3>Setting attributes</H3>
+<H3>Creating a new spec</H3>
+<H2>Object and Attribute Reference</H2>
+
+<table border=1>
+<tr><th>Object</th><th>Attribute</th><th>Details</th></tr>
+<tr><th rowspan=7>P4OOBranch</th>
+    <td>branch</td><td>ID attribute</td></tr>
+<tr><td>description</td><td></td></tr>
+<tr><td>owner</td><td></td></tr>
+<tr><td>options</td><td></td></tr>
+<tr><td>view</td><td></td></tr>
+<tr><td>update</td><td>presented as a datetime</td></tr>
+<tr><td>access</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+<tr><th rowspan=9>P4OOChange /<br>P4OOChangelist</th>
+    <td>change</td><td>ID attribute</td></tr>
+<tr><td>client</td><td></td></tr>
+<tr><td>description</td><td></td></tr>
+<tr><td>user</td><td></td></tr>
+<tr><td>status</td><td></td></tr>
+<tr><td>type</td><td></td></tr>
+<tr><td>jobs</td><td></td></tr>
+<tr><td>files</td><td></td></tr>
+<tr><td>date</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+<tr><th rowspan=12>P4OOClient /<br>P4OOWorkspace</th>
+    <td>client</td><td>ID attribute</td></tr>
+<tr><td>description</td><td></td></tr>
+<tr><td>owner</td><td></td></tr>
+<tr><td>host</td><td></td></tr>
+<tr><td>root</td><td></td></tr>
+<tr><td>altroots</td><td></td></tr>
+<tr><td>options</td><td></td></tr>
+<tr><td>submitoptions</td><td></td></tr>
+<tr><td>lineend</td><td></td></tr>
+<tr><td>view</td><td></td></tr>
+<tr><td>update</td><td>presented as a datetime</td></tr>
+<tr><td>access</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+<tr><th rowspan=8>P4OODepot</th>
+    <td>depot</td><td>ID attribute</td></tr>
+<tr><td>description</td><td></td></tr>
+<tr><td>owner</td><td></td></tr>
+<tr><td>type</td><td></td></tr>
+<tr><td>address</td><td></td></tr>
+<tr><td>suffix</td><td></td></tr>
+<tr><td>map</td><td></td></tr>
+<tr><td>date</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+<tr><th rowspan=8>P4OOGroup</th>
+    <td>group</td><td>ID attribute</td></tr>
+<tr><td>owners</td><td></td></tr>
+<tr><td>users</td><td></td></tr>
+<tr><td>maxresults</td><td></td></tr>
+<tr><td>maxscanrows</td><td></td></tr>
+<tr><td>maxlocktime</td><td></td></tr>
+<tr><td>timeout</td><td></td></tr>
+<tr><td>subgroups</td><td></td></tr>
+<tr></tr>
+
+<tr><th rowspan=5>P4OOJob</th>
+    <td>job</td><td>ID attribute</td></tr>
+<tr><td>description</td><td></td></tr>
+<tr><td>user</td><td></td></tr>
+<tr><td>status</td><td></td></tr>
+<tr><td>date</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+<tr><th rowspan=8>P4OOLabel</th>
+    <td>label</td><td>ID attribute</td></tr>
+<tr><td>description</td><td></td></tr>
+<tr><td>owner</td><td></td></tr>
+<tr><td>options</td><td></td></tr>
+<tr><td>revision</td><td></td></tr>
+<tr><td>view</td><td></td></tr>
+<tr><td>update</td><td>presented as a datetime</td></tr>
+<tr><td>access</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+<tr><th rowspan=8>P4OOUser</th>
+    <td>user</td><td>ID attribute</td></tr>
+<tr><td>email</td><td></td></tr>
+<tr><td>fullname</td><td></td></tr>
+<tr><td>jobview</td><td></td></tr>
+<tr><td>password</td><td></td></tr>
+<tr><td>reviews</td><td></td></tr>
+<tr><td>update</td><td>presented as a datetime</td></tr>
+<tr><td>access</td><td>presented as a datetime</td></tr>
+<tr></tr>
+
+</table>
+
+<H2>Querying Perforce</H2>
+<H3>You know the id of the object you're interested in</H3>
+<H3>Querying all objects for specific attributes</H3>
+Perforce querying is provided by the _P4OOSet.query() method.  It is inherited by all _P4OOSet subclasses directly, and _P4OOSpec subclasses can access it through a helper method in _P4OOBase.
+The easiest way to use it is to create an empty set object to call query against.
+
+For instance, to find the last submitted change, the query would look like this:
+<pre>
+    emptySet = P4OOChangeSet(p4PythonObj=p4Handle)
+    submittedChangeSet = emptySet.query(status="submitted", max=1)
+    lastSubmittedChangeObj = submittedChangeSet[0]
+</pre>
+or more directly:
+<pre>
+    lastSubmittedChangeObj = P4OOChangeSet(p4PythonObj=p4Handle).query(status="submitted", max=1)[0]
+</pre>
+
+The supported attributes for query are the same that the 'p4 changes' command supports, and are documented in each module as well as a comprehensive table below.
+<H3>Notes on Querying</H3>
+<H4>Owner and User attributes</H4>
+"Owner" and "User" attributes are not used entirely consistently within Perforce.  For instance, 'p4 branch -o <branch_name>' will return a "Owner" attribute, but 'p4 branches' takes a '-u <user>' argument.  With 'p4 change', the attribute is named "User" instead of "Owner".
+
+P4OO.py attempts to mitigate this partially by allowing 'user' to be queried as 'owner' for P4OOBranchSet, P4OOChangeSet, P4OOClientSet, and P4OOLabelSet.  P4OO.py does NOT allow the returned object's attribute to be fetched by anything other than its native name however.
+<H2>Querying attribute Reference</H2>
+
+<table border=1>
+<tr><th>Object</th><th>Attribute</th><th>Type</th><th>Multiplicity</th><th>Notes</th></tr>
+<tr></tr>
+
+<tr><th rowspan=2>P4OOBranchSet</th>
+    <td>user</td><td>[ string, P4OOUser ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>owner</td><td>&nbsp;</td><td>&nbsp;</td><td><b>*interchangeable with user*</b></td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=7>P4OOChangeSet</th>
+    <td>user</td><td>[ string, P4OOUser ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>owner</td><td>&nbsp;</td><td>&nbsp;</td><td><b>*interchangeable with user*</b></td></tr>
+<tr><td>client</td><td>[ string, P4OOClient ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>status</td><td>[ string ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>max</td><td>[ integer ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>longoutput</td><td>&lt;none&gt;</td><td>0</td><td>&nbsp;</td></tr>
+<tr><td>files</td><td>[ string, P4OOFile, P4OOFileSet ]</td><td>n</td><td>&nbsp;</td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=4>P4OOClientSet</th>
+    <td>user</td><td>[ string, P4OOUser ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>owner</td><td>&nbsp;</td><td>&nbsp;</td><td><b>*interchangeable with user*</b></td></tr>
+<tr><td>namefilter</td><td>[ string ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>max</td><td>[ integer ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=1>P4OODepotSet</th>
+    <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td><b>*no queryable attributes*</b></td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=1>P4OOGroupSet</th>
+    <td>user</td><td>[ string, P4OOUser ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=2>P4OOJobSet</th>
+    <td>jobview</td><td>[ string ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>files</td><td>[ string, P4OOFile, P4OOFileSet ]</td><td>n</td><td>&nbsp;</td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=5>P4OOLabelSet</th>
+    <td>user</td><td>[ string, P4OOUser ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>owner</td><td>&nbsp;</td><td>&nbsp;</td><td><b>*interchangeable with user*</b></td></tr>
+<tr><td>namefilter</td><td>[ string ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>max</td><td>[ integer ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>files</td><td>[ string, P4OOFile, P4OOFileSet ]</td><td>n</td><td>&nbsp;</td></tr>
+<tr></tr>
+<tr></tr>
+
+<tr><th rowspan=4>P4OOUserSet</th>
+    <td>max</td><td>[ integer ]</td><td>1</td><td>&nbsp;</td></tr>
+<tr><td>allusers</td><td>&lt;none&gt;</td><td>0</td><td>&nbsp;</td></tr>
+<tr><td>longoutput</td><td>&lt;none&gt;</td><td>0</td><td>&nbsp;</td></tr>
+<tr><td>users</td><td>[ string, P4OOUser, P4OOUserSet ]</td><td>n</td><td>&nbsp;</td></tr>
+<tr></tr>
+<tr></tr>
+
+        
+</table>
+
+
+<H1>Custom Extensions for common Perforce functions</H1>
+P4OO.py is not merely a replacement for executing `p4` or P4Python calls and parsing output.  Since first class objects are provided for each modeled table, each object can be extended to provide new methods, generalizing common behaviors.
+
+For example, deleting a user completely from Perforce can be a long series of commands for an admin.  Pending changes and shelved files have to be cleaned up, clients need to be removed, and so on.  The procedure is also easily automated since there is a standard algorithm.  With P4OO.py, it's simply a method call on a P4OOUser object that implements the algorithm, leveraging similar cleanup methods on P4OOChange and P4OOClient objects as necessary.
+
+By providing these method extensions, P4OO.py becomes a far richer API for working with Perforce.
+
+<H2>Changes</H2>
+<H3>Find the list of changes in a client from change# to change#</H3>
+
+<H2>Labels</H2>
+<H3>Find the latest change# on a given label</H3>
+<pre>
+    p4 changes -m 1 @&lt;label&gt;
+ OR
+    p4LabelObj.getLastChange()
+</pre>
+<H3>Find the list of changes between two labels</H3>
+<H3>Fetch the diffs from changes between two labels</H3>
+
+<H2>Users</H2>
+<H3>Find opened files for a user</H3>
+<H4>Across all client workspaces</H4>
+<pre>
+    p4UserObj.listOpenedFiles()
+</pre>
+<H4>In a specific client workspace</H4>
+<pre>
+    p4UserObj.listOpenedFiles(client=p4ClientObj)
+ OR
+    p4ClientObj.getOpenedFiles(user=p4UserObj)
+</pre>
+<H3>Find all clients belonging to a user</H3>
+<pre>
+    p4UserObj.listClients()
+  OR
+    P4OOClientSet().query(user=p4UserObj)
+</pre>
+<H3>Find all changes owned by a user</H3>
+<pre>
+    p4UserObj.listChanges()
+  OR
+    P4OOChangeSet().query(user=p4UserObj)
+</pre>
+<H3>Delete user, doing all necessary steps in the process</H3>
+Deleting a Perforce user is not always as simple as removing the user spec.  If the user has opened files, shelved files, existing client workspaces, or pending changes, those need to be addressed before the user can be removed.
+The algorithm works as follows (simplified for illustration):
+<pre>
+    for client in `p4 clients -u $user`
+        p4 -c $client revert -k //$client/...
+	
+    for change in `p4 changes -u $user -s pending`
+        client = `p4 -ztag change -o 131 |grep -i client`
+        p4 -c $client shelve -d -f -c $change
+        p4 change -d -f $change
+	
+    for client in `p4 clients -u $user`
+        p4 client -d -f $client
+	
+    p4 user -d -f $user
+</pre>
+
+The equivalent as implemented in P4OO.py:
+<pre>
+    p4UserObj.deleteWithVengeance()
+</pre>
+</BODY>
+<!--
+######################################################################
+# Standard authorship and copyright for documentation
+#
+# AUTHOR
+#
+#  David L. Armstrong <armstd@cpan.org>
+#
+# COPYRIGHT AND LICENSE
+#
+# Copyright (c)2015, David L. Armstrong.
+#
+#   This module is distributed under the terms of the Artistic License
+# 2.0.  For more details, see the full text of the license in the file
+# LICENSE.
+#
+# SUPPORT AND WARRANTY
+#
+#   This program is distributed in the hope that it will be
+# useful, but it is provided "as is" and without any expressed
+# or implied warranties.
+#
+-->
+</HTML>
+
