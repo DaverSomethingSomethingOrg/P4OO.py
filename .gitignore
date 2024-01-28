@@ -6,6 +6,7 @@ __pycache__/
 src/*.egg-info/
 results/
 .pytest_cache/
+pylint.json
 .coverage
 coverage.xml
 junit-report.xml

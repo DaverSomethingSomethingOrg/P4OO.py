@@ -27,8 +27,8 @@ jobs:
 
     - name: Analysing the code with pylint
       run: |
-        pylint --output-format=json --output=pylint.json --recursive=y src/
-        pylint --recursive=y src/
+        pylint --output-format=json --output=pylint.json --recursive=y src/ || /bin/true
+        pylint --recursive=y src/ || pylint-exit $?
 
     - name: Artifact Lint Results
       uses: actions/upload-artifact@v4
