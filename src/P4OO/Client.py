@@ -1,11 +1,8 @@
 ######################################################################
-#  Copyright (c)2011-2012, 2015, David L. Armstrong.
+#  Copyright (c)2011-2012,2015,2024 David L. Armstrong.
 #  Copyright (c)2012, Cisco Systems, Inc.
 #
 #  P4OO.Client.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -38,7 +35,7 @@ Query Options:
       namefilter:
         type: [ string ]
         multiplicity: 1
-      max:
+      maxresults:
         type: [ integer ]
         multiplicity: 1
 '''
@@ -46,14 +43,16 @@ Query Options:
 ######################################################################
 # Includes
 #
+import re
 from P4OO.Change import P4OOChangeSet
 from P4OO._Base import _P4Warning, _P4Fatal
+from P4OO._SpecObj import _P4OOSpecObj
+from P4OO._Set import _P4OOSet
 
 
 ######################################################################
 # P4Python Class Initialization
 #
-from P4OO._SpecObj import _P4OOSpecObj
 class P4OOClient(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'client'
@@ -78,7 +77,7 @@ class P4OOClient(_P4OOSpecObj):
         ''' find the latest change this client "has" '''
 
         # Asking a Client for its latest change is just querying the first change record.  Nifty.
-        p4Changes = self.query(P4OOChangeSet, files="#have", max=1, client=self)
+        p4Changes = self.query(P4OOChangeSet, files="#have", maxresults=1, client=self)
 
         # We only expect one result, we only return one result.
         return(p4Changes[0])
@@ -96,8 +95,7 @@ class P4OOClient(_P4OOSpecObj):
         try:
             p4Output = self._runCommand('sync', p4client=self, files=fileSpec, **kwargs)
         except _P4Warning as e:
-            import re
-            if re.search("\nWARNING: File\(s\) up-to-date\.$", str(e)):
+            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
                 pass
             else:
                 raise(e)
@@ -138,33 +136,8 @@ class P4OOClient(_P4OOSpecObj):
         return True
 
 
-from P4OO._Set import _P4OOSet
 class P4OOClientSet(_P4OOSet):
     ''' P4OOClientSet currently implements no custom logic of its own. '''
 
     # Subclasses must define SETOBJ_TYPE
     _SETOBJ_TYPE = 'clients'
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, 2015, David L. Armstrong.
-# Copyright (c)2012, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

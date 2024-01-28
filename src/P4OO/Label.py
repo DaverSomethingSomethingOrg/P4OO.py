@@ -1,11 +1,8 @@
 ######################################################################
-#  Copyright (c)2011-2012, 2015, David L. Armstrong.
+#  Copyright (c)2011-2012,2015,2024 David L. Armstrong.
 #  Copyright (c)2012, Cisco Systems, Inc.
 #
 #  P4OO.Label.py
-#
-#  See COPYRIGHT AND LICENSE section below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -31,7 +28,7 @@ Query Options:
         type: [ string, P4OOUser ]
         multiplicity: 1
       owner: (interchangeable with user)
-      max:
+      maxresults:
         type: [ integer ]
         multiplicity: 1
       namefilter:
@@ -44,16 +41,15 @@ Query Options:
 ######################################################################
 # Includes
 #
-# P4OO._Base brings in our Exception hierarchy
 from P4OO._Base import _P4Warning
 from P4OO.Change import P4OOChangeSet
+from P4OO._SpecObj import _P4OOSpecObj
+from P4OO._Set import _P4OOSet
 
 
 ######################################################################
 # P4Python Class Initialization
 #
-
-from P4OO._SpecObj import _P4OOSpecObj
 class P4OOLabel(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'label'
@@ -63,7 +59,7 @@ class P4OOLabel(_P4OOSpecObj):
     #
     def getRevision(self):
         ''' Return the revision spec attribute of the label '''
-        return(self._getSpecAttr('Revision'))
+        return self._getSpecAttr('Revision')
 
 
     ######################################################################
@@ -73,10 +69,10 @@ class P4OOLabel(_P4OOSpecObj):
         ''' Return the latest change incorporated into the label '''
 
         changeFileRevRange = "@" + self._getSpecID()
-        p4Changes = self.query(P4OOChangeSet, files=changeFileRevRange, max=1)
+        p4Changes = self.query(P4OOChangeSet, files=changeFileRevRange, maxresults=1)
 
         # We only expect one result, we only return one result.
-        return(p4Changes[0])
+        return p4Changes[0]
 
 
     ######################################################################
@@ -119,7 +115,11 @@ class P4OOLabel(_P4OOSpecObj):
 
             try:
                 # ask for rawOutput so we get the actual diff content, not just the diff tags.
-                viewDiffs = self._runCommand('diff2', rawOutput=True, files=[firstLabelPath, otherLabelPath], **diffOpts)
+                viewDiffs = self._runCommand('diff2',
+                                             rawOutput=True,
+                                             files=[firstLabelPath, otherLabelPath],
+                                             **diffOpts
+                                            )
                 diffText.extend(viewDiffs)
             except _P4Warning:  # This gets thrown if no files exist in view path
                 pass
@@ -127,33 +127,8 @@ class P4OOLabel(_P4OOSpecObj):
         return diffText
 
 
-from P4OO._Set import _P4OOSet
 class P4OOLabelSet(_P4OOSet):
     ''' P4OOLabelSet currently implements no custom logic of its own. '''
 
     # Subclasses must define SETOBJ_TYPE
     _SETOBJ_TYPE = 'labels'
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, 2015, David L. Armstrong.
-# Copyright (c)2012, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

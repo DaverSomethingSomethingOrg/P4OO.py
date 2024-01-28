@@ -1,14 +1,10 @@
-#!/import/tools/pkgs/python-v3.2.2/bin/python
-#!/usr/local/bin/python3.2
+#!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2011-2012, David L. Armstrong.
+#  Copyright (c)2011-2012,2024 David L. Armstrong.
 #  Copyright (c)2012, Cisco Systems, Inc.
 #
 #  testP4oopy.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -17,11 +13,6 @@
 #
 import sys
 sys.path.append('../lib')
-
-# For P4Python
-#sys.path.append('/Users/armstd/p4/Davids-MacBook-Air/projects/infra/main/site-python/Darwin-11.0.1-x86_64/python3.2')
-sys.path.append('/home/dave/p4/dave_pan/projects/infra/main/site-python/CentOS-5.5-x86_64/python3.2')
-
 
 
 ######################################################################
@@ -126,26 +117,3 @@ print("Description2: " + p4b2._getSpecAttr("Description"))
 #print("\n opened files: ", p4cl1.getOpenedFiles())
 #
 #print("label diffs: ", '\n'.join(p4l1.getDiffsFromLabels(p4l2, p4cl1)))
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2012-2013, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

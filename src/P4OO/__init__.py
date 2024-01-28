@@ -1,10 +1,7 @@
 ######################################################################
-#  Copyright (c)2011, David L. Armstrong.
+#  Copyright (c)2011,2024 David L. Armstrong.
 #
 #  P4OO.__init__.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -42,32 +39,3 @@ for the other object attributes, such as the creator/owner of a label:
 
 
 '''
-
-######################################################################
-# P4Python Class Initialization
-
-#from _Connection import _Connection
-#from _P4Python import _P4Python
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011, David L. Armstrong.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

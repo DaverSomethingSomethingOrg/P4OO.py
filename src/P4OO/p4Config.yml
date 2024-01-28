@@ -78,7 +78,7 @@ COMMANDS:
         type: [ string ]
         option: -s
         multiplicity: 1
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1
@@ -128,7 +128,7 @@ COMMANDS:
         type: [ string ]
         option: -e
         multiplicity: 1
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1
@@ -237,7 +237,7 @@ COMMANDS:
         option: -u
         multiplicity: 1
       owner: *labels_user
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1
@@ -270,7 +270,7 @@ COMMANDS:
       idAttr: User
       p4ooType: User
     queryOptions:
-      max:
+      maxresults:
         type: [ string ]
         option: -m
         multiplicity: 1
@@ -325,7 +325,7 @@ COMMANDS:
         type: [ string, Change, ChangeSet ]
 
 
-  # p4 diff [-d<flags> -f -m max -s<flag> -t] [file[rev] ...]
+  # p4 diff [-d<flags> -f -m maxresults -s<flag> -t] [file[rev] ...]
   diff:
     output:
       idAttr: clientFile
@@ -336,7 +336,7 @@ COMMANDS:
         option: -d
         multiplicity: 1
         bundledArgs: 1
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1
@@ -387,7 +387,7 @@ COMMANDS:
         type: [ string, File, FileSet ]
 
 
-  # p4 files [ -a ] [ -A ] [ -m max ] file[revRange] ...
+  # p4 files [ -a ] [ -A ] [ -m maxresults ] file[revRange] ...
   files:
     output:
       idAttr: depotFile
@@ -398,7 +398,7 @@ COMMANDS:
         option: -d
         multiplicity: 1
         bundledArgs: 1
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1
@@ -461,7 +461,7 @@ COMMANDS:
         type: [ string, File, FileSet ]
 
 
-  # p4 opened [-a -c changelist# -C client -u user -m max] [file ...]
+  # p4 opened [-a -c changelist# -C client -u user -m maxresults] [file ...]
   opened:
     output:
       idAttr: clientFile
@@ -482,7 +482,7 @@ COMMANDS:
         type: [ string, User ]
         option: -u
         multiplicity: 1
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1
@@ -490,8 +490,8 @@ COMMANDS:
         type: [ string, File, FileSet ]
 
 
-  # p4 sync [-f -n -k -q ] [-m max] [file[revRange] ...]
-  # p4 sync [-n -p -q] [-m max] [file[revRange] ...]
+  # p4 sync [-f -n -k -q ] [-m maxresults] [file[revRange] ...]
+  # p4 sync [-n -p -q] [-m maxresults] [file[revRange] ...]
   sync:
 #    output:
 #      idAttr: clientFile
@@ -517,7 +517,7 @@ COMMANDS:
       preview:
         option: -n
         multiplicity: 0
-      max:
+      maxresults:
         type: [ integer ]
         option: -m
         multiplicity: 1

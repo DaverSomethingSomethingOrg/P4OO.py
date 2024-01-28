@@ -35,11 +35,11 @@ class OrderedSet(collections.MutableSet):
             curr[NEXT] = end[PREV] = self.map[key] = [key, curr, end]
 
     def discard(self, key):
-        if key in self.map:        
+        if key in self.map:
             key, prevItem, nextItem = self.map.pop(key)
             prevItem[NEXT] = nextItem
             nextItem[PREV] = prevItem
- 
+
     # indexing support
     def __getitem__(self, key):
         if not isinstance(key, int):
@@ -52,13 +52,13 @@ class OrderedSet(collections.MutableSet):
         if key >= 0:
             item = self.end
             while counter <= key:
-                item = item[NEXT] 
+                item = item[NEXT]
                 counter += 1
             return item[KEY]
         else:
             item = self.end
             while counter > key:   # > because 0 is the start, not 1
-                item = item[PREV] 
+                item = item[PREV]
                 counter -= 1
             return item[KEY]
 
@@ -99,4 +99,3 @@ class OrderedSet(collections.MutableSet):
 
     def __del__(self):
         self.clear()                    # remove circular references
-

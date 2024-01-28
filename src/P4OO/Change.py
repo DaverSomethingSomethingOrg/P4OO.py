@@ -1,11 +1,8 @@
 ######################################################################
-#  Copyright (c)2011-2012, 2015, David L. Armstrong.
+#  Copyright (c)2011-2012, 2015, 2024 David L. Armstrong.
 #  Copyright (c)2012, Cisco Systems, Inc.
 #
 #  P4OO.Change.py
-#
-#  See COPYRIGHT AND LICENSE section below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -38,7 +35,7 @@ Query Options:
       status:
         type: [ string ]
         multiplicity: 1
-      max:
+      maxresults:
         type: [ integer ]
         multiplicity: 1
       longoutput:
@@ -51,12 +48,13 @@ Query Options:
 ######################################################################
 # Includes
 #
-from P4OO._Base import _P4Warning, _P4Fatal, _P4OOFatal
+from P4OO._Base import _P4Fatal
+from P4OO._SpecObj import _P4OOSpecObj
+from P4OO._Set import _P4OOSet
 
 ######################################################################
 # P4Python Class Initialization
 #
-from P4OO._SpecObj import _P4OOSpecObj
 class P4OOChange(_P4OOSpecObj):
     ''' P4OOChange currently implements no custom logic of its own. '''
 
@@ -90,22 +88,41 @@ class P4OOChange(_P4OOSpecObj):
             viewChanges = self.query(P4OOChangeSet, files=fileChangeRange, longOutput=1)
             aggregatedChanges |= viewChanges
 
-        return(aggregatedChanges)
+        return aggregatedChanges
 
 
 #    def reopenFiles(self):
-#        return self._runCommand('reopen', change=self, files="//%s/..." % self._getSpecAttr('client'), p4client=self._getSpecAttr('client'))
+#        return self._runCommand('reopen',
+#                                change=self,
+#                                files="//%s/..." % self._getSpecAttr('client'),
+#                                p4client=self._getSpecAttr('client')
+#                               )
 
     def revertOpenedFiles(self):
 #        self.reopenFiles()
-        return self._runCommand('revert', change=self, noclientrefresh=True, files="//%s/..." % self._getSpecAttr('client'), p4client=self._getSpecAttr('client'))
+        return self._runCommand('revert',
+                                change=self,
+                                noclientrefresh=True,
+                                files="//%s/..." % self._getSpecAttr('client'),
+                                p4client=self._getSpecAttr('client')
+                               )
 #        try:
-#            return self._runCommand('revert', change=self, noclientrefresh=True, files="//%s/..." % self._getSpecAttr('client'), p4client=self._getSpecAttr('client'))
+#            return self._runCommand('revert',
+#                                    change=self,
+#                                    noclientrefresh=True,
+#                                    files="//%s/..." % self._getSpecAttr('client'),
+#                                    p4client=self._getSpecAttr('client')
+#                                   )
 #        except _P4Fatal:
 
     def deleteShelf(self):
         try:
-            return self._runCommand('shelve', delete=True, change=self, force=True, p4client=self._getSpecAttr('client'))
+            return self._runCommand('shelve',
+                                    delete=True,
+                                    change=self,
+                                    force=True,
+                                    p4client=self._getSpecAttr('client')
+                                   )
         except _P4Fatal:
             return True
 
@@ -117,33 +134,8 @@ class P4OOChange(_P4OOSpecObj):
         return True
 
 
-from P4OO._Set import _P4OOSet
 class P4OOChangeSet(_P4OOSet):
     ''' P4OOChangeSet currently implements no custom logic of its own. '''
 
     # Subclasses must define SETOBJ_TYPE
     _SETOBJ_TYPE = 'changes'
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, 2015, David L. Armstrong.
-# Copyright (c)2012, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

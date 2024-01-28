@@ -1,10 +1,7 @@
 ######################################################################
 #  Copyright (c)2013, Cisco Systems, Inc.
 #
-#  _P4GoldenEgg.py 
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
+#  _P4GoldenEgg.py
 #
 ######################################################################
 
@@ -84,27 +81,3 @@ class eggDirectory(object):
 #        eggBall = eggTarball(tarball=tarball)
 #        return eggBall
         pass
-
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2013, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

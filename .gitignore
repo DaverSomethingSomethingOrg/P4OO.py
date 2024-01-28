@@ -5,3 +5,7 @@ dist/
 __pycache__/
 src/*.egg-info/
 results/
+.pytest_cache/
+.coverage
+coverage.xml
+junit-report.xml

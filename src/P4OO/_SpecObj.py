@@ -1,11 +1,8 @@
 ######################################################################
-#  Copyright (c)2011-2012, David L. Armstrong.
+#  Copyright (c)2011-2012,2024 David L. Armstrong.
 #  Copyright (c)2012-2013, Cisco Systems, Inc.
 #
 #  P4OO._SpecObj.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -20,20 +17,20 @@ objects.
 ######################################################################
 # Includes
 #
+import json
+import datetime
 from P4OO._Base import _P4OOBase, _P4OOFatal
 
 
 ######################################################################
 # JSON Encoder subclass for _toJSON to leverage
 #
-import json,datetime
-
 class DateTimeJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.isoformat()
-        else:
-            return super(DateTimeJSONEncoder, self).default(obj)
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
+            return o.isoformat()
+
+        return super(DateTimeJSONEncoder, self).default(o)
 
 
 ######################################################################
@@ -141,27 +138,3 @@ class _P4OOSpecObj(_P4OOBase):
             p4SpecObj = p4ConnObj.readSpec(self) # We don't save this attribute because _P4Python does that for us
 
         return p4SpecObj
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, David L. Armstrong.
-# Copyright (c)2012-2013, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

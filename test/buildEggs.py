@@ -1,12 +1,9 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python3
 
 ######################################################################
 #  Copyright (c)2013, Cisco Systems, Inc.
 #
 #  test/buildEggs.py
-#
-#  See COPYRIGHT AND LICENSE section below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -84,26 +81,3 @@ if __name__ == '__main__':
             del(os.environ[p4Var])
 
     createEgg__P4Python()
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2013, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

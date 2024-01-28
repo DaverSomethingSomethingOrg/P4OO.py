@@ -1,13 +1,10 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2011-2012, David L. Armstrong.
+#  Copyright (c)2011-2012,2024 David L. Armstrong.
 #  Copyright (c)2012-2013, Cisco Systems, Inc.
 #
 #  testP4oopy.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -69,27 +66,3 @@ print("p4ch2 Date: %s" % date)
 print("\n opened files: ", p4cl1.getOpenedFiles())
 
 print("label diffs: ", '\n'.join(p4l1.getDiffsFromLabels(p4l2, p4cl1)))
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, David L. Armstrong.
-# Copyright (c)2012-2013, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

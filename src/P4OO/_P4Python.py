@@ -1,11 +1,8 @@
 ######################################################################
-#  Copyright (c)2011-2012, David L. Armstrong.
+#  Copyright (c)2011-2012,2024 David L. Armstrong.
 #  Copyright (c)2012-2013, Cisco Systems, Inc.
 #
 #  P4OO._Connection.P4Python.py
-#
-#  See COPYRIGHT AND LICENSE section below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -21,18 +18,18 @@ subcommand output back into P4OO data-objects.
 ######################################################################
 # Includes
 #
-from P4OO._Base import _P4OOFatal, _P4Fatal, _P4Warning
-from P4OO._Connection import _P4OOConnection
-from P4OO._SpecObj import _P4OOSpecObj
+# For the YAML config file
+import os
+import re
+import datetime
+import yaml
 
 # P4Python
 from P4 import P4,P4Exception,Spec
 
-# For the YAML config file
-import yaml
-import os
-import re
-import datetime
+from P4OO._Base import _P4OOFatal, _P4Fatal, _P4Warning
+from P4OO._Connection import _P4OOConnection
+from P4OO._SpecObj import _P4OOSpecObj
 
 
 ######################################################################
@@ -63,9 +60,9 @@ class _P4OOP4Python(_P4OOConnection):
 
         p4Output = self._execCmd("counter", counterName)
         try:
-            return(int(p4Output[0]['value']))
+            return int(p4Output[0]['value'])
         except ValueError:
-            return(p4Output[0]['value'])
+            return p4Output[0]['value']
 
     ######################################################################
     # setCounter(name, newValue)
@@ -80,9 +77,9 @@ class _P4OOP4Python(_P4OOConnection):
 
         p4Output = self._execCmd("counter", counterName, newValue)
         try:
-            return(int(p4Output[0]['value']))
+            return int(p4Output[0]['value'])
         except ValueError:
-            return(p4Output[0]['value'])
+            return p4Output[0]['value']
 
 
     ######################################################################
@@ -249,7 +246,7 @@ class _P4OOP4Python(_P4OOConnection):
                     if specAttr in modifiedSpec:
                         if modifiedSpec[specAttr] is None:
                             if p4SpecAttr in p4SpecObj:
-                                del(p4SpecObj[p4SpecAttr])
+                                del p4SpecObj[p4SpecAttr]
                         else:
                             p4SpecObj[p4SpecAttr] = modifiedSpec[specAttr]
 
@@ -284,7 +281,7 @@ class _P4OOP4Python(_P4OOConnection):
             if specType == "change":
                 # parse p4Output for new change#
                 # ['Change 1 created.']
-                specID = re.search('Change (\d+) created', p4Output[0]).group(1)
+                specID = re.search(r'Change (\d+) created', p4Output[0]).group(1)
 #TODO...
 #                print("specID: ", specID)
             specObj._setAttr('id', specID )
@@ -486,8 +483,8 @@ class _P4OOP4Python(_P4OOConnection):
 
 #            print("optionConfig: ", optionConfig )
             # defined cmdline options go at the front
-            if 'multiplicity' in optionConfig and optionConfig['multiplicity'] is 0:
-                if len(cmdOptionArgs) is not 0:
+            if 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 0:
+                if len(cmdOptionArgs) != 0:
                     raise _P4OOFatal("Filter key: %s accepts no arguments.\n" % origFilterKey )
 
                 if isConfigOpt:
@@ -495,8 +492,8 @@ class _P4OOP4Python(_P4OOConnection):
                 else:
                     execArgs.insert(0, optionConfig['option'])
 
-            elif 'multiplicity' in optionConfig and optionConfig['multiplicity'] is 1:
-                if len(cmdOptionArgs) is not 1:
+            elif 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 1:
+                if len(cmdOptionArgs) != 1:
                     raise _P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey )
 
                 if 'bundledArgs' in optionConfig and optionConfig['bundledArgs'] is not None:
@@ -619,7 +616,7 @@ class _P4OOP4Python(_P4OOConnection):
         if len(listArgs) > 0:
             # First strip undef args from the tail, P4PERL don't like them
             while listArgs[-1] is None or listArgs[-1] == "":
-                del(listArgs[-1])
+                del listArgs[-1]
 
             # Next look for a '-i' arg for setting input and exrtact the input arg
             try:
@@ -664,7 +661,7 @@ class _P4OOP4Python(_P4OOConnection):
 
             raise _P4Fatal("P4 Command Failed:\n" + errMsg)
 
-        elif len(p4PythonObj.warnings) > 0:
+        if len(p4PythonObj.warnings) > 0:
             warnMsg = "WARNING: " + "".join(p4PythonObj.warnings)
             raise _P4Warning("P4 Command Warned:\n" + warnMsg)
 
@@ -716,27 +713,3 @@ class _P4OOP4Python(_P4OOConnection):
     def __del__(self):
         self._disconnect()
         return True
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, David L. Armstrong.
-# Copyright (c)2012-2013, Cisco Systems, Inc.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

@@ -1,10 +1,7 @@
 ######################################################################
-#  Copyright (c)2011-2012, David L. Armstrong.
+#  Copyright (c)2011-2012,2024 David L. Armstrong.
 #
 #  P4OO._Set.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -19,7 +16,6 @@ objects.
 ######################################################################
 # Includes
 #
-# P4OO._Base brings in our Exception hierarchy
 from P4OO._Base import _P4OOBase
 from P4OO._OrderedSet import OrderedSet
 
@@ -59,35 +55,12 @@ class _P4OOSet(_P4OOBase, OrderedSet):
 
 #TODO - document this
     def listObjectIDs(self):
-        return([foo._uniqueID() for foo in self])
+        return([item._uniqueID() for item in self])
 
     # query() is an instance method, but returns another, possibly unrelated object.
     # Where an instance is not already available, query can be called as follows:
-    # p4Changes = P4OO.ChangeSet.ChangeSet().query({"files": changeFileRevRange, "max": 1})
+    # p4Changes = P4OO.ChangeSet.ChangeSet().query({"files": changeFileRevRange, "maxresults": 1})
     # Instantiating a _Set object just for this purpose is cheap, but is not free.  So sorry.
     def query(self, **kwargs ):
         p4ConnObj = self._getP4Connection()
         return( p4ConnObj.runCommand(self._SETOBJ_TYPE, **kwargs) )
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, David L. Armstrong.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#
