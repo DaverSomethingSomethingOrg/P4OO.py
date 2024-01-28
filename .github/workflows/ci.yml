@@ -38,18 +38,22 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --cov=src/ --cov-report xml --junitxml=junit-report.xml
+        pytest --cov=src/ --cov-report xml --junitxml=junit-report.xml || /bin/true
         coverage report
         coverage xml
 
-    - name: Artifact Unit Test Results
-      uses: actions/upload-artifact@v4
+    - name: Report
+      uses: dorny/test-reporter@v1
+      if: ${{ always() }}
       with:
         name: JUnit Test Report
         path: junit-report.xml
+        reporter: java-junit
+        fail-on-error: true
 
     - name: Artifact Code Coverage Results
       uses: actions/upload-artifact@v4
+      if: ${{ always() }}
       with:
         name: Cobertura Coverage Report
         path: coverage.xml
