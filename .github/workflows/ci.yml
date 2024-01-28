@@ -9,6 +9,11 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 jobs:
   build_test_publish:
     runs-on: self-hosted
@@ -32,6 +37,7 @@ jobs:
 
     - name: Artifact Lint Results
       uses: actions/upload-artifact@v4
+      if: ${{ always() }}
       with:
         name: Pylint results
         path: pylint.json
@@ -42,7 +48,7 @@ jobs:
         coverage report
         coverage xml
 
-    - name: Report
+    - name: Report Unit Test Results
       uses: dorny/test-reporter@v1
       if: ${{ always() }}
       with:
@@ -60,7 +66,7 @@ jobs:
 
     - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/main' && always() }}
       with:
         filename: coverage.xml
         badge: true
@@ -74,7 +80,7 @@ jobs:
 
     - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
-      if: ${{ github.event_name == 'pull_request' && github.ref == 'refs/heads/main' }}
+      if: ${{ github.event_name == 'pull_request' && github.ref == 'refs/heads/main' && always() }}
       with:
         recreate: true
         path: code-coverage-results.md
