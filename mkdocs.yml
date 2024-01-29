@@ -1,7 +1,7 @@
 site_name: P4OO.py
 copyright: Copyright (C) 2011-2015,2024 by David L. Armstrong, Cisco Systems, Inc.
 repo_url: https://github.com/DaverSomethingSomethingOrg/P4OO.py
-#site_url: https://github.com/DaverSomethingSomethingOrg/P4OO.py
+site_url: https://daversomethingsomethingorg.github.io/P4OO.py/
 #edit_uri_template: 'edit/main/docs/{path}'
 docs_dir: docs/
 
@@ -10,7 +10,7 @@ plugins:
 
 markdown_extensions:
   - toc:
-      permalink: #
+      permalink: \#
   - attr_list
   - def_list
   - tables
