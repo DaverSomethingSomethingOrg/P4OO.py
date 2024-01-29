@@ -100,6 +100,8 @@ jobs:
     needs: build_test_publish
     if: ${{ github.ref == 'refs/heads/main' }}
 
+    permissions: write-all
+    
     runs-on: self-hosted
     container:
         image: "ghcr.io/daversomethingsomethingorg/alma9-py3-p4d:main"
