@@ -1,0 +1,52 @@
+# This workflow will install Python dependencies, run pylint and pytest and publish code-coverage metrics
+name: MkDocs Deploy to Pages
+
+on:
+  workflow_call:
+    inputs:
+      runner_tag:
+        default: ubuntu-latest
+        type: string
+      container_image:
+        type: string
+        required: true
+      input_artifact:
+        type: string
+        required: false
+
+jobs:
+  build_and_deploy_docs:
+
+    runs-on: ${{ inputs.runner_tag }}
+    container:
+        image: ${{ inputs.container_image }}
+        credentials:
+           username: ${{ github.actor }}
+           password: ${{ secrets.github_token }}
+
+    permissions: write-all
+#    permissions:
+#      pages: write      # to deploy to Pages
+#      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url}}
+
+    steps:
+    - name: Download Input Artifact
+      if: ${{ inputs.input_artifact }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.input_artifact }}
+
+    - name: Build MkDocs Site
+      run: |
+        mkdocs build --site-dir "_site" --verbose
+
+    - name: Artifact MkDocs Site
+      uses: actions/upload-pages-artifact@v3
+
+    - name: Deploy to Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
