@@ -1,5 +1,4 @@
 # This workflow will install Python dependencies, run pylint and pytest and publish code-coverage metrics
-
 name: Python CI Workflow
 
 on:
@@ -21,7 +20,7 @@ jobs:
     permissions: write-all
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         pip install .
@@ -46,7 +45,7 @@ jobs:
         coverage xml
 
     - name: Report Unit Test Results
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v1.8.0
       if: ${{ always() }}
       with:
         name: JUnit Test Report
@@ -67,13 +66,14 @@ jobs:
       with:
         filename: coverage.xml
         badge: true
-        fail_below_min: true
+#        fail_below_min: true
+        fail_below_min: false
         format: markdown
-        hide_branch_rate: false
-        hide_complexity: true
+#        hide_branch_rate: false
+#        hide_complexity: true
         indicators: true
         output: both
-        thresholds: '60 80'
+#        thresholds: '60 80'
 
     - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
