@@ -100,8 +100,6 @@ jobs:
     needs: build_test_publish
     if: ${{ github.ref == 'refs/heads/main' }}
 
-    permissions: write-all
-    
     runs-on: self-hosted
     container:
         image: "ghcr.io/daversomethingsomethingorg/alma9-py3-p4d:main"
@@ -109,9 +107,10 @@ jobs:
            username: ${{ github.actor }}
            password: ${{ secrets.github_token }}
 
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+    permissions: write-all
+#    permissions:
+#      pages: write      # to deploy to Pages
+#      id-token: write   # to verify the deployment originates from an appropriate source
 
     steps:
     - name: Build MkDocs Site
