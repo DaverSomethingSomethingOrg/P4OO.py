@@ -29,6 +29,7 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint --output-format=json --output=pylint.json --recursive=y src/ || /bin/true
+        pylint-json2html pylint.json > docs/pylint.html
         pylint --output-format=colorized --recursive=y src/ || pylint-exit $?
 
     - name: Artifact Lint Results
@@ -43,7 +44,6 @@ jobs:
         pytest --cov=src/ --cov-report html:docs/coverage --junitxml=junit-report.xml || /bin/true
         coverage report
         coverage xml
-        coverage report --format=markdown > docs/coverage.md
 
     - name: Report Unit Test Results
       uses: dorny/test-reporter@v1.8.0
