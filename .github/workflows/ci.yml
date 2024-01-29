@@ -108,6 +108,11 @@ jobs:
     needs: build_test_publish
     if: ${{ github.ref == 'refs/heads/main' }}
 
+    permissions: write-all
+#    permissions:
+#      pages: write      # to deploy to Pages
+#      id-token: write   # to verify the deployment originates from an appropriate source
+
     uses: daversomethingsomethingorg/p4oo.py/.github/workflows/mkdocs_deploy_pages.yml@main
     with:
         runner_tag: self-hosted
