@@ -10,3 +10,4 @@ pylint.json
 .coverage
 coverage.xml
 junit-report.xml
+_site
