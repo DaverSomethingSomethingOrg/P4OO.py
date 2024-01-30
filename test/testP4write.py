@@ -24,7 +24,6 @@ from P4OO.Label import P4OOLabel
 from P4OO.Client import P4OOClient
 from P4OO.Change import P4OOChange
 from P4OO._P4Python import _P4OOP4Python
-import pprint
 import logging
 
 ######################################################################

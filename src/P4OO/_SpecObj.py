@@ -19,7 +19,8 @@ objects.
 #
 import json
 import datetime
-from P4OO._Base import _P4OOBase, _P4OOFatal
+from P4OO._Base import _P4OOBase
+from P4OO._Exceptions import _P4OOFatal
 
 
 ######################################################################

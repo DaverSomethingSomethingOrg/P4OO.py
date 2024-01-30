@@ -20,8 +20,6 @@ unittest test suite for P4OO.Client
 #
 import os  # used for managing environment variables
 import sys # used her for include path mgmt
-sys.path.append('.')
-sys.path.append('../lib')
 
 # P4OO._Base brings in our Exception hierarchy
 import P4OO._Base
@@ -36,12 +34,13 @@ import P4
 
 # We might just need these yo
 import P4OO.Client
+import P4OO._P4Python
 
 
 ######################################################################
 # Configuration
 #
-p4d = "/export/disk2/tools/perforce-v10.2/bin.linux26x86_64/p4d"
+p4d = "p4d"
 testEgg = "./_P4GoldenEggs/Client.tar.gz"
 tmpDir = "./tmp"
 p4PythonObj = None
@@ -56,7 +55,7 @@ class TestP4OO_Client(unittest.TestCase):
 
     def test_construction(self):
         testObj1 = P4OO.Client.P4OOClient()
-        self.assertTrue(isinstance(testObj1, P4OO._P4Python.P4OOClient))
+        self.assertTrue(isinstance(testObj1, P4OO.Client.P4OOClient))
         self.assertTrue(isinstance(testObj1, P4OO._SpecObj._P4OOSpecObj))
 #p4c1 = P4OOChange(p4PythonObj=p4PythonObj)
 

@@ -27,7 +27,7 @@ import yaml
 # P4Python
 from P4 import P4,P4Exception,Spec
 
-from P4OO._Base import _P4OOFatal, _P4Fatal, _P4Warning
+from P4OO._Exceptions import _P4OOFatal, _P4Fatal, _P4Warning
 from P4OO._Connection import _P4OOConnection
 from P4OO._SpecObj import _P4OOSpecObj
 
@@ -462,7 +462,9 @@ class _P4OOP4Python(_P4OOConnection):
                                     setType = checkType + "Set"
 
                                 # Second, import specType and SetType
-                                specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], -1)
+#TODO need to look into this issue
+#                                specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], -1)
+                                specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], 0)
                                 specClass = getattr(specModule, "P4OO" + specType)
                                 setClass = getattr(specModule, "P4OO" + setType)
 
@@ -704,7 +706,7 @@ class _P4OOP4Python(_P4OOConnection):
         if _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None:
             configFile = os.path.dirname(__file__) + "/p4Config.yml"
             stream = open(configFile, 'r')
-            data = yaml.load(stream)
+            data = yaml.load(stream, Loader=yaml.Loader)
             _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION = data["COMMANDS"]
             stream.close()
 

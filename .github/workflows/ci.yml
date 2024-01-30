@@ -44,7 +44,7 @@ jobs:
         pytest --cov=src/ --cov-report html:docs/coverage --junitxml=junit-report.xml || /bin/true
         coverage report
         coverage xml
-
+ 
     - name: Report Unit Test Results
       uses: dorny/test-reporter@v1.8.0
       if: ${{ always() }}

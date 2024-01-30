@@ -10,7 +10,7 @@ plugins:
 
 markdown_extensions:
   - toc:
-      permalink: \#
+      permalink: '#'
   - attr_list
   - def_list
   - tables

@@ -45,7 +45,7 @@ Query Options:
 #
 import re
 from P4OO.Change import P4OOChangeSet
-from P4OO._Base import _P4Warning, _P4Fatal
+from P4OO._Exceptions import _P4Warning, _P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 

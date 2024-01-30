@@ -39,7 +39,7 @@ from P4OO.User import P4OOUser
 ######################################################################
 # Configuration
 #
-p4d = "/export/disk2/tools/perforce-v10.2/bin.linux26x86_64/p4d"
+p4d = "p4d"
 testEggsDir = "./_P4GoldenEggs"
 tmpDir = "./tmp"
 

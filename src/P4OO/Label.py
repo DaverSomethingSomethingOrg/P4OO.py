@@ -41,7 +41,7 @@ Query Options:
 ######################################################################
 # Includes
 #
-from P4OO._Base import _P4Warning
+from P4OO._Exceptions import _P4Warning
 from P4OO.Change import P4OOChangeSet
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet

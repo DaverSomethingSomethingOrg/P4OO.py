@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python3
 
 ######################################################################
 #  Copyright (c)2011-2012, David L. Armstrong.
@@ -15,13 +15,6 @@
 Perforce _Base unittest Class
 
 '''
-
-######################################################################
-# Include Paths
-#
-import sys
-sys.path.append('../lib')
-
 
 ######################################################################
 # Includes
@@ -81,26 +74,3 @@ class TestP4OO_Base(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2011-2012, David L. Armstrong.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#
