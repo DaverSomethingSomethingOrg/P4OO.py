@@ -22,7 +22,6 @@ import P4OO._Base
 import pytest
 
 # _P4GoldenEgg is used for our test environment setup and destruction
-import tempfile
 import _P4GoldenEgg
 
 # We use dependency injection with P4 for our tests
@@ -38,7 +37,6 @@ from P4OO.Counter import P4OOCounter, P4OOCounterSet
 #
 p4d = "p4d"
 testEgg = "./_P4GoldenEggs/P4OOCounter.tar.gz"
-tmpDir = "./tmp"
 p4PythonObj = None
 p4Port = None
 p4RootDir = None
@@ -46,15 +44,15 @@ p4RootDir = None
 ######################################################################
 # Test Environment Initialization and Clean up
 #
-@pytest.fixture
-def initializeTests():
+@pytest.fixture(scope="session")
+def initializeTests(tmp_path_factory):
     # sanitize P4 environment variables
     for p4Var in ('P4CONFIG', 'P4PORT', 'P4USER', 'P4CLIENT'):
         if p4Var in os.environ:
             del(os.environ[p4Var])
 
-    global tmpDir, testEgg, p4RootDir, p4d, p4PythonObj, p4Port
-    p4RootDir = tempfile.mkdtemp(dir=tmpDir)
+    global testEgg, p4RootDir, p4d, p4PythonObj, p4Port
+    p4RootDir = tmp_path_factory.mktemp("p4Root")
     eggDir = _P4GoldenEgg.eggTarball(testEgg).unpack(p4RootDir)
     p4Port = eggDir.getP4Port(p4d=p4d)
 
@@ -63,7 +61,7 @@ def initializeTests():
     p4PythonObj.port = p4Port
     p4PythonObj.connect()
 
-    return p4PythonObj
+    return p4RootDir
 
 def test_construction(initializeTests):
     ''' Construct a P4OOCounter object and make sure its type checks out.'''
@@ -83,9 +81,3 @@ def test_getValue(initializeTests):
     assert nonExistantCounter.getValue() == 0
     assert nonExistantCounter.setValue(31337) == 31337
     assert nonExistantCounter.getValue() == 31337
-
-def cleanUpTests():
-#TODO...
-    # self.eggDir.destroy()
-    # self._initialized = None
-    pass
