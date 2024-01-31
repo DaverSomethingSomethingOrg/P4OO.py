@@ -41,7 +41,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --cov=src/ --cov-report html:docs/coverage --junitxml=junit-report.xml || /bin/true
+        pytest --cov=P4OO --cov-report html:docs/coverage --junitxml=junit-report.xml || /bin/true
         coverage report
         coverage xml
  
