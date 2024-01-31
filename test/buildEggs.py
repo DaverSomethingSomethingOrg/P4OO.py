@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2013, Cisco Systems, Inc.
+#  Copyright (c)2024 David L. Armstrong
+#  Copyright (c)2013 Cisco Systems, Inc.
 #
 #  test/buildEggs.py
 #
@@ -20,9 +21,6 @@ Chicken and Egg issues trying to test P4OO on a new platform.
 # Includes
 #
 import os  # used for managing environment variables
-import sys # used her for include path mgmt
-sys.path.append('.')
-sys.path.append('../lib')
 
 # _P4GoldenEgg is used for our test environment setup and destruction
 import tempfile
@@ -30,9 +28,6 @@ import _P4GoldenEgg
 
 # We use dependency injection with P4 for our tests
 import P4
-
-# We might just need these yo
-import P4OO._P4Python,P4OO._Connection
 from P4OO.User import P4OOUser
 
 

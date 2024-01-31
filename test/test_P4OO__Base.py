@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2011-2012, David L. Armstrong.
+#  Copyright (c)2011-2012,2024 David L. Armstrong
 #
 #  test/P4OO._Base.py
-#
-#  See COPYRIGHT AND LICENSE section below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -22,10 +19,6 @@ Perforce _Base unittest Class
 # P4OO._Base brings in our Exception hierarchy
 import P4OO._Base
 import unittest
-
-######################################################################
-# P4Python Class Initialization
-#
 
 
 #class TestSequenceFunctions(unittest.TestCase):

@@ -12,3 +12,4 @@ coverage.xml
 junit-report.xml
 _site
 docs/pylint.html
+test/tmp/

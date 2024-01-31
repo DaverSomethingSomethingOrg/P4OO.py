@@ -1,12 +1,9 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2012, David L. Armstrong.
+#  Copyright (c)2012,2024 David L. Armstrong
 #
 #  test/P4OO._Set.py
-#
-#  See COPYRIGHT AND LICENSE section in pod text below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -15,13 +12,6 @@
 Perforce _Set unittest Class
 
 '''
-
-######################################################################
-# Include Paths
-#
-import sys
-sys.path.append('../lib')
-
 
 ######################################################################
 # Includes
@@ -105,27 +95,3 @@ class TestP4OO_Set(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2012, David L. Armstrong.
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2013, Cisco Systems, Inc.
+#  Copyright (c)2024 David L. Armstrong
+#  Copyright (c)2013 Cisco Systems, Inc.
 #
 #  test/P4OO/Client.py
 #

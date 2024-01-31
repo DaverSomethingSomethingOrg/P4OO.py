@@ -1,5 +1,6 @@
 ######################################################################
-#  Copyright (c)2013, Cisco Systems, Inc.
+#  Copyright (c)2024 David L. Armstrong
+#  Copyright (c)2013 Cisco Systems, Inc.
 #
 #  _P4GoldenEgg.py
 #
@@ -33,7 +34,7 @@ class eggTarball(object):
     # NOTES:
     #
     def unpack(self, directory):
-        tarfile.open(name=self.tarball).extractall(path=directory)
+        tarfile.open(name=self.tarball).extractall(path=directory, filter='data')
         eggDir = eggDirectory(directory=directory)
         return eggDir
 

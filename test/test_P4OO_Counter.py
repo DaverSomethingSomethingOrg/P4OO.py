@@ -1,12 +1,9 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python3
 
 ######################################################################
-#  Copyright (c)2015, David L. Armstrong
+#  Copyright (c)2015,2024 David L. Armstrong
 #
 #  test/P4OO/Counter.py
-#
-#  See COPYRIGHT AND LICENSE section below for usage
-#   and distribution rights.
 #
 ######################################################################
 
@@ -19,9 +16,6 @@ unittest test suite for P4OO.Counter
 # Includes
 #
 import os  # used for managing environment variables
-import sys # used her for include path mgmt
-sys.path.append('.')
-sys.path.append('../lib')
 
 # P4OO._Base brings in our Exception hierarchy
 import P4OO._Base
@@ -42,7 +36,7 @@ from P4OO.Counter import P4OOCounter, P4OOCounterSet
 ######################################################################
 # Configuration
 #
-p4d = "/export/disk1/tools/perforce-v10.2/bin.linux26x86_64/p4d"
+p4d = "p4d"
 testEgg = "./_P4GoldenEggs/P4OOCounter.tar.gz"
 tmpDir = "./tmp"
 p4PythonObj = None
@@ -113,26 +107,3 @@ if __name__ == '__main__':
     initializeTests()
     unittest.main()
     cleanUpTests()
-
-
-######################################################################
-# Standard authorship and copyright for documentation
-#
-# AUTHOR
-#
-#  David L. Armstrong <armstd@cpan.org>
-#
-# COPYRIGHT AND LICENSE
-#
-# Copyright (c)2015, David L. Armstrong
-#
-#   This module is distributed under the terms of the Artistic License
-# 2.0.  For more details, see the full text of the license in the file
-# LICENSE.
-#
-# SUPPORT AND WARRANTY
-#
-#   This program is distributed in the hope that it will be
-# useful, but it is provided "as is" and without any expressed
-# or implied warranties.
-#
