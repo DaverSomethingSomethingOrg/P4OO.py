@@ -36,7 +36,7 @@ from P4OO.Counter import P4OOCounter, P4OOCounterSet
 # Configuration
 #
 p4d = "p4d"
-testEgg = "./_P4GoldenEggs/P4OOCounter.tar.gz"
+testEgg = "_P4GoldenEggs/P4OOCounter.tar.gz"
 p4PythonObj = None
 p4Port = None
 p4RootDir = None
@@ -44,8 +44,8 @@ p4RootDir = None
 ######################################################################
 # Test Environment Initialization and Clean up
 #
-@pytest.fixture(scope="session")
-def initializeTests(tmp_path_factory):
+@pytest.fixture()
+def initializeTests(tmp_path_factory, shared_datadir):
     # sanitize P4 environment variables
     for p4Var in ('P4CONFIG', 'P4PORT', 'P4USER', 'P4CLIENT'):
         if p4Var in os.environ:
@@ -53,7 +53,7 @@ def initializeTests(tmp_path_factory):
 
     global testEgg, p4RootDir, p4d, p4PythonObj, p4Port
     p4RootDir = tmp_path_factory.mktemp("p4Root")
-    eggDir = _P4GoldenEgg.eggTarball(testEgg).unpack(p4RootDir)
+    eggDir = _P4GoldenEgg.eggTarball(shared_datadir / testEgg).unpack(p4RootDir)
     p4Port = eggDir.getP4Port(p4d=p4d)
 
     # Connect to the Perforce Service
