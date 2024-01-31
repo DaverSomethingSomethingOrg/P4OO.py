@@ -9,11 +9,11 @@ Modified by David L. Armstrong to avoid use of 'next' keyword
 and add indexing support
 '''
 
-import collections
+import collections.abc
 
 KEY, PREV, NEXT = range(3)
 
-class OrderedSet(collections.MutableSet):
+class OrderedSet(collections.abc.MutableSet):
 
     def __init__(self, iterable=None):
         self.end = end = []
