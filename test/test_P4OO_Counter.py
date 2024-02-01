@@ -70,6 +70,7 @@ def test_construction(initializeTests):
     assert isinstance(testObj1, P4OO.Counter.P4OOCounter)
     assert isinstance(testObj1, P4OO._Base._P4OOBase)
 
+#TODO test repr
 
 def test_getValue(initializeTests):
     ''' Get a counter from the Egg and verify its value is what we expect '''

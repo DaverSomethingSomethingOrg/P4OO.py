@@ -35,7 +35,7 @@ from P4OO.User import P4OOUser
 # Configuration
 #
 p4d = "p4d"
-testEggsDir = "./_P4GoldenEggs"
+testEggsDir = "./data/_P4GoldenEggs"
 tmpDir = "./tmp"
 
 
