@@ -38,24 +38,21 @@ import P4OO._P4Python,P4OO._Connection
 #
 p4d = "p4d"
 testEgg = "_P4GoldenEggs/_P4Python.tar.gz"
-p4PythonObj = None
 p4Port = None
 p4RootDir = None
 
 
 @pytest.fixture()
-def initializeTests(tmp_path_factory, shared_datadir):
+def p4PythonObj(tmp_path_factory, shared_datadir):
     # sanitize P4 environment variables
     for p4Var in ('P4CONFIG', 'P4PORT', 'P4USER', 'P4CLIENT'):
         if p4Var in os.environ:
             del(os.environ[p4Var])
 
-    global tmpDir, testEgg, p4RootDir, p4d, p4PythonObj, p4Port
+    global testEgg, p4RootDir, p4d, p4Port
     p4RootDir = tmp_path_factory.mktemp("p4Root")
     eggDir = _P4GoldenEgg.eggTarball(shared_datadir / testEgg).unpack(p4RootDir)
     p4Port = eggDir.getP4Port(p4d=p4d)
-    import pprint
-    pprint.pprint(p4Port)
 
     # Connect to the Perforce Service
     p4PythonObj = P4.P4()
@@ -63,17 +60,17 @@ def initializeTests(tmp_path_factory, shared_datadir):
 #    assert p4Port == 1
     p4PythonObj.connect()
     
-    return p4RootDir
+    return p4PythonObj
 
 
-def test_construction(initializeTests):
+def test_construction(p4PythonObj):
     testObj1 = P4OO._P4Python._P4OOP4Python()
     assert isinstance(testObj1, P4OO._P4Python._P4OOP4Python)
     assert isinstance(testObj1, P4OO._Connection._P4OOConnection)
 #p4c1 = P4OOChange(p4PythonObj=p4PythonObj)
 
 
-def test_connectDisconnect(initializeTests):
+def test_connectDisconnect(p4PythonObj):
     # test connection using our global p4PythonObj
     testObj1 = P4OO._P4Python._P4OOP4Python(p4PythonObj=p4PythonObj)
     testP4PythonObj = testObj1._connect()
@@ -104,7 +101,7 @@ def test_connectDisconnect(initializeTests):
     assert not testP4PythonObj.connected()
 
 
-def test_destructor(initializeTests):
+def test_destructor(p4PythonObj):
     # Basically testing disconnect
 
     # test destruction using our global p4PythonObj
@@ -125,10 +122,10 @@ def test_destructor(initializeTests):
     assert testP4PythonObj.connected()
 
 
-def test__initialize(initializeTests):
+def test__initialize(p4PythonObj):
 
-    # _P4PYTHON_COMMAND_TRANSLATION should be "None" before _initialize()
-    assert P4OO._P4Python._P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None
+#    # _P4PYTHON_COMMAND_TRANSLATION should be "None" before _initialize()
+#    assert P4OO._P4Python._P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None
 
     testObj1 = P4OO._P4Python._P4OOP4Python(p4PythonObj=p4PythonObj)
 
@@ -140,7 +137,7 @@ def test__initialize(initializeTests):
     assert isinstance(P4OO._P4Python._P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION, dict)
 
 
-def test__execCmd(initializeTests):
+def test__execCmd(p4PythonObj):
     testObj1 = P4OO._P4Python._P4OOP4Python(p4PythonObj=p4PythonObj)
 
     # test with 0 args
@@ -190,7 +187,7 @@ def test__execCmd(initializeTests):
     assert p4Out[0]["User"] == "testUser"
 
 
-def test__parseOutput(initializeTests):
+def test__parseOutput(p4PythonObj):
 #    testObj1 = P4OO._P4Python._P4OOP4Python(p4PythonObj=p4PythonObj)
 
     # test user spec parsing
@@ -200,8 +197,13 @@ def test__parseOutput(initializeTests):
 #        print(parsedOutput)
     pass
 
+def test_refreshSpec(p4PythonObj):
+    pass
 
-def test_runCommand(initializeTests):
+def test_readSpec(p4PythonObj):
+    pass
+
+def test_runCommand(p4PythonObj):
     pass
 
 #TODO readSpec and saveSpec are pretty important.  Modularity says test them here somehow

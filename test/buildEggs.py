@@ -29,6 +29,7 @@ import _P4GoldenEgg
 # We use dependency injection with P4 for our tests
 import P4
 from P4OO.User import P4OOUser
+from P4OO.Client import P4OOClient
 
 
 ######################################################################
@@ -51,6 +52,8 @@ def createEgg__P4Python():
     # Connect to the Perforce Service
     p4PythonObj = P4.P4()
     p4PythonObj.port = testEggDir.getP4Port(p4d=p4d)
+    # The user creating the objects gets added by default
+    p4PythonObj.user = 'testEggCreator'
     p4PythonObj.connect()
 
     user1Obj = P4OOUser(p4PythonObj=p4PythonObj)
@@ -62,7 +65,35 @@ def createEgg__P4Python():
     user2Obj.saveSpec(force=True)
 
     # Wrap it up and clean it up
-    testEggTarball = testEggDir.createTarball(testEggsDir + "/_P4Python.tar.gz")
+    testEggDir.createTarball(testEggsDir + "/_P4Python.tar.gz")
+    testEggDir.destroy()
+
+
+# Client.tar.gz
+def createEgg_Client():
+
+    global p4d, testEggsDir, tmpDir
+
+    # Set up P4ROOT and configure a new EggDir to use it
+    p4RootDir = tempfile.mkdtemp(dir=tmpDir)
+    testEggDir = _P4GoldenEgg.eggDirectory(p4RootDir)
+
+    # Connect to the Perforce Service
+    p4PythonObj = P4.P4()
+    p4PythonObj.port = testEggDir.getP4Port(p4d=p4d)
+    p4PythonObj.user = 'testEggCreator'
+    p4PythonObj.connect()
+
+    user1Obj = P4OOUser(p4PythonObj=p4PythonObj)
+    user1Obj._setSpecAttr("User", "testUser1")
+    user1Obj.saveSpec(force=True)
+
+    user2Obj = P4OOUser(p4PythonObj=p4PythonObj)
+    user2Obj._setSpecAttr("User", "testUser2")
+    user2Obj.saveSpec(force=True)
+
+    # Wrap it up and clean it up
+    testEggDir.createTarball(testEggsDir + "/Client.tar.gz")
     testEggDir.destroy()
 
 
@@ -76,3 +107,4 @@ if __name__ == '__main__':
             del(os.environ[p4Var])
 
     createEgg__P4Python()
+    createEgg_Client()

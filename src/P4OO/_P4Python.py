@@ -39,7 +39,6 @@ class _P4OOP4Python(_P4OOConnection):
     ######################################################################
     # Globals
     #
-    # We'll read this in through the
     _P4PYTHON_COMMAND_TRANSLATION = None
 
     ######################################################################
@@ -187,8 +186,7 @@ class _P4OOP4Python(_P4OOConnection):
             p4IdAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][idAttr]
 
             # At this point the SpecObj is initialized enough for this to work...
-#            specObj._setAttr('id', specDict[idAttr] )
-            specObj._setAttr('id', p4Spec[p4IdAttr] )
+            specObj._setAttr('id', specDict[p4IdAttr] )
 
         return True
 
@@ -555,7 +553,8 @@ class _P4OOP4Python(_P4OOConnection):
 
         # Make sure the caller is properly equipped to use any objects
         # we construct here.
-        specModule = __import__("P4OO." + p4ooType, globals(), locals(), ["P4OO" + p4ooType, "P4OO" + setType], -1)
+#        specModule = __import__("P4OO." + p4ooType, globals(), locals(), ["P4OO" + p4ooType, "P4OO" + setType], -1)
+        specModule = __import__("P4OO." + p4ooType, globals(), locals(), ["P4OO" + p4ooType, "P4OO" + setType], 0)
 #        setModule = __import__("P4OO." + setType, globals(), locals(), ["P4OO" + setType], -1)
         specClass = getattr(specModule, "P4OO" + p4ooType)
         setClass = getattr(specModule, "P4OO" + setType)
