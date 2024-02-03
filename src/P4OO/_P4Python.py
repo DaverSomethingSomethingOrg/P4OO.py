@@ -701,6 +701,7 @@ class _P4OOP4Python(_P4OOConnection):
         return True
 
     # read in the YAML config file with our command translation table
+#TODO _P4PYTHON_COMMAND_TRANSLATION should be a class of its own
     def _initialize(self):
         if _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None:
             configFile = os.path.dirname(__file__) + "/p4Config.yml"
