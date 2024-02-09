@@ -66,29 +66,30 @@ def p4PythonObj(tmp_path_factory, shared_datadir):
 def test_basic(p4PythonObj):
 
     allLabels = P4OO.Label.P4OOLabelSet(p4PythonObj=p4PythonObj).query()
-    assert allLabels.listObjectIDs() == []
+    assert allLabels.listObjectIDs() == ['emptyLabel', 'initialLabel', 'secondLabel']
     
-    p4l1 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="P4-OO-0.00_01")
+    p4l1 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="initialLabel")
     assert isinstance(p4l1, P4OO.Label.P4OOLabel)
     assert isinstance(p4l1, P4OO._SpecObj._P4OOSpecObj)
 
     import pprint
     
-    # Label doesn't exist
-    with pytest.raises(P4.P4Exception):
-        pprint.pprint(id(p4l1.getLastChange()))
+    # initialLabel is on Change 1
+    assert p4l1.getLastChange()._getSpecID() == 1
 
-    p4l2 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="P4-OO-0.00_02")
-    with pytest.raises(P4.P4Exception):
-        pprint.pprint(p4l2.getLastChange()._getSpecID())
+    # initialLabel is on Change 3
+    p4l2 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="secondLabel")
+    assert p4l2.getLastChange()._getSpecID() == 3
 
-    p4cl1 = P4OO.Client.P4OOClient(p4PythonObj=p4PythonObj, id="Davids-MacBook-Air")
+    p4cl1 = P4OO.Client.P4OOClient(p4PythonObj=p4PythonObj, id="clientDoesntExist")
 
-    # Changes from p4l1 to p4l2 using client p4cl1
-    with pytest.raises(P4.P4Exception):
-        pprint.pprint(p4l1.getChangesFromLabels(p4l2, p4cl1))
+    # Changes from p4l1 to p4l2 using client p4cl1 - default client viewspec is everything
+    assert p4l1.getChangesFromLabels(p4l2, p4cl1).listObjectIDs() == [3, 2]
 
-    pprint.pprint(p4cl1.getOpenedFiles())
-
-    with pytest.raises(P4.P4Exception):
-        pprint.pprint(p4l1.getDiffsFromLabels(p4l2, p4cl1))
+    assert p4l1.getDiffsFromLabels(p4l2, p4cl1) == ['==== //depot/testFile1#1 (text) - //depot/testFile1#2 (text) ==== content',
+                                                    '1c1\n< test file 1 content\n---\n> test file 1 replaced content\n',
+                                                    '',
+                                                    '==== //depot/testFile2#1 (text) - //depot/testFile2#2 (text) ==== content',
+                                                    '1a2\n> test file 2 updated content\n',
+                                                    '',
+                                                   ]

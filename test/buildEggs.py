@@ -96,6 +96,43 @@ def createEgg_Client():
     testEggDir.createTarball(testEggsDir + "/Client.tar.gz")
     testEggDir.destroy()
 
+'''
+  526  p4 client
+  529  p4 label emptyLabel
+  534  export P4CLIENT=testClient1
+  535  p4 edit testFile1 testFile2
+  536  p4 client -o
+  538  p4 add testFile*
+  541  p4 opened
+  543  p4 submit -d "initial change"
+  549  p4 changes
+  550  p4 labels
+  552  p4 label initialLabel
+  553  p4 labels
+  554  p4 label -o initialLabel
+  562  p4 changes
+  564  p4 tag -l initialLabel ...
+  573  p4 changes "@initiallabel"
+  578  p4 files "@initiallabel"
+  580  p4 changes "@initialLabel"
+  581  p4 changes -m 1 "@initialLabel"
+  582  p4 changes -m 1 "@emptyLabel"
+  583  p4 edit testFile2 
+  585  p4 opened
+  586  p4 diff
+  587  p4 changes
+  588  p4 submit -d 'update testFile2'
+  589  p4 edit testFile1 
+  592  p4 diff
+  595  p4 submit -d 'update testFile1'
+  596  p4 label secondLabel
+  597  p4 tag -l secondLabel ...
+  598  p4 changes -m 1 "@emptyLabel"
+  599  p4 changes -m 1 "@initialLabel"
+  600  p4 changes -m 1 "@secondLabel"
+  601  p4 changes "...@1,3"
+  602  p4 diff2 "...@1" "...@3"
+'''
 
 ######################################################################
 # MAIN
@@ -108,3 +145,4 @@ if __name__ == '__main__':
 
     createEgg__P4Python()
     createEgg_Client()
+    createEgg_Label()

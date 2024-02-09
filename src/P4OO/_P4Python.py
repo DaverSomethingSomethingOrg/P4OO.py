@@ -27,6 +27,7 @@ import yaml
 # P4Python
 from P4 import P4,P4Exception,Spec
 
+from P4OO._Base import _P4OOBase
 from P4OO._Exceptions import _P4OOFatal, _P4Fatal, _P4Warning
 from P4OO._Connection import _P4OOConnection
 from P4OO._SpecObj import _P4OOSpecObj
@@ -162,7 +163,10 @@ class _P4OOP4Python(_P4OOConnection):
                 if specAttr not in modifiedSpec:
                     p4SpecAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][specAttr]
                     if p4SpecAttr in specDict:
-                        modifiedSpec[specAttr] = specDict[p4SpecAttr]
+                        if p4SpecAttr == "Change":
+                            modifiedSpec[specAttr] = int(specDict[p4SpecAttr])
+                        else:
+                            modifiedSpec[specAttr] = specDict[p4SpecAttr]
 
         # Reformat date strings in Perforce objects to be more useful datetime objects
         # Date attrs cannot be modified, so don't need to be selectively copied
@@ -183,10 +187,12 @@ class _P4OOP4Python(_P4OOConnection):
         # We'll set the object's specID if it was not defined..if we can.
         if specID is None:
             idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idAttr']
-            p4IdAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][idAttr]
+#            p4IdAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][idAttr]
 
             # At this point the SpecObj is initialized enough for this to work...
-            specObj._setAttr('id', specDict[p4IdAttr] )
+#            specObj._setAttr('id', specDict[p4IdAttr] )
+            specObj._setAttr('id', modifiedSpec[idAttr] )
+                
 
         return True
 
@@ -584,7 +590,11 @@ class _P4OOP4Python(_P4OOConnection):
 
 #TODO - figure out P4.Spec objects
 #            specObj._setAttr('p4Spec', Spec(p4OutHash))
-            specObj._setAttr('id', p4OutHash[idAttr])
+#TODO - need to fix this special case for Change - need better construction logic
+            if p4ooType == 'Change':
+                specObj._setAttr('id', int(p4OutHash[idAttr]))
+            else:
+                specObj._setAttr('id', p4OutHash[idAttr])
 
 #TODO - This is a little awkward...
             if isinstance(specObj, _P4OOSpecObj):
@@ -700,8 +710,6 @@ class _P4OOP4Python(_P4OOConnection):
         self._setAttr('p4PythonObj', None)
         return True
 
-    # read in the YAML config file with our command translation table
-#TODO _P4PYTHON_COMMAND_TRANSLATION should be a class of its own
     def _initialize(self):
         if _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None:
             configFile = os.path.dirname(__file__) + "/p4Config.yml"
@@ -715,3 +723,21 @@ class _P4OOP4Python(_P4OOConnection):
     def __del__(self):
         self._disconnect()
         return True
+
+
+# read in the YAML config file with our command translation table
+class _P4OOP4PythonConfig(_P4OOBase):
+
+    _P4PYTHON_COMMAND_TRANSLATION = None
+
+    def __init__(self, **kwargs ):
+        self._objAttrs = kwargs
+
+    def readConfig(self, configFile):
+        if _P4OOP4PythonConfig._P4PYTHON_COMMAND_TRANSLATION is None:
+            configFile = os.path.dirname(__file__) + "/p4Config.yml"
+            stream = open(configFile, 'r')
+            data = yaml.load(stream, Loader=yaml.Loader)
+            _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION = data["COMMANDS"]
+            stream.close()
+    

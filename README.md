@@ -30,7 +30,8 @@ This module requires these other modules and libraries:
 
 # COPYRIGHT AND LICENCE
 
-Copyright (C) 2011-2015,2024 by David L. Armstrong, Cisco Systems, Inc.
+Copyright (C) 2011-2015,2024 by David L. Armstrong
+Some Parts Copyright (C) 2011-2015,2024 by David L. Armstrong and Cisco Systems, Inc.
 
 This package is distributed under the terms of the Artistic License 2.0.
 For more details, see the full text of the license in the file LICENSE.
