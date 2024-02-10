@@ -15,43 +15,22 @@ data-object calls into P4 subcommands, and translation of p4
 subcommand output back into P4OO data-objects.
 '''
 
-######################################################################
-# Includes
-#
-# For the YAML config file
 import os
 import re
-import datetime
-import yaml
 
 # P4Python
 from P4 import P4,P4Exception,Spec
 
-from P4OO._Base import _P4OOBase
 from P4OO._Exceptions import _P4OOFatal, _P4Fatal, _P4Warning
 from P4OO._Connection import _P4OOConnection
 from P4OO._SpecObj import _P4OOSpecObj
-
+from P4OO._P4PythonSchema import _P4OOP4PythonSchema
 
 ######################################################################
 # P4Python Class Initialization
 #
 class _P4OOP4Python(_P4OOConnection):
-    ######################################################################
-    # Globals
-    #
-    _P4PYTHON_COMMAND_TRANSLATION = None
 
-    ######################################################################
-    # Methods
-    #
-
-
-    ######################################################################
-    # readCounter(name)
-    #
-    # NOTES:
-    #
     def readCounter(self, counterName):
         '''Read the named counter from Perforce and return the value'''
 
@@ -64,11 +43,7 @@ class _P4OOP4Python(_P4OOConnection):
         except ValueError:
             return p4Output[0]['value']
 
-    ######################################################################
-    # setCounter(name, newValue)
-    #
-    # NOTES:
-    #
+
     def setCounter(self, counterName, newValue):
         '''Set the named counter in Perforce'''
 
@@ -82,30 +57,22 @@ class _P4OOP4Python(_P4OOConnection):
             return p4Output[0]['value']
 
 
-    ######################################################################
-    # refreshSpec( specObj )
-    #
-    # NOTES:
-    # - Since modifiedSpec is wiped out, any changes made via _setSpecAttr
-    #   will be lost!
-    #
     def refreshSpec(self, specObj):
-        '''Clear the cached objects and modifiedSpec and re-read spec from Perforce'''
+        ''' Clear the cached objects and modifiedSpec and re-read spec from Perforce
+
+            Any changes made via _setSpecAttr will be lost!
+        '''
 
         specObj._delAttr('p4SpecObj')
         specObj._delAttr('modifiedSpec')
         self.readSpec(specObj)
 
 
-    ######################################################################
-    # readSpec( specObj )
-    #
-    # NOTES:
-    # - If the spec has already been read and is present, no action is taken.
-    #
     def readSpec(self, specObj):
         ''' Query Perforce for the specified object's spec and load it into
             the provided object doing any appropriate data conversions along the way.
+
+            If the spec has already been read and is present, no action is taken.
         '''
 
         # Make sure we've read in the config file
@@ -114,18 +81,21 @@ class _P4OOP4Python(_P4OOConnection):
         specType = specObj._SPECOBJ_TYPE
         specID = specObj._getAttr('id')
         p4SpecObj = specObj._getAttr('p4SpecObj')
+        modifiedSpec = specObj._getAttr('modifiedSpec')
+
+        specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specType)
+        idAttr = specCmdObj.getPyIdAttribute()
 
         # We only read if not already read.  Use refreshSpec to re-read.
         if p4SpecObj is None:
-            if specType not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION:
-                raise _P4OOFatal("Unsupported Spec type %s" % specType)
+            if specID is None and specCmdObj.isIdRequired():
+                if modifiedSpec is not None and idAttr in modifiedSpec:
+                    specID = specObj._setAttr('id', modifiedSpec[idAttr] )
+                else:
+                    # Nothing to do here, no id in any form from caller
+                    raise _P4OOFatal("Cannot identify %s object" % (specType,) )
 
-            # Nothing to do here, no id in any form from caller
-            if specID is None and _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idRequired']:
-                return False
-
-            specCmd = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specCmd']
-
+            specCmd = specCmdObj.getSpecCmd()
             p4Output = self._execCmd(specCmd, "-o", specID)
 
             # Since we muck with the Spec replacing date fields with datetime objects, we just flatten the objects.
@@ -133,10 +103,10 @@ class _P4OOP4Python(_P4OOConnection):
             specObj._setAttr('p4SpecObj', p4SpecObj)
 
         p4Spec = dict(p4SpecObj)
-        self._generateModifiedSpec(specObj, p4Spec)
+        return self._generateModifiedSpec(specCmdObj, specObj, p4Spec)
 
 
-    def _generateModifiedSpec(self, specObj, specDict):
+    def _generateModifiedSpec(self, specCmdObj, specObj, specDict):
         # Perforce will return an "empty" spec when a specified object isn't found so it can be handily created.
         # We don't want that behavior here, so we throw an exception instead.
         # We'll want to have a "createSpec" method for that kind of thing
@@ -148,7 +118,6 @@ class _P4OOP4Python(_P4OOConnection):
 #            raise _P4OOFatal(specType + ": " + str(specID) + " does not exist")
 #            return None
 
-        specType = specObj._SPECOBJ_TYPE
         specID = specObj._getAttr('id')
 
         # Here we take the spec from P4 and make it something useful
@@ -156,107 +125,51 @@ class _P4OOP4Python(_P4OOConnection):
         if modifiedSpec is None:
             modifiedSpec = {}
 
-        # Selectively copy specDict attrs to mutable spec
-        if 'specAttrs' in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]:
-            for specAttr in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs']:
-                # ignore attributes already set by caller
-                if specAttr not in modifiedSpec:
-                    p4SpecAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][specAttr]
-                    if p4SpecAttr in specDict:
-                        if p4SpecAttr == "Change":
-                            modifiedSpec[specAttr] = int(specDict[p4SpecAttr])
-                        else:
-                            modifiedSpec[specAttr] = specDict[p4SpecAttr]
+        # merge specDict from P4Python and modifiedSpec
+        pythonSpecDict = specCmdObj.translateP4SpecToPython(specDict)
 
-        # Reformat date strings in Perforce objects to be more useful datetime objects
-        # Date attrs cannot be modified, so don't need to be selectively copied
-        if 'dateAttrs' in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]:
-            for dateAttr in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['dateAttrs']:
-                p4DateAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['dateAttrs'][dateAttr]
-
-                if p4DateAttr in specDict:
-                    if re.match(r'^\d+$', specDict[p4DateAttr]):
-                        # some query commands return epoch seconds output (e.g. clients)
-                        modifiedSpec[dateAttr] = datetime.datetime.fromtimestamp(float(specDict[p4DateAttr]))
-                    else:
-                        # spec commands return formatted date strings local to server
-                        modifiedSpec[dateAttr] = datetime.datetime.strptime(specDict[p4DateAttr], '%Y/%m/%d %H:%M:%S')
+        for specAttr in pythonSpecDict:
+            # ignore attributes already set by caller
+            if specAttr not in modifiedSpec:
+                modifiedSpec[specAttr] = pythonSpecDict[specAttr]
 
         specObj._setAttr('modifiedSpec', modifiedSpec)
 
         # We'll set the object's specID if it was not defined..if we can.
         if specID is None:
-            idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idAttr']
-#            p4IdAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][idAttr]
-
-            # At this point the SpecObj is initialized enough for this to work...
-#            specObj._setAttr('id', specDict[p4IdAttr] )
+            idAttr = specCmdObj.getPyIdAttribute()
             specObj._setAttr('id', modifiedSpec[idAttr] )
-                
 
-        return True
+        return modifiedSpec
 
 
-# TODO...
     def saveSpec(self, specObj, force=False):
+#TODO Document this...
+
+        # Start with readSpec to make sure we're in sync with the server
+        self.readSpec(specObj)
+
         specType = specObj._SPECOBJ_TYPE
         specID = specObj._getAttr('id')
 
-        # Make sure we've read in the config file
-        self._initialize()
-
-        if specType not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION:
-            raise _P4OOFatal("Unsupported Spec type %s" % specType)
-
-        specCmd = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specCmd']
+        specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specType)
+        specCmd = specCmdObj.getSpecCmd()
 
         p4SpecObj = specObj._getAttr('p4SpecObj')
         modifiedSpec = specObj._getAttr('modifiedSpec')
 
         # If there's no modified spec or ID, then there's nothing to save
-#        if modifiedSpec is None and specID is None:
-#TODO throw an exception?
-#            return False
-
-        # If specObj isn't already initialized (it should be), then initialize it.
-        if p4SpecObj is None:
-            # We need specID first here to initialize empty spec properly.. see if we have it in modifiedSpec
-            if specID is None and modifiedSpec is not None:
-                idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idAttr']
-                if idAttr in modifiedSpec:
-                    specID = specObj._setAttr('id', modifiedSpec[idAttr] )
-
-            try:
-                self.readSpec(specObj)
-            except P4Exception:
-                # Ignore exceptions for objects that don't exist, we might be creating them here
-                pass
-
-            # refresh the local variables for spec after read
-            specID = specObj._getAttr('id')
-            p4SpecObj = specObj._getAttr('p4SpecObj')
-            modifiedSpec = specObj._getAttr('modifiedSpec')
+        if modifiedSpec is None and specID is None:
+            raise _P4OOFatal("Cannot save %s object: Nothing to save" % (specType,) )
 
         if p4SpecObj is None:
             # This must be a brand new spec
             p4SpecObj = Spec()
 
-        # Copy any modified non-date attributes to the Perforce-generated dictionary
-        # ignoring any date attribtues we don't modify
-        if modifiedSpec is not None:
-            if 'specAttrs' in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]:
-                for specAttr in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs']:
-                    p4SpecAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][specAttr]
-                    if specAttr in modifiedSpec:
-                        if modifiedSpec[specAttr] is None:
-                            if p4SpecAttr in p4SpecObj:
-                                del p4SpecObj[p4SpecAttr]
-                        else:
-                            p4SpecObj[p4SpecAttr] = modifiedSpec[specAttr]
+        specCmdObj.translatePySpecToP4(modifiedSpec, p4SpecObj)
 
         # If we need a specID, we need a specID...
-        idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idAttr']
-        p4IdAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][idAttr]
+        p4IdAttr = specCmdObj.getP4IdAttribute()
 
         if p4IdAttr in p4SpecObj:
             # We'll set the object's specID if it was not defined..if we can.
@@ -264,18 +177,18 @@ class _P4OOP4Python(_P4OOConnection):
                 # At this point the SpecObj is initialized enough for this to work...
                 specObj._setAttr('id', p4SpecObj[p4IdAttr] )
         else:
-            if _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idRequired']:
+            if specCmdObj.isIdRequired():
                 if specID is not None:
                     p4SpecObj[p4IdAttr] = specID
                 else:
                     p4SpecObj[p4IdAttr] = "new"
-#TODO be throwing exceptions...
 
         p4Output = None
         if force:
-            if "forceOption" not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]:
-                raise _P4OOFatal("Command %s doesn't support force" % (cmdName,) )
+            if not specCmdObj.isForceable():
+                raise _P4OOFatal("Command %s doesn't support force" % (specCmd,) )
 
+#TODO hardcoded forceoption should be config produced..
             p4Output = self._execCmd(specCmd, "-i", p4SpecObj, "-f")
         else:
             p4Output = self._execCmd(specCmd, "-i", p4SpecObj)
@@ -304,10 +217,9 @@ class _P4OOP4Python(_P4OOConnection):
         # Make sure we've read in the config file
         self._initialize()
 
-        if specType not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION:
-            raise _P4OOFatal("Unsupported Spec type %s" % specType)
-
-        specCmd = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specCmd']
+        specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specType)
+        idAttr = specCmdObj.getPyIdAttribute()
+        specCmd = specCmdObj.getSpecCmd()
 
         p4SpecObj = specObj._getAttr('p4SpecObj')
         modifiedSpec = specObj._getAttr('modifiedSpec')
@@ -321,7 +233,6 @@ class _P4OOP4Python(_P4OOConnection):
         if p4SpecObj is None:
             # We need specID first here to initialize empty spec properly.. see if we have it in modifiedSpec
             if specID is None and modifiedSpec is not None:
-                idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idAttr']
                 if idAttr in modifiedSpec:
                     specID = specObj._setAttr('id', modifiedSpec[idAttr] )
 
@@ -341,8 +252,7 @@ class _P4OOP4Python(_P4OOConnection):
             return False
 
         # If we need a specID, we need a specID...
-        idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['idAttr']
-        p4IdAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]['specAttrs'][idAttr]
+        p4IdAttr = specCmdObj.getP4IdAttribute()
 
         if specID is None:
             # We'll set the object's specID if it was not defined..if we can.
@@ -354,9 +264,10 @@ class _P4OOP4Python(_P4OOConnection):
 
         p4Output = None
         if force:
-            if "forceOption" not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[specType]:
-                raise _P4OOFatal("Command %s doesn't support force" % (cmdName,) )
+            if not specCmdObj.isForceable():
+                raise _P4OOFatal("Command %s doesn't support force" % (specCmd,) )
 
+#TODO hardcoded forceoption should be config produced..
             p4Output = self._execCmd(specCmd, "-d", "-f", specID)
         else:
             p4Output = self._execCmd(specCmd, "-d", specID)
@@ -376,17 +287,13 @@ class _P4OOP4Python(_P4OOConnection):
         # Make sure we've read in the config file
         self._initialize()
 
-        if cmdName not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION:
-            raise _P4OOFatal("Unsupported Command " + cmdName)
+        cmdObj = self._p4PythonSchema.getCmd(cmdName=cmdName)
 
-        if 'queryOptions' not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]:
+        allowedFilters = cmdObj.getAllowedFilters()
+        if allowedFilters is None:
             raise _P4OOFatal("Querying not supported for Command " + cmdName)
 
-        allowedFilters = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]['queryOptions']
-
-        allowedConfigs = {}
-        if 'configOptions' in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]:
-            allowedConfigs = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]['configOptions']
+        allowedConfigs = cmdObj.getAllowedConfigs() or {}
 
         # TODO - this sucks, but hey...
         p4Config = {}
@@ -399,10 +306,10 @@ class _P4OOP4Python(_P4OOConnection):
 
 
         execArgs = []
-        for origFilterKey in query.keys():
+        for (origFilterKey, queryValue) in query.items():
 
             # none is used to remove options
-            if query[origFilterKey] is None:
+            if queryValue is None:
                 continue
 
             lcFilterKey = origFilterKey.lower()
@@ -419,10 +326,10 @@ class _P4OOP4Python(_P4OOConnection):
                 raise _P4OOFatal("Invalid Filter key: " + origFilterKey)
 
             optionArgs = []
-            if isinstance(query[origFilterKey], str) or isinstance(query[origFilterKey], int) or isinstance(query[origFilterKey], _P4OOSpecObj):
-                optionArgs.append(query[origFilterKey])
+            if isinstance(queryValue, str) or isinstance(queryValue, int) or isinstance(queryValue, _P4OOSpecObj):
+                optionArgs.append(queryValue)
             else:
-                optionArgs.extend(query[origFilterKey])
+                optionArgs.extend(queryValue)
 
             # Check option argument types, and replace option args with IDs for P4::OO objects passed in
             # Take the opportunity to expand any Set objects we find.
@@ -541,7 +448,8 @@ class _P4OOP4Python(_P4OOConnection):
 ##                            },
 
         # If no special output massaging is needed, we're done!
-        if rawOutput or 'output' not in _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]:
+
+        if rawOutput or cmdObj.getOutputType() is None:
             return p4Out
 
         return self._parseOutput(cmdName, p4Out)
@@ -551,10 +459,11 @@ class _P4OOP4Python(_P4OOConnection):
 
         # Make sure we've read in the config file
         self._initialize()
+        cmdObj = self._p4PythonSchema.getCmd(cmdName=cmdName)
 
-        p4ooType = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]['output']['p4ooType']
+        p4ooType = cmdObj.getOutputType()
         setType = p4ooType + "Set"
-        idAttr = _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]['output']['idAttr']
+        idAttr = cmdObj.getOutputIdAttr()
 #        singularID = _P4Python._P4PYTHON_COMMAND_TRANSLATION[cmdName]['output']['singularID']
 
         # Make sure the caller is properly equipped to use any objects
@@ -598,7 +507,8 @@ class _P4OOP4Python(_P4OOConnection):
 
 #TODO - This is a little awkward...
             if isinstance(specObj, _P4OOSpecObj):
-                self._generateModifiedSpec(specObj, p4OutHash)
+                specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specObj._SPECOBJ_TYPE)
+                self._generateModifiedSpec(specCmdObj, specObj, p4OutHash)
 #            specObj._setAttr('modifiedSpec', p4OutHash)
 #            self._logDebug( "id: ", p4OutHash[idAttr])
 
@@ -646,10 +556,10 @@ class _P4OOP4Python(_P4OOConnection):
 
         # override p4Python settings for this command as applicable
         origConfig = {}
-        for var in p4Config:
+        for (var, value) in p4Config.items():
             origConfig[var] = p4PythonObj.__getattribute__(var)
-            p4PythonObj.__setattr__(var, p4Config[var])
-            self._logDebug("overriding p4Config['%s'] = %s with %s" % (var, str(origConfig[var]), str(p4Config[var])))
+            p4PythonObj.__setattr__(var, value)
+            self._logDebug("overriding p4Config['%s'] = %s with %s" % (var, str(origConfig[var]), str(value)))
 
 # TODO ping server before each command?
         self._logDebug("Executing:", p4SubCmd, listArgs)
@@ -687,8 +597,8 @@ class _P4OOP4Python(_P4OOConnection):
             try:
                 p4PythonObj.connect()
                 p4PythonObj.exception_level = 0
-            except P4Exception:
-                raise _P4Fatal("P4 Connection Failed")
+            except P4Exception as exc:
+                raise _P4Fatal("P4 Connection Failed") from exc
 
             self._setAttr('p4PythonObj', p4PythonObj)
             self._setAttr('_ownP4PythonObj', 1)
@@ -711,33 +621,11 @@ class _P4OOP4Python(_P4OOConnection):
         return True
 
     def _initialize(self):
-        if _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None:
-            configFile = os.path.dirname(__file__) + "/p4Config.yml"
-            stream = open(configFile, 'r')
-            data = yaml.load(stream, Loader=yaml.Loader)
-            _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION = data["COMMANDS"]
-            stream.close()
+        configFile = os.path.dirname(__file__) + "/p4Config.yml"
 
+        self._p4PythonSchema = _P4OOP4PythonSchema(configFile=configFile)
         return True
 
     def __del__(self):
         self._disconnect()
         return True
-
-
-# read in the YAML config file with our command translation table
-class _P4OOP4PythonConfig(_P4OOBase):
-
-    _P4PYTHON_COMMAND_TRANSLATION = None
-
-    def __init__(self, **kwargs ):
-        self._objAttrs = kwargs
-
-    def readConfig(self, configFile):
-        if _P4OOP4PythonConfig._P4PYTHON_COMMAND_TRANSLATION is None:
-            configFile = os.path.dirname(__file__) + "/p4Config.yml"
-            stream = open(configFile, 'r')
-            data = yaml.load(stream, Loader=yaml.Loader)
-            _P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION = data["COMMANDS"]
-            stream.close()
-    

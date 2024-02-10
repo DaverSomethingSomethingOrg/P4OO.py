@@ -30,7 +30,9 @@ import _P4GoldenEgg
 import P4
 
 # We might just need these yo
-import P4OO._P4Python,P4OO._Connection
+import P4OO._P4Python
+import P4OO._Connection
+import P4OO._P4PythonSchema
 
 
 ######################################################################
@@ -124,17 +126,14 @@ def test_destructor(p4PythonObj):
 
 def test__initialize(p4PythonObj):
 
-#    # _P4PYTHON_COMMAND_TRANSLATION should be "None" before _initialize()
-#    assert P4OO._P4Python._P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION is None
-
     testObj1 = P4OO._P4Python._P4OOP4Python(p4PythonObj=p4PythonObj)
 
     # _initialize() should always return True
     assert testObj1._initialize()
 
-    # We won't check the content, we don't care as long as comamnds work
-    # _P4PYTHON_COMMAND_TRANSLATION should be dict after _initialize()
-    assert isinstance(P4OO._P4Python._P4OOP4Python._P4PYTHON_COMMAND_TRANSLATION, dict)
+    # We won't check the content, we don't care as long as commands work
+    # testObj1._p4PythonSchema should be dict after _initialize()
+    assert isinstance(testObj1._p4PythonSchema, P4OO._P4PythonSchema._P4OOP4PythonSchema)
 
 
 def test__execCmd(p4PythonObj):
