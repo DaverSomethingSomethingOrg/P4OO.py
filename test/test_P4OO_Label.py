@@ -68,16 +68,21 @@ def test_basic(p4PythonObj):
     allLabels = P4OO.Label.P4OOLabelSet(p4PythonObj=p4PythonObj).query()
     assert allLabels.listObjectIDs() == ['emptyLabel', 'initialLabel', 'secondLabel']
     
-    p4l1 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="initialLabel")
-    assert isinstance(p4l1, P4OO.Label.P4OOLabel)
-    assert isinstance(p4l1, P4OO._SpecObj._P4OOSpecObj)
+    p4l0 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="emptyLabel")
+    assert isinstance(p4l0, P4OO.Label.P4OOLabel)
+    assert isinstance(p4l0, P4OO._SpecObj._P4OOSpecObj)
 
-    import pprint
+    # emptyLabel has no changes
+    assert p4l0.getLastChange() is None
+
+    p4l1 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="initialLabel")
     
     # initialLabel is on Change 1
-    assert p4l1.getLastChange()._getSpecID() == 1
+    lastChange = p4l1.getLastChange()
+    assert lastChange is not None
+    assert lastChange._getSpecID() == 1
 
-    # initialLabel is on Change 3
+    # secondLabel is on Change 3
     p4l2 = P4OO.Label.P4OOLabel(p4PythonObj=p4PythonObj, id="secondLabel")
     assert p4l2.getLastChange()._getSpecID() == 3
 
@@ -93,3 +98,5 @@ def test_basic(p4PythonObj):
                                                     '1a2\n> test file 2 updated content\n',
                                                     '',
                                                    ]
+
+#TODO test creating new labels and tagging client files into label

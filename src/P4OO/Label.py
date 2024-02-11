@@ -54,38 +54,54 @@ class P4OOLabel(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'label'
 
-    ######################################################################
-    # getRevision()
-    #
     def getRevision(self):
         ''' Return the revision spec attribute of the label '''
+
         return self._getSpecAttr('Revision')
 
 
-    ######################################################################
-    # getLastChange()
-    #
+    def tagFiles(self, *fileSpec, **kwargs):
+        ''' Tag the specified files against label (self) '''
+
+        p4Output = None
+        p4Output = self._runCommand('tag', label=self, files=fileSpec, **kwargs)
+
+#TODO error checking
+#        try:
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#        except _P4Warning as e:
+#            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
+#                pass
+#            else:
+#                raise(e)
+
+        return(p4Output)
+
+
     def getLastChange(self):
-        ''' Return the latest change incorporated into the label '''
+        ''' Return the latest change incorporated into the label
+        
+            Return None if the label sees no changes (empty depot).
+        '''
 
         changeFileRevRange = "@" + self._getSpecID()
         p4Changes = self.query(P4OOChangeSet, files=changeFileRevRange, maxresults=1)
+
+        if len(p4Changes) == 0:
+            return None
 
         # We only expect one result, we only return one result.
         return p4Changes[0]
 
 
-    ######################################################################
-    # getChangesFromLabels()
-    #  - Fetch the list of changes from this label to another one.
-    #
-    # ASSUMPTIONS:
-    # - self represents the lower of the two labels.  If the other
-    #   direction is desired, then make the call against the other
-    #   label instead.
-    #
     def getChangesFromLabels(self, otherLabel, client):
-        ''' Fetch the list of changes from this label to another one '''
+        ''' Fetch the list of changes from this label to another one.
+        
+            Assumptions:
+            - self represents the lower of the two labels.  If the other
+              direction is desired, then make the call against the other
+              label instead.
+        '''
 
         if not isinstance(otherLabel, P4OOLabel):
             raise TypeError(otherLabel)

@@ -458,6 +458,66 @@ COMMANDS:
         type: [ string, File, FileSet ]
 
 
+  # p4 add [-c changelist#] [-d -f -I -n] [-t filetype] file ...
+  add:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+#TODO err what does option do here?
+        option: client
+        multiplicity: 1
+    queryOptions:
+      change:
+        type: [ integer, Change ]
+        option: -c
+        multiplicity: 1
+      reopen:
+        option: -d
+        multiplicity: 0
+      force:
+        option: -f
+        multiplicity: 0
+      no_ignore:
+        option: -I
+        multiplicity: 0
+      preview:
+        option: -n
+        multiplicity: 0
+      file_type:
+        type: [ string ]
+        option: -t
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+
+  # p4 edit [-c changelist#] [-k -n] [-t filetype] [--remote=rmt] file ...
+  # p4 edit [-c changelist#] -So
+  edit:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+#TODO err what does option do here?
+        option: client
+        multiplicity: 1
+    queryOptions:
+      change:
+        type: [ integer, Change ]
+        option: -c
+        multiplicity: 1
+      no_pull:
+        option: -k
+        multiplicity: 0
+      preview:
+        option: -n
+        multiplicity: 0
+      file_type:
+        type: [ string ]
+        option: -t
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
   # p4 opened [-a -c changelist# -C client -u user -m maxresults] [file ...]
   opened:
     output:
@@ -482,6 +542,43 @@ COMMANDS:
       maxresults:
         type: [ integer ]
         option: -m
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+
+  # p4 submit [-r -s -f option -K [-b | --noretransfer 0|1]]
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  # p4 submit [-r -s -f option -K -b]
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  #           file ...
+  # p4 submit [-r -f option -K -b] [-So|-Sx] -d description
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  # p4 submit [-r -f option -K -b] [-Sx] -d description
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  #           file ...
+  # p4 submit [-r -f option -K [-b | --noretransfer 0|1]] -c changelist#
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  # p4 submit -e shelvedChange# [-b]
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  # p4 submit -i [-r -s -f option -K -b]
+  #           [--parallel=threads=N[,batch=N][,min=N]]
+  submit:
+#    output:
+#      idAttr:
+#      p4ooType:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+        option: client
+        multiplicity: 1
+    queryOptions:
+      description:
+        type: [ string ]
+        option: -d
+        multiplicity: 1
+      change:
+        type: [ integer, Change ]
+        option: -c
         multiplicity: 1
       files:
         type: [ string, File, FileSet ]
@@ -586,3 +683,31 @@ COMMANDS:
         multiplicity: 0
       files:
         type: [ string, File, FileSet ]
+
+  # p4 tag [-d -g -n -U] -l label file[revRange] ...
+  tag:
+    configOptions:
+      p4client:
+        type: [ string, Client ]
+        option: client
+        multiplicity: 1
+    queryOptions:
+      delete:
+        option: -d
+        multiplicity: 0
+      global:
+        option: -g
+        multiplicity: 0
+      preview:
+        option: -n
+        multiplicity: 0
+      auto_reload:
+        option: -U
+        multiplicity: 0
+      label:
+        type: [ string, Label ]
+        option: -l
+        multiplicity: 1
+      files:
+        type: [ string, File, FileSet ]
+  

@@ -20,7 +20,8 @@ Chicken and Egg issues trying to test P4OO on a new platform.
 ######################################################################
 # Includes
 #
-import os  # used for managing environment variables
+import os
+import os.path
 
 # _P4GoldenEgg is used for our test environment setup and destruction
 import tempfile
@@ -30,23 +31,24 @@ import _P4GoldenEgg
 import P4
 from P4OO.User import P4OOUser
 from P4OO.Client import P4OOClient
+from P4OO.Label import P4OOLabel
+from P4OO.Change import P4OOChange, P4OOChangeSet
 
 
 ######################################################################
 # Configuration
 #
 p4d = "p4d"
-testEggsDir = "./data/_P4GoldenEggs"
+testEggsDataDir = "./data/_P4GoldenEggs"
 tmpDir = "./tmp"
-
 
 # _P4Python.tar.gz
 def createEgg__P4Python():
 
-    global p4d, testEggsDir, tmpDir
+    global p4d, testEggsDataDir, tmpDir
 
     # Set up P4ROOT and configure a new EggDir to use it
-    p4RootDir = tempfile.mkdtemp(dir=tmpDir)
+    p4RootDir = os.path.abspath(tempfile.mkdtemp(dir=tmpDir))
     testEggDir = _P4GoldenEgg.eggDirectory(p4RootDir)
 
     # Connect to the Perforce Service
@@ -65,17 +67,17 @@ def createEgg__P4Python():
     user2Obj.saveSpec(force=True)
 
     # Wrap it up and clean it up
-    testEggDir.createTarball(testEggsDir + "/_P4Python.tar.gz")
+    testEggDir.createTarball(testEggsDataDir + "/_P4Python.tar.gz")
     testEggDir.destroy()
 
 
 # Client.tar.gz
 def createEgg_Client():
 
-    global p4d, testEggsDir, tmpDir
+    global p4d, testEggsDataDir, tmpDir
 
     # Set up P4ROOT and configure a new EggDir to use it
-    p4RootDir = tempfile.mkdtemp(dir=tmpDir)
+    p4RootDir = os.path.abspath(tempfile.mkdtemp(dir=tmpDir))
     testEggDir = _P4GoldenEgg.eggDirectory(p4RootDir)
 
     # Connect to the Perforce Service
@@ -93,46 +95,130 @@ def createEgg_Client():
     user2Obj.saveSpec(force=True)
 
     # Wrap it up and clean it up
-    testEggDir.createTarball(testEggsDir + "/Client.tar.gz")
+    testEggDir.createTarball(testEggsDataDir + "/P4OOClient.tar.gz")
     testEggDir.destroy()
 
-'''
-  526  p4 client
-  529  p4 label emptyLabel
-  534  export P4CLIENT=testClient1
-  535  p4 edit testFile1 testFile2
-  536  p4 client -o
-  538  p4 add testFile*
-  541  p4 opened
-  543  p4 submit -d "initial change"
-  549  p4 changes
-  550  p4 labels
-  552  p4 label initialLabel
-  553  p4 labels
-  554  p4 label -o initialLabel
-  562  p4 changes
-  564  p4 tag -l initialLabel ...
-  573  p4 changes "@initiallabel"
-  578  p4 files "@initiallabel"
-  580  p4 changes "@initialLabel"
-  581  p4 changes -m 1 "@initialLabel"
-  582  p4 changes -m 1 "@emptyLabel"
-  583  p4 edit testFile2 
-  585  p4 opened
-  586  p4 diff
-  587  p4 changes
-  588  p4 submit -d 'update testFile2'
-  589  p4 edit testFile1 
-  592  p4 diff
-  595  p4 submit -d 'update testFile1'
-  596  p4 label secondLabel
-  597  p4 tag -l secondLabel ...
-  598  p4 changes -m 1 "@emptyLabel"
-  599  p4 changes -m 1 "@initialLabel"
-  600  p4 changes -m 1 "@secondLabel"
-  601  p4 changes "...@1,3"
-  602  p4 diff2 "...@1" "...@3"
-'''
+
+def createEgg_Label():
+
+    global p4d, testEggsDataDir, tmpDir
+
+    # We'll derive the Label egg from Client egg
+    testEgg = "P4OOClient.tar.gz"
+
+    # Set up P4ROOT and configure a new EggDir to use it
+    p4RootDir = os.path.abspath(tempfile.mkdtemp(dir=tmpDir))
+    testEggDir = _P4GoldenEgg.eggTarball(testEggsDataDir + "/" + testEgg).unpack(p4RootDir)
+
+    # Connect to the Perforce Service
+    p4PythonObj = P4.P4()
+    p4PythonObj.port = testEggDir.getP4Port(p4d=p4d)
+    p4PythonObj.user = 'testEggCreator'
+    p4PythonObj.connect()
+
+    # Create a label pointing to nothing
+    p4l0 = P4OOLabel(p4PythonObj=p4PythonObj, id="emptyLabel")
+    p4l0.saveSpec()
+
+    # Create 'testClient1' Workspace and our test files
+    p4ClientRoot = os.path.abspath(tempfile.mkdtemp(dir=tmpDir))
+    p4cl1 = P4OOClient(p4PythonObj=p4PythonObj, id="testClient1", root=p4ClientRoot)
+    p4cl1._setSpecAttr("root", p4ClientRoot)
+    p4cl1.saveSpec()
+
+    '''
+    [luser@329dec3cc399 P4OO.py]$ p4 print //depot/...@1
+    //depot/testFile1#1 - add change 1 (text)
+    test file 1 content
+    //depot/testFile2#1 - add change 1 (text)
+    test file 2 content
+    '''
+    testfile1Path = os.path.abspath(p4ClientRoot + "/" + "testFile1")
+    with open(file=testfile1Path, mode="w", encoding="utf-8") as stream:
+        print('test file 1 content', file=stream)
+
+    testfile2Path = os.path.abspath(p4ClientRoot + "/" + "testFile2")
+    with open(file=testfile2Path, mode="w", encoding="utf-8") as stream:
+        print('test file 2 content', file=stream)
+
+    p4Output = p4cl1.addFiles(testfile1Path, testfile2Path)
+
+    import pprint
+#    pprint.pprint(p4Output)
+
+#    pprint.pprint(p4cl1.getOpenedFiles())
+
+    ''' Change 1 on 2024/02/03 by testUser1@testClient1 'initial change' '''
+    p4Output = p4cl1.submitChange(description="initial change")
+#    pprint.pprint(p4Output)
+
+    # No more opened files
+#    pprint.pprint(p4cl1.getOpenedFiles())
+
+    # 'initial change\n'
+#    pprint.pprint(P4OOChangeSet(p4PythonObj=p4PythonObj).query()[0]._getSpecAttr('description'))
+
+    ''' Label initialLabel 2024/02/03 'Created by testUser1. ' '''
+    p4l1 = P4OOLabel(p4PythonObj=p4PythonObj, id="initialLabel")
+    p4l1.saveSpec()
+    pprint.pprint(p4l1.tagFiles(testfile1Path, testfile2Path, p4client=p4cl1))
+#    pprint.pprint(p4l1.getDiffsFromLabels(otherLabel=p4l0, client=p4cl1))
+
+
+    '''
+    [luser@329dec3cc399 P4OO.py]$ p4 print //depot/...@2
+    //depot/testFile1#1 - add change 1 (text)
+    test file 1 content
+    //depot/testFile2#2 - edit change 2 (text)
+    test file 2 content
+    test file 2 updated content
+    '''
+    p4Output = p4cl1.editFiles(testfile2Path)
+#    pprint.pprint(p4Output)
+
+    with open(file=testfile2Path, mode="a", encoding="utf-8") as stream:
+        print('test file 2 updated content', file=stream)
+
+#    pprint.pprint(p4cl1.getOpenedFiles())
+
+    ''' Change 2 on 2024/02/03 by testUser1@testClient1 'update testFile2' '''
+    p4Output = p4cl1.submitChange(description="update testFile2")
+#    pprint.pprint(p4Output)
+
+
+    '''
+    [luser@329dec3cc399 P4OO.py]$ p4 print //depot/...@3
+    //depot/testFile1#2 - edit change 3 (text)
+    test file 1 replaced content
+    //depot/testFile2#2 - edit change 2 (text)
+    test file 2 content
+    test file 2 updated content
+    [luser@329dec3cc399 P4OO.py]$ 
+    '''
+    p4Output = p4cl1.editFiles(testfile1Path)
+#    pprint.pprint(p4Output)
+
+    with open(file=testfile1Path, mode="w", encoding="utf-8") as stream:
+        print('test file 1 replaced content', file=stream)
+
+#    pprint.pprint(p4cl1.getOpenedFiles())
+
+
+    ''' Change 3 on 2024/02/03 by testUser1@testClient1 'update testFile1' '''
+    p4Output = p4cl1.submitChange(description="update testFile1")
+#    pprint.pprint(p4Output)
+
+    p4l2 = P4OOLabel(p4PythonObj=p4PythonObj, id="secondLabel")
+    p4l2.saveSpec()
+    pprint.pprint(p4l2.tagFiles(testfile1Path, testfile2Path, p4client=p4cl1))
+#    pprint.pprint(p4l2.getDiffsFromLabels(otherLabel=p4l1, client=p4cl1))
+
+#    pprint.pprint(p4l1.getChangesFromLabels(otherLabel=p4l2, client=p4cl1))
+
+    # Wrap it up and clean it up
+    testEggDir.createTarball(testEggsDataDir + "/P4OOLabel.tar.gz")
+    testEggDir.destroy()
+
 
 ######################################################################
 # MAIN

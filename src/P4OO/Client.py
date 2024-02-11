@@ -67,6 +67,42 @@ class P4OOClient(_P4OOSpecObj):
 ######################################################################
 # Methods
 #
+    def addFiles(self, *fileSpec, **kwargs):
+        ''' Add the specified files as new '''
+
+        p4Output = None
+        p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+
+#TODO error checking
+#        try:
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#        except _P4Warning as e:
+#            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
+#                pass
+#            else:
+#                raise(e)
+
+        return(p4Output)
+
+
+    def editFiles(self, *fileSpec, **kwargs):
+        ''' Open the specified files for edit '''
+
+        p4Output = None
+        p4Output = self._runCommand('edit', p4client=self, files=fileSpec, **kwargs)
+
+#TODO error checking
+#        try:
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#        except _P4Warning as e:
+#            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
+#                pass
+#            else:
+#                raise(e)
+
+        return(p4Output)
+
+
     def getChanges(self, status=None):
         ''' Find all changes this client "has" sync'd '''
         # Asking a Client for its changes is implemented as querying Changes filtered by Client
@@ -87,6 +123,25 @@ class P4OOClient(_P4OOSpecObj):
         ''' Return a P4OOFileSet of files opened in this client. '''
 
         return(self._runCommand('opened', user=user, client=self))
+
+
+    def submitChange(self, *fileSpec, **kwargs):
+        ''' Add the specified files as new '''
+
+        p4Output = None
+        p4Output = self._runCommand('submit', p4client=self, files=fileSpec, **kwargs)
+
+#TODO error checking
+#        try:
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#        except _P4Warning as e:
+#            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
+#                pass
+#            else:
+#                raise(e)
+
+        return(p4Output)
+
 
     def sync(self, *fileSpec, **kwargs):
         ''' Sync the client (p4 sync)  using the optional supplied fileSpec(s) '''
