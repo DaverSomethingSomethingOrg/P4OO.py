@@ -75,12 +75,12 @@ class P4OOLabel(_P4OOSpecObj):
 #            else:
 #                raise(e)
 
-        return(p4Output)
+        return p4Output
 
 
     def getLastChange(self):
         ''' Return the latest change incorporated into the label
-        
+
             Return None if the label sees no changes (empty depot).
         '''
 

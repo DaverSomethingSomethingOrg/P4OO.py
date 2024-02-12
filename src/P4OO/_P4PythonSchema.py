@@ -348,4 +348,4 @@ class _P4OOP4PythonCommand():
                 execArgs.extend(cmdOptionArgs)
 
 
-        return (execArgs, p4Config) 
+        return (execArgs, p4Config)

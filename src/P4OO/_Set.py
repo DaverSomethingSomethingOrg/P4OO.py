@@ -40,7 +40,7 @@ class _P4OOSet(_P4OOBase, OrderedSet):
         self |= objectsToAdd
 
         newCount = len(self)
-        return(newCount - oldCount)
+        return newCount - oldCount
 
 
 #TODO - document this
@@ -51,7 +51,7 @@ class _P4OOSet(_P4OOBase, OrderedSet):
             self.discard(item)
 
         newCount = len(self)
-        return(newCount - oldCount)
+        return newCount - oldCount
 
 #TODO - document this
     def listObjectIDs(self):
@@ -61,6 +61,6 @@ class _P4OOSet(_P4OOBase, OrderedSet):
     # Where an instance is not already available, query can be called as follows:
     # p4Changes = P4OO.ChangeSet.ChangeSet().query({"files": changeFileRevRange, "maxresults": 1})
     # Instantiating a _Set object just for this purpose is cheap, but is not free.  So sorry.
-    def query(self, **kwargs ):
+    def query(self, **kwargs):
         p4ConnObj = self._getP4Connection()
-        return( p4ConnObj.runCommand(self._SETOBJ_TYPE, **kwargs) )
+        return p4ConnObj.runCommand(self._SETOBJ_TYPE, **kwargs)

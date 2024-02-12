@@ -82,7 +82,7 @@ class P4OOClient(_P4OOSpecObj):
 #            else:
 #                raise(e)
 
-        return(p4Output)
+        return p4Output
 
 
     def editFiles(self, *fileSpec, **kwargs):
@@ -100,13 +100,13 @@ class P4OOClient(_P4OOSpecObj):
 #            else:
 #                raise(e)
 
-        return(p4Output)
+        return p4Output
 
 
     def getChanges(self, status=None):
         ''' Find all changes this client "has" sync'd '''
         # Asking a Client for its changes is implemented as querying Changes filtered by Client
-        return(self.query(P4OOChangeSet, client=self, status=status))
+        return self.query(P4OOChangeSet, client=self, status=status)
 
 
     def getLatestChange(self):
@@ -116,13 +116,13 @@ class P4OOClient(_P4OOSpecObj):
         p4Changes = self.query(P4OOChangeSet, files="#have", maxresults=1, client=self)
 
         # We only expect one result, we only return one result.
-        return(p4Changes[0])
+        return p4Changes[0]
 
 
     def getOpenedFiles(self, user=None):
         ''' Return a P4OOFileSet of files opened in this client. '''
 
-        return(self._runCommand('opened', user=user, client=self))
+        return self._runCommand('opened', user=user, client=self)
 
 
     def submitChange(self, *fileSpec, **kwargs):
@@ -140,7 +140,7 @@ class P4OOClient(_P4OOSpecObj):
 #            else:
 #                raise(e)
 
-        return(p4Output)
+        return p4Output
 
 
     def sync(self, *fileSpec, **kwargs):
@@ -153,9 +153,9 @@ class P4OOClient(_P4OOSpecObj):
             if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
                 pass
             else:
-                raise(e)
+                raise e
 
-        return(p4Output)
+        return p4Output
 
 
     def reopenFiles(self):
