@@ -55,6 +55,10 @@ class _P4OOSet(_P4OOBase, OrderedSet):
 
 #TODO - document this
     def listObjectIDs(self):
+        ''' Method to help convert a set of objects into a list of the
+            names of the objects.
+        '''
+
         return([item._uniqueID() for item in self])
 
     # query() is an instance method, but returns another, possibly unrelated object.

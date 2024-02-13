@@ -11,6 +11,7 @@ plugins:
 markdown_extensions:
   - toc:
       permalink: '#'
+      toc_depth: 4
   - attr_list
   - def_list
   - tables
@@ -22,6 +23,6 @@ markdown_extensions:
 
 nav:
   - 'P4OO.py Documentation': 'index.md'
-  - 'HOWTO': 'HOWTO.html'
+  - 'HOWTO': 'howto.md'
   - 'Unit Test Coverage Report': 'coverage/index.html'
   - 'Pylint Report': 'pylint.html'
