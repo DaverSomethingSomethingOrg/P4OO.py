@@ -7,7 +7,11 @@ docs_dir: docs/
 
 plugins:
   - techdocs-core
-  - mkdocstrings
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
 
 theme:
   name: material
