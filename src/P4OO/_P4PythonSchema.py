@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Provide a set of objects that allow for interaction and translation
 between P4Python output and our internally maintained Python-friendly
@@ -21,7 +20,6 @@ from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Exceptions import _P4OOFatal
 
 
-# read in the YAML config file with our command translation table
 class _P4OOP4PythonSchema():
     ''' Class to abstract the contents of our p4Config.yml file,
         separate from the execution of the p4 commands done in
@@ -40,11 +38,12 @@ class _P4OOP4PythonSchema():
             supported commands as _P4OOP4PythonCommand objects
         '''
 
-        with open(configFile, 'r', encoding="utf-8" ) as stream:
+        with open(configFile, 'r', encoding="utf-8") as stream:
             data = yaml.load(stream, Loader=yaml.Loader)
 
-        return {command: _P4OOP4PythonCommand(command=command, commandDict=commandDict) for (command, commandDict) in data["COMMANDS"].items()}
-
+        return {command: _P4OOP4PythonCommand(command=command,
+                                              commandDict=commandDict)
+                for (command, commandDict) in data["COMMANDS"].items()}
 
     def getCmd(self, cmdName):
 
@@ -52,7 +51,6 @@ class _P4OOP4PythonSchema():
             return self.schemaCommands[cmdName]
 
         raise _P4OOFatal("Unsupported Command " + cmdName)
-
 
     def getSpecCmd(self, specType):
 
@@ -70,13 +68,11 @@ class _P4OOP4PythonCommand():
         self.command = command
         self.commandDict = commandDict
 
-
     def isSpecCommand(self):
         if 'specCmd' in self.commandDict:
             return True
 
         return False
-
 
     def isForceable(self):
         if 'forceOption' in self.commandDict:
@@ -84,11 +80,9 @@ class _P4OOP4PythonCommand():
 
         return False
 
-
     def isIdRequired(self):
 
         return self.commandDict['idRequired']
-
 
     def getSpecCmd(self):
 
@@ -97,20 +91,19 @@ class _P4OOP4PythonCommand():
 
         raise _P4OOFatal("Unsupported Spec type %s" % self.command)
 
-
     def getOutputType(self):
-        if 'output' in self.commandDict and 'p4ooType' in self.commandDict['output']:
+        if 'output' in self.commandDict and 'p4ooType' \
+          in self.commandDict['output']:
             return self.commandDict['output']['p4ooType']
 
         return None
 
-
     def getOutputIdAttr(self):
-        if 'output' in self.commandDict and 'idAttr' in self.commandDict['output']:
+        if 'output' in self.commandDict and 'idAttr' \
+          in self.commandDict['output']:
             return self.commandDict['output']['idAttr']
 
         return None
-
 
     def getPyIdAttribute(self):
 
@@ -119,13 +112,11 @@ class _P4OOP4PythonCommand():
 
         raise _P4OOFatal("Unsupported Spec type %s" % self.command)
 
-
     def getP4IdAttribute(self):
 
         pyIdAttr = self.getPyIdAttribute()
 
         return self.commandDict['specAttrs'][pyIdAttr]
-
 
     def translateP4SpecToPython(self, p4OutputSpec):
         ''' Translate a P4Python provided dictionary into something more
@@ -154,7 +145,8 @@ class _P4OOP4PythonCommand():
                     else:
                         pythonSpec[specAttr] = p4OutputSpec[p4SpecAttr]
 
-        # Reformat date strings in Perforce objects to be more useful datetime objects
+        # Reformat date strings in Perforce objects to be more useful
+        # datetime objects.
         # Date attrs cannot be modified, so don't need to be selectively copied
         if 'dateAttrs' in self.commandDict:
             for dateAttr in self.commandDict['dateAttrs']:
@@ -162,18 +154,21 @@ class _P4OOP4PythonCommand():
 
                 if p4DateAttr in p4OutputSpec:
                     if re.match(r'^\d+$', p4OutputSpec[p4DateAttr]):
-                        # some query commands return epoch seconds output (e.g. clients)
-                        pythonSpec[dateAttr] = datetime.fromtimestamp(float(p4OutputSpec[p4DateAttr]))
+                        # some query commands return epoch seconds output
+                        # (e.g. clients)
+                        pythonSpec[dateAttr] = datetime.fromtimestamp(
+                            float(p4OutputSpec[p4DateAttr]))
                     else:
-                        # spec commands return formatted date strings local to server
-                        pythonSpec[dateAttr] = datetime.strptime(p4OutputSpec[p4DateAttr], '%Y/%m/%d %H:%M:%S')
+                        # spec commands return formatted date strings
+                        # local to the server, not the client
+                        pythonSpec[dateAttr] = datetime.strptime(
+                            p4OutputSpec[p4DateAttr], '%Y/%m/%d %H:%M:%S')
 
         return pythonSpec
 
-
     def translatePySpecToP4(self, pythonSpec, p4SpecDict):
-        ''' Copy any modified non-date attributes to the Perforce-generated dictionary
-            ignoring any date attribtues we don't modify
+        ''' Copy any modified non-date attributes to the Perforce-generated
+            dictionary ignoring any date attribtues we don't modify
         '''
 
         if p4SpecDict is None:
@@ -181,7 +176,8 @@ class _P4OOP4PythonCommand():
 
         if pythonSpec is not None and 'specAttrs' in self.commandDict:
 
-            for (specAttr,p4SpecAttr) in self.commandDict['specAttrs'].items():
+            for (specAttr, p4SpecAttr) \
+              in self.commandDict['specAttrs'].items():
                 if specAttr in pythonSpec:
                     if pythonSpec[specAttr] is None:
                         if p4SpecAttr in p4SpecDict:
@@ -191,20 +187,17 @@ class _P4OOP4PythonCommand():
 
         return p4SpecDict
 
-
     def getAllowedFilters(self):
         if 'queryOptions' in self.commandDict:
             return self.commandDict['queryOptions']
 
         return None
 
-
     def getAllowedConfigs(self):
         if 'configOptions' in self.commandDict:
             return self.commandDict['configOptions']
 
         return None
-
 
     def validateQuery(self, queryDict):
         ''' Take a dict of name=[list] args and separate out p4 config
@@ -218,7 +211,8 @@ class _P4OOP4PythonCommand():
 
         allowedFilters = self.getAllowedFilters()
         if allowedFilters is None:
-            raise _P4OOFatal("Querying not supported for Command " + self.command)
+            raise _P4OOFatal("Querying not supported for Command "
+                             + self.command)
 
         allowedConfigs = self.getAllowedConfigs() or {}
 
@@ -250,7 +244,8 @@ class _P4OOP4PythonCommand():
             else:
                 optionArgs.extend(queryValue)
 
-            # Check option argument types, and replace option args with IDs for P4::OO objects passed in
+            # Check option argument types, and replace option args with
+            # IDs for P4::OO objects passed in.
             # Take the opportunity to expand any Set objects we find.
             cmdOptionArgs = []
             if optionConfig is not None:
@@ -292,7 +287,7 @@ class _P4OOP4PythonCommand():
                                     setType = checkType + "Set"
 
                                 # Second, import specType and SetType
-#TODO need to look into this issue
+# TODO need to look into this issue
 #                                specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], -1)
                                 specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], 0)
                                 specClass = getattr(specModule, "P4OO" + specType)
@@ -310,14 +305,14 @@ class _P4OOP4PythonCommand():
 
                     if not matchedType:
                         # Looped through all types, didn't find a match
-                        raise _P4OOFatal("Got %r, but filter key '%s' accepts arguments of only these types: " % (optionArg, origFilterKey)
-                                                 + ", ".join(optionConfig['type']) )
+                        raise _P4OOFatal("Got %r, but filter key '%s' accepts arguments of only these types: "
+                                         % (optionArg, origFilterKey) + ", ".join(optionConfig['type']))
 
-#            print("optionConfig: ", optionConfig )
+#            print("optionConfig: ", optionConfig)
             # defined cmdline options go at the front
             if 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 0:
                 if len(cmdOptionArgs) != 0:
-                    raise _P4OOFatal("Filter key: %s accepts no arguments.\n" % origFilterKey )
+                    raise _P4OOFatal("Filter key: %s accepts no arguments.\n" % origFilterKey)
 
                 if isConfigOpt:
                     p4Config[optionConfig['option']] = True
@@ -326,13 +321,13 @@ class _P4OOP4PythonCommand():
 
             elif 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 1:
                 if len(cmdOptionArgs) != 1:
-                    raise _P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey )
+                    raise _P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey)
 
                 if 'bundledArgs' in optionConfig and optionConfig['bundledArgs'] is not None:
-# join the option and its args into one string  ala "-j8"
+                    # join the option and its args into one string  ala "-j8"
                     bundledArg = optionConfig['option'] + "".join(cmdOptionArgs)
                     execArgs.insert(0, bundledArg)
-#TODO - ignoring p4Config here because it won't be needed... I think
+# TODO - ignoring p4Config here because it won't be needed... I think
                 else:
                     if isConfigOpt:
                         p4Config[optionConfig['option']] = cmdOptionArgs[0]
@@ -343,9 +338,8 @@ class _P4OOP4PythonCommand():
                         execArgs.insert(0, optionConfig['option'])
             else:
                 if 'option' in optionConfig:
-#TODO - ignoring p4Config here because it won't be needed... I think
+# TODO - ignoring p4Config here because it won't be needed... I think
                     execArgs.append(optionConfig['option'])
                 execArgs.extend(cmdOptionArgs)
-
 
         return (execArgs, p4Config)

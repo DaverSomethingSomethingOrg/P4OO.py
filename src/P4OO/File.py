@@ -5,26 +5,20 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce File Object
 
 P4OO.File provides ... not much really
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._Base import _P4OOBase
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOFile(_P4OOBase):
     ''' P4OOFile currently implements no custom logic of its own. '''
 
-#TODO File are not Spec Objects, but...
+# TODO File are not Spec Objects, but...
 #    # Subclasses must define SPECOBJ_TYPE
 #    _SPECOBJ_TYPE = 'file'
 

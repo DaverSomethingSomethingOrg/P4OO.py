@@ -13,6 +13,7 @@ import collections.abc
 
 KEY, PREV, NEXT = range(3)
 
+
 class OrderedSet(collections.abc.MutableSet):
 
     def __init__(self, iterable=None):
@@ -55,16 +56,11 @@ class OrderedSet(collections.abc.MutableSet):
                 item = item[NEXT]
                 counter += 1
             return item[KEY]
-        else:
-            item = self.end
-            while counter > key:   # > because 0 is the start, not 1
-                item = item[PREV]
-                counter -= 1
-            return item[KEY]
-
-        # catchall
-        raise KeyError(key)
-
+        item = self.end
+        while counter > key:   # > because 0 is the start, not 1
+            item = item[PREV]
+            counter -= 1
+        return item[KEY]
 
     def __iter__(self):
         end = self.end

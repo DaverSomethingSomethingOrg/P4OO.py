@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce User Object
 
@@ -35,17 +34,12 @@ Query Options:
         type: [ string, User, UserSet ]
 '''
 
-######################################################################
-# Includes
-#
 from P4OO.Client import P4OOClientSet
 from P4OO.Change import P4OOChangeSet
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOUser(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'user'
@@ -58,20 +52,24 @@ class P4OOUser(_P4OOSpecObj):
         return self.query(P4OOClientSet, user=self)
 
     def listChanges(self, status=None, maxresults=None):
-        return self.query(P4OOChangeSet, user=self, status=status, maxresults=maxresults)
+        return self.query(P4OOChangeSet, user=self, status=status,
+                          maxresults=maxresults)
 
     def deleteWithVengeance(self):
-        # First reopen/revert files in all clients to be sure we can remove any changes
+        # First reopen/revert files in all clients to be sure we can
+        # remove any changes
         clients = self.listClients()
         for client in clients:
             client.revertOpenedFiles()
 
-        # Next remove all Pending changes now that the files have been reopened
+        # Next remove all Pending changes now that the files have been
+        # reopened
         changes = self.listChanges(status="pending")
         for change in changes:
             change.deleteWithVengeance()
 
-        # Next remove all of user's clients to cleanup db.have table where possible.
+        # Next remove all of user's clients to cleanup db.have table
+        # where possible.
         for client in clients:
             client.deleteWithVengeance()
 

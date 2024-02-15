@@ -5,29 +5,24 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Changelist Object
 
 P4OO.Changelist provides ...
 '''
 
-######################################################################
-# Includes
-#
 from P4OO.Change import P4OOChange, P4OOChangeSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOChangelist(P4OOChange):
-    ''' P4OOChangelist currently implements no custom logic of its own. '''
+    ''' P4OOChangelist is just a pseudonym for P4OOChange. '''
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'change'
 
+
 class P4OOChangelistSet(P4OOChangeSet):
-    ''' P4OOChangeSet currently implements no custom logic of its own. '''
+    ''' P4OOChangelistSet is just a pseudonym for P4OOChangeSet. '''
 
     # Subclasses must define SETOBJ_TYPE
     _SETOBJ_TYPE = 'changes'

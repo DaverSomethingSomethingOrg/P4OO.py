@@ -5,29 +5,24 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Workspace Object
 
 P4OO.Workspace provides ...
 '''
 
-######################################################################
-# Includes
-#
-
-######################################################################
-# P4Python Class Initialization
-#
 from P4OO.Client import P4OOClient, P4OOClientSet
+
+
 class P4OOWorkspace(P4OOClient):
-    ''' P4OOWorkspace currently implements no custom logic of its own. '''
+    ''' P4OOWorkspace is just a pseudonym for P4OOClient. '''
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'client'
 
+
 class P4OOWorkspaceSet(P4OOClientSet):
-    ''' P4OOWorkspaceSet currently implements no custom logic of its own. '''
+    ''' P4OOWorkspaceSet is just a pseudonym for P4OOClientSet. '''
 
     # Subclasses must define SETOBJ_TYPE
     _SETOBJ_TYPE = 'clients'

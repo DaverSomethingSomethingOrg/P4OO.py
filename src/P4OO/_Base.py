@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce _Base Class
 
@@ -14,14 +13,8 @@ Perforce _Base Class
 methods for all P4OO objects.
 '''
 
-######################################################################
-# Includes
-#
 import logging
-#from P4OO._P4Python import _P4OOP4Python
 
-######################################################################
-# P4Python Class Initialization
 
 class _P4OOBase():
     def __init__(self, **kwargs ):
@@ -60,19 +53,16 @@ class _P4OOBase():
     def _logDebug(self, *args):
         logging.debug(args)
 
-
     def _runCommand(self, cmdName, **kwargs):
         p4Conn = self._getP4Connection()
 
         return p4Conn.runCommand(cmdName, **kwargs)
-
 
     def query(self, setClass, **kwargs ):
         p4ConnObj = self._getP4Connection()
 
         # Inject our connection, but let the class's object method do the work for us.
         return setClass(**{'_p4Conn': p4ConnObj}).query(**kwargs)
-
 
     def _getP4Connection(self):
         from P4OO._P4Python import _P4OOP4Python

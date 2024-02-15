@@ -45,7 +45,8 @@ using our framework for interacting with Perforce Specs.
 
 That particular query is provided by our Label object for instance:
 
-- `P4OOLabel(id="labelFoo").getChangesFromLabels(P4OOLabel(id="labelBar"), P4OOClient())`
+- `P4OOLabel(id="labelFoo").getChangesFromLabels(P4OOLabel(id="labelBar"),
+                                                           P4OOClient())`
 
 Now, the kicker is that you are returned a P4OOChangeSet object
 containing multiple P4OOChange objects.  You can then leverage

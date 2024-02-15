@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Job Object
 
@@ -27,15 +26,10 @@ Query Options:
         type: [ string, P4OOFile, P4OOFileSet ]
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOJob(_P4OOSpecObj):
     ''' P4OOJob currently implements no custom logic of its own. '''
 

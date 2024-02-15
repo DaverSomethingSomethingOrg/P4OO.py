@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Group Object
 
@@ -27,15 +26,10 @@ Query Options:
         multiplicity: 1
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOGroup(_P4OOSpecObj):
     ''' P4OOGroup currently implements no custom logic of its own. '''
 

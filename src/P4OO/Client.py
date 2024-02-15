@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Client object
 
@@ -40,9 +39,6 @@ Query Options:
         multiplicity: 1
 '''
 
-######################################################################
-# Includes
-#
 import re
 from P4OO.Change import P4OOChangeSet
 from P4OO._Exceptions import _P4Warning, _P4Fatal
@@ -50,32 +46,21 @@ from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
 
-######################################################################
-# P4Python Class Initialization
-#
 class P4OOClient(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'client'
 
-######################################################################
-# Globals
-#
-#    # Subclasses must define SPECOBJ_TYPE
-#    sub SPECOBJ_TYPE { return( 'client' ); }
-
-
-######################################################################
-# Methods
-#
     def addFiles(self, *fileSpec, **kwargs):
         ''' Add the specified files as new '''
 
         p4Output = None
-        p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+        p4Output = self._runCommand('add', p4client=self, files=fileSpec,
+                                    **kwargs)
 
-#TODO error checking
+# TODO error checking
 #        try:
-#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec,
+#                                        **kwargs)
 #        except _P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
@@ -83,17 +68,18 @@ class P4OOClient(_P4OOSpecObj):
 #                raise(e)
 
         return p4Output
-
 
     def editFiles(self, *fileSpec, **kwargs):
         ''' Open the specified files for edit '''
 
         p4Output = None
-        p4Output = self._runCommand('edit', p4client=self, files=fileSpec, **kwargs)
+        p4Output = self._runCommand('edit', p4client=self, files=fileSpec,
+                                    **kwargs)
 
-#TODO error checking
+# TODO error checking
 #        try:
-#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec,
+#                                        **kwargs)
 #        except _P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
@@ -102,38 +88,40 @@ class P4OOClient(_P4OOSpecObj):
 
         return p4Output
 
-
     def getChanges(self, status=None):
         ''' Find all changes this client "has" sync'd '''
-        # Asking a Client for its changes is implemented as querying Changes filtered by Client
-        return self.query(P4OOChangeSet, client=self, status=status)
 
+        # Asking a Client for its changes is implemented as querying
+        # Changes filtered by Client
+        return self.query(P4OOChangeSet, client=self, status=status)
 
     def getLatestChange(self):
         ''' find the latest change this client "has" '''
 
-        # Asking a Client for its latest change is just querying the first change record.  Nifty.
-        p4Changes = self.query(P4OOChangeSet, files="#have", maxresults=1, client=self)
+        # Asking a Client for its latest change is just querying the first
+        # change record.  Nifty.
+        p4Changes = self.query(P4OOChangeSet, files="#have", maxresults=1,
+                               client=self)
 
         # We only expect one result, we only return one result.
         return p4Changes[0]
-
 
     def getOpenedFiles(self, user=None):
         ''' Return a P4OOFileSet of files opened in this client. '''
 
         return self._runCommand('opened', user=user, client=self)
 
-
     def submitChange(self, *fileSpec, **kwargs):
         ''' Add the specified files as new '''
 
         p4Output = None
-        p4Output = self._runCommand('submit', p4client=self, files=fileSpec, **kwargs)
+        p4Output = self._runCommand('submit', p4client=self, files=fileSpec,
+                                    **kwargs)
 
-#TODO error checking
+# TODO error checking
 #        try:
-#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#            p4Output = self._runCommand('add', p4client=self,
+#                                        files=fileSpec, **kwargs)
 #        except _P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
@@ -142,13 +130,15 @@ class P4OOClient(_P4OOSpecObj):
 
         return p4Output
 
-
     def sync(self, *fileSpec, **kwargs):
-        ''' Sync the client (p4 sync)  using the optional supplied fileSpec(s) '''
+        ''' Sync the client (p4 sync) using the optional supplied
+            fileSpec(s)
+        '''
 
         p4Output = None
         try:
-            p4Output = self._runCommand('sync', p4client=self, files=fileSpec, **kwargs)
+            p4Output = self._runCommand('sync', p4client=self,
+                                        files=fileSpec, **kwargs)
         except _P4Warning as e:
             if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
                 pass
@@ -157,28 +147,30 @@ class P4OOClient(_P4OOSpecObj):
 
         return p4Output
 
-
     def reopenFiles(self):
         self._delSpecAttr('host')
         self.saveSpec()
         try:
-            return self._runCommand('reopen', files="//%s/..." % self._getSpecID(), p4client=self)
+            return self._runCommand('reopen', files="//%s/..."
+                                    % self._getSpecID(), p4client=self)
         except _P4Warning:
             return True
 
     def revertOpenedFiles(self):
         self.reopenFiles()
         try:
-            return self._runCommand('revert', noclientrefresh=True, files="//%s/..." % self._getSpecID(), p4client=self)
+            return self._runCommand('revert', noclientrefresh=True,
+                                    files="//%s/..." % self._getSpecID(),
+                                    p4client=self)
         except _P4Warning:
             return True
-
 
     def deleteWithVengeance(self):
         try:
             self.deleteSpec(force=True)
         except _P4Fatal:
-            # First, simplify things by removing any Host spec attr for this client
+            # First, simplify things by removing any Host spec attr for
+            # this client
             self._delSpecAttr('host')
             self.saveSpec()
 

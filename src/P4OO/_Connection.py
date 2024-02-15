@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Abstract P4OO Connection interface
 
@@ -14,14 +13,9 @@ data-object calls into P4 subcommands, and translation of p4
 subcommand output back into P4OO data-objects.
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._Base import _P4OOBase
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class _P4OOConnection(_P4OOBase):
     '''
     Empty class, just providing the inheritance path for now.

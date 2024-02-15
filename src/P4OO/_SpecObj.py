@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce _P4OOSpecObj object
 
@@ -14,19 +13,15 @@ P4OO._SpecObj provides common behaviors for all P4OO Spec-based
 objects.
 '''
 
-######################################################################
-# Includes
-#
 import json
 import datetime
 from P4OO._Base import _P4OOBase
 from P4OO._Exceptions import _P4OOFatal
 
 
-######################################################################
-# JSON Encoder subclass for _toJSON to leverage
-#
 class DateTimeJSONEncoder(json.JSONEncoder):
+    ''' JSON Encoder subclass for _toJSON to leverage '''
+
     def default(self, o):
         if isinstance(o, datetime.datetime):
             return o.isoformat()
@@ -34,25 +29,21 @@ class DateTimeJSONEncoder(json.JSONEncoder):
         return super(DateTimeJSONEncoder, self).default(o)
 
 
-######################################################################
-# SpecObj Class Initialization
-#
 class _P4OOSpecObj(_P4OOBase):
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = None
 
-
-######################################################################
-# Methods
-#
     def __repr__(self):
+
         return '%s(%s)' % (self.__class__.__name__, self._getSpecID())
 
-    # _uniqueID overrides the _Base definition to use self._getSpecID instead
     def _uniqueID(self):
-        return self._getSpecID()
+        ''' _uniqueID overrides the _Base definition to use
+            self._getSpecID() instead
+        '''
 
+        return self._getSpecID()
 
     def _getSpecID(self):
         specID = self._getAttr('id')
@@ -64,7 +55,6 @@ class _P4OOSpecObj(_P4OOBase):
         # If specID is still undef, oh well.
         return specID
 
-
     def _getSpecAttr(self, attrName):
         self.__initialize()
 
@@ -75,10 +65,10 @@ class _P4OOSpecObj(_P4OOBase):
 
         if lcAttrName not in modifiedSpec:
             specType = self._SPECOBJ_TYPE
-            raise _P4OOFatal("Invalid Spec attribute \"%s\" for type \"%s\"\n" % (lcAttrName, specType))
+            raise _P4OOFatal("Invalid Spec attribute \"%s\" for type \"%s\"\n"
+                             % (lcAttrName, specType))
 
         return modifiedSpec[lcAttrName]
-
 
     def _setSpecAttr(self, attrName, value):
 #        self.__initialize()
@@ -93,7 +83,6 @@ class _P4OOSpecObj(_P4OOBase):
         lcAttrName = attrName.lower()
         modifiedSpec[lcAttrName] = value
         return value
-
 
     def _delSpecAttr(self, attrName):
         self.__initialize()
@@ -110,7 +99,6 @@ class _P4OOSpecObj(_P4OOBase):
 
         return value
 
-
     def saveSpec(self, force=False):
         p4ConnObj = self._getP4Connection()
         return p4ConnObj.saveSpec(self, force)
@@ -119,23 +107,23 @@ class _P4OOSpecObj(_P4OOBase):
         p4ConnObj = self._getP4Connection()
         return p4ConnObj.deleteSpec(self, force)
 
-
     def _toJSON(self):
         self.__initialize()
         modifiedSpec = self._getAttr('modifiedSpec')
 
         return DateTimeJSONEncoder().encode(modifiedSpec)
 
-
-######################################################################
-# Internal (private) methods
-#
-
+    ######################################################################
+    # Internal (private) methods
+    #
     def __initialize(self):
+
         p4SpecObj = self._getAttr('p4SpecObj')
 
         if p4SpecObj is None:
             p4ConnObj = self._getP4Connection()
-            p4SpecObj = p4ConnObj.readSpec(self) # We don't save this attribute because _P4Python does that for us
+
+            # We don't save this attribute because _P4Python does that for us
+            p4SpecObj = p4ConnObj.readSpec(self)
 
         return p4SpecObj

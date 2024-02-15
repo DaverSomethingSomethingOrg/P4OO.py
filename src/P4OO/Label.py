@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Label Object
 
@@ -38,18 +37,12 @@ Query Options:
         type: [ string, File, FileSet ]
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._Exceptions import _P4Warning
 from P4OO.Change import P4OOChangeSet
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
 
-######################################################################
-# P4Python Class Initialization
-#
 class P4OOLabel(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'label'
@@ -59,16 +52,17 @@ class P4OOLabel(_P4OOSpecObj):
 
         return self._getSpecAttr('Revision')
 
-
     def tagFiles(self, *fileSpec, **kwargs):
         ''' Tag the specified files against label (self) '''
 
         p4Output = None
-        p4Output = self._runCommand('tag', label=self, files=fileSpec, **kwargs)
+        p4Output = self._runCommand('tag', label=self, files=fileSpec,
+                                    **kwargs)
 
-#TODO error checking
+# TODO error checking
 #        try:
-#            p4Output = self._runCommand('add', p4client=self, files=fileSpec, **kwargs)
+#            p4Output = self._runCommand('add', p4client=self, files=fileSpec,
+#                                        **kwargs)
 #        except _P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
@@ -77,7 +71,6 @@ class P4OOLabel(_P4OOSpecObj):
 
         return p4Output
 
-
     def getLastChange(self):
         ''' Return the latest change incorporated into the label
 
@@ -85,7 +78,8 @@ class P4OOLabel(_P4OOSpecObj):
         '''
 
         changeFileRevRange = "@" + self._getSpecID()
-        p4Changes = self.query(P4OOChangeSet, files=changeFileRevRange, maxresults=1)
+        p4Changes = self.query(P4OOChangeSet, files=changeFileRevRange,
+                               maxresults=1)
 
         if len(p4Changes) == 0:
             return None
@@ -93,10 +87,9 @@ class P4OOLabel(_P4OOSpecObj):
         # We only expect one result, we only return one result.
         return p4Changes[0]
 
-
     def getChangesFromLabels(self, otherLabel, client):
         ''' Fetch the list of changes from this label to another one.
-        
+
             Assumptions:
             - self represents the lower of the two labels.  If the other
               direction is desired, then make the call against the other
@@ -111,7 +104,6 @@ class P4OOLabel(_P4OOSpecObj):
 
         return firstChange.getChangesFromChangeNums(lastChange, client)
 
-
     def getDiffsFromLabels(self, otherLabel, client, **diffOpts):
         ''' Fetch the list of diffs from this label to another one '''
 
@@ -124,20 +116,23 @@ class P4OOLabel(_P4OOSpecObj):
         diffText = []
         view = client._getSpecAttr('View')
         for viewLine in view:
-            viewSpec = viewLine.split(" ",2)
+            viewSpec = viewLine.split(" ", 2)
 
             firstLabelPath = '%s@%s' % (viewSpec[0], firstLabelName)
             otherLabelPath = '%s@%s' % (viewSpec[0], otherLabelName)
 
             try:
-                # ask for rawOutput so we get the actual diff content, not just the diff tags.
+                # ask for rawOutput so we get the actual diff content,
+                # not just the diff tags.
                 viewDiffs = self._runCommand('diff2',
                                              rawOutput=True,
-                                             files=[firstLabelPath, otherLabelPath],
-                                             **diffOpts
-                                            )
+                                             files=[firstLabelPath,
+                                                    otherLabelPath],
+                                             **diffOpts)
                 diffText.extend(viewDiffs)
-            except _P4Warning:  # This gets thrown if no files exist in view path
+
+            except _P4Warning:
+                # This gets thrown if no files exist in view path
                 pass
 
         return diffText

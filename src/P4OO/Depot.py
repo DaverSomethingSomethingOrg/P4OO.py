@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Depot Object
 
@@ -26,15 +25,10 @@ Query Options:
       <none>
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OODepot(_P4OOSpecObj):
     ''' P4OODepot currently implements no custom logic of its own. '''
 

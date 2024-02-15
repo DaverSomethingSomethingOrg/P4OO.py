@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Change Object
 
@@ -45,56 +44,51 @@ Query Options:
 '''
 
 
-######################################################################
-# Includes
-#
 from P4OO._Exceptions import _P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOChange(_P4OOSpecObj):
     ''' P4OOChange currently implements no custom logic of its own. '''
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'change'
 
-    ######################################################################
-    # getChangesFromChangeNums()
-    #  - Fetch the list of changes from this change to another one.
-    #
-    # ASSUMPTIONS:
-    # - self represents the lower of the two changes.  If the other
-    #   direction is desired, then make the call against the other
-    #   change instead.
-    #
     def getChangesFromChangeNums(self, otherChange, client):
-        ''' Fetch the list of changes from this change to another one. '''
+        ''' Fetch the list of changes from this change to another one.
+
+            ASSUMPTIONS:
+            - self represents the lower of the two changes.  If the other
+              direction is desired, then make the call against the other
+              change instead.
+        '''
 
         if not isinstance(otherChange, P4OOChange):
             raise TypeError(otherChange)
 
-        firstChange = int(self._getSpecID()) + 1 # +1 to not include the from change
+        # +1 to not include the from change
+        firstChange = int(self._getSpecID()) + 1
         lastChange = int(otherChange._getSpecID())
 
         aggregatedChanges = P4OOChangeSet()
         view = client._getSpecAttr('View')
         for viewLine in view:
-            viewSpec = viewLine.split(" ",2)
+            viewSpec = viewLine.split(" ", 2)
 
-            fileChangeRange = '%s@%d,%d' % (viewSpec[0], firstChange, lastChange)
-            viewChanges = self.query(P4OOChangeSet, files=fileChangeRange, longOutput=1)
+            fileChangeRange = '%s@%d,%d' % (viewSpec[0], firstChange,
+                                            lastChange)
+            viewChanges = self.query(P4OOChangeSet, files=fileChangeRange,
+                                     longOutput=1)
             aggregatedChanges |= viewChanges
 
         return aggregatedChanges
 
-
 #    def reopenFiles(self):
 #        return self._runCommand('reopen',
 #                                change=self,
-#                                files="//%s/..." % self._getSpecAttr('client'),
+#                                files="//%s/..." %
+#                                self._getSpecAttr('client'),
 #                                p4client=self._getSpecAttr('client')
 #                               )
 
@@ -104,13 +98,13 @@ class P4OOChange(_P4OOSpecObj):
                                 change=self,
                                 noclientrefresh=True,
                                 files="//%s/..." % self._getSpecAttr('client'),
-                                p4client=self._getSpecAttr('client')
-                               )
+                                p4client=self._getSpecAttr('client'))
 #        try:
 #            return self._runCommand('revert',
 #                                    change=self,
 #                                    noclientrefresh=True,
-#                                    files="//%s/..." % self._getSpecAttr('client'),
+#                                    files="//%s/..." %
+#                                    self._getSpecAttr('client'),
 #                                    p4client=self._getSpecAttr('client')
 #                                   )
 #        except _P4Fatal:
@@ -121,8 +115,7 @@ class P4OOChange(_P4OOSpecObj):
                                     delete=True,
                                     change=self,
                                     force=True,
-                                    p4client=self._getSpecAttr('client')
-                                   )
+                                    p4client=self._getSpecAttr('client'))
         except _P4Fatal:
             return True
 

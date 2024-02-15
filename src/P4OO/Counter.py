@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Counter object
 
@@ -22,24 +21,14 @@ changed.
 
 '''
 
-######################################################################
-# Includes
-#
 from P4OO._Base import _P4OOBase
 from P4OO._Set import _P4OOSet
 
 
-######################################################################
-# SpecObj Class Initialization
-#
 class P4OOCounter(_P4OOBase):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self._getAttr('id'))
 
-
-######################################################################
-# Methods
-#
     def getValue(self):
         p4ConnObj = self._getP4Connection()
         return p4ConnObj.readCounter(self._getAttr('id'))

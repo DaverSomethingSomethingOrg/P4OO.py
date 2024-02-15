@@ -6,7 +6,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 P4OO interface to P4Python
 
@@ -19,16 +18,14 @@ import os
 import re
 
 # P4Python
-from P4 import P4,P4Exception,Spec
+from P4 import P4, P4Exception, Spec
 
 from P4OO._Exceptions import _P4OOFatal, _P4Fatal, _P4Warning
 from P4OO._Connection import _P4OOConnection
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._P4PythonSchema import _P4OOP4PythonSchema
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class _P4OOP4Python(_P4OOConnection):
 
     def readCounter(self, counterName):
@@ -43,7 +40,6 @@ class _P4OOP4Python(_P4OOConnection):
         except ValueError:
             return p4Output[0]['value']
 
-
     def setCounter(self, counterName, newValue):
         '''Set the named counter in Perforce'''
 
@@ -56,9 +52,9 @@ class _P4OOP4Python(_P4OOConnection):
         except ValueError:
             return p4Output[0]['value']
 
-
     def refreshSpec(self, specObj):
-        ''' Clear the cached objects and modifiedSpec and re-read spec from Perforce
+        ''' Clear the cached objects and modifiedSpec and re-read spec
+            from Perforce.
 
             Any changes made via _setSpecAttr will be lost!
         '''
@@ -67,12 +63,13 @@ class _P4OOP4Python(_P4OOConnection):
         specObj._delAttr('modifiedSpec')
         self.readSpec(specObj)
 
-
     def readSpec(self, specObj):
-        ''' Query Perforce for the specified object's spec and load it into
-            the provided object doing any appropriate data conversions along the way.
+        ''' Query Perforce for the specified object's spec and load it
+            into the provided object doing any appropriate data conversions
+            along the way.
 
-            If the spec has already been read and is present, no action is taken.
+            If the spec has already been read and is present, no action
+            is taken.
         '''
 
         # Make sure we've read in the config file
@@ -90,30 +87,33 @@ class _P4OOP4Python(_P4OOConnection):
         if p4SpecObj is None:
             if specID is None and specCmdObj.isIdRequired():
                 if modifiedSpec is not None and idAttr in modifiedSpec:
-                    specID = specObj._setAttr('id', modifiedSpec[idAttr] )
+                    specID = specObj._setAttr('id', modifiedSpec[idAttr])
                 else:
                     # Nothing to do here, no id in any form from caller
-                    raise _P4OOFatal("Cannot identify %s object" % (specType,) )
+                    raise _P4OOFatal("Cannot identify %s object" %
+                                     (specType,))
 
             specCmd = specCmdObj.getSpecCmd()
             p4Output = self._execCmd(specCmd, "-o", specID)
 
-            # Since we muck with the Spec replacing date fields with datetime objects, we just flatten the objects.
+            # Since we muck with the Spec replacing date fields with
+            # datetime objects, we just flatten the objects.
             p4SpecObj = p4Output[0]
             specObj._setAttr('p4SpecObj', p4SpecObj)
 
         p4Spec = dict(p4SpecObj)
         return self._generateModifiedSpec(specCmdObj, specObj, p4Spec)
 
-
     def _generateModifiedSpec(self, specCmdObj, specObj, specDict):
-        # Perforce will return an "empty" spec when a specified object isn't found so it can be handily created.
+        # Perforce will return an "empty" spec when a specified object isn't
+        # found so it can be handily created.
         # We don't want that behavior here, so we throw an exception instead.
-        # We'll want to have a "createSpec" method for that kind of thing
-        # HACK - Specs that don't have 'Update' timestamp are specs that don't exist yet.
-        # HACKHACK - change is exceptional in this regard. :)
-#HACKHACKHACK want to comment this out to leverage default specs, but other stuff breaks right now.
-#TODO fix this somehow
+        # We'll want to have a "createSpec" method for that kind of thing.
+
+# HACK - Specs that don't have 'Update' timestamp are specs that don't exist yet.
+# HACKHACK - change is exceptional in this regard. :)
+# HACKHACKHACK want to comment this out to leverage default specs, but other stuff breaks right now.
+# TODO fix this somehow
 #        if specType is not 'change' and 'Update' not in p4Spec:
 #            raise _P4OOFatal(specType + ": " + str(specID) + " does not exist")
 #            return None
@@ -138,13 +138,12 @@ class _P4OOP4Python(_P4OOConnection):
         # We'll set the object's specID if it was not defined..if we can.
         if specID is None:
             idAttr = specCmdObj.getPyIdAttribute()
-            specObj._setAttr('id', modifiedSpec[idAttr] )
+            specObj._setAttr('id', modifiedSpec[idAttr])
 
         return modifiedSpec
 
-
     def saveSpec(self, specObj, force=False):
-#TODO Document this...
+# TODO Document this...
 
         # Start with readSpec to make sure we're in sync with the server
         self.readSpec(specObj)
@@ -160,7 +159,8 @@ class _P4OOP4Python(_P4OOConnection):
 
         # If there's no modified spec or ID, then there's nothing to save
         if modifiedSpec is None and specID is None:
-            raise _P4OOFatal("Cannot save %s object: Nothing to save" % (specType,) )
+            raise _P4OOFatal("Cannot save %s object: Nothing to save" %
+                             (specType,))
 
         if p4SpecObj is None:
             # This must be a brand new spec
@@ -174,8 +174,9 @@ class _P4OOP4Python(_P4OOConnection):
         if p4IdAttr in p4SpecObj:
             # We'll set the object's specID if it was not defined..if we can.
             if specID is None:
-                # At this point the SpecObj is initialized enough for this to work...
-                specObj._setAttr('id', p4SpecObj[p4IdAttr] )
+                # At this point the SpecObj is initialized enough for
+                # this to work...
+                specObj._setAttr('id', p4SpecObj[p4IdAttr])
         else:
             if specCmdObj.isIdRequired():
                 if specID is not None:
@@ -186,29 +187,32 @@ class _P4OOP4Python(_P4OOConnection):
         p4Output = None
         if force:
             if not specCmdObj.isForceable():
-                raise _P4OOFatal("Command %s doesn't support force" % (specCmd,) )
+                raise _P4OOFatal("Command %s doesn't support force" %
+                                 (specCmd,))
 
-#TODO hardcoded forceoption should be config produced..
+# TODO hardcoded forceoption should be config produced..
             p4Output = self._execCmd(specCmd, "-i", p4SpecObj, "-f")
         else:
             p4Output = self._execCmd(specCmd, "-i", p4SpecObj)
 
-        # Since we know we're saving a spec, we can take some liberties with hardcoded parsing here.
+        # Since we know we're saving a spec, we can take some liberties
+        # with hardcoded parsing here.
         if specID is None:
             if specType == "change":
                 # parse p4Output for new change#
                 # ['Change 1 created.']
-                specID = re.search(r'Change (\d+) created', p4Output[0]).group(1)
-#TODO...
+                specID = re.search(r'Change (\d+) created',
+                                   p4Output[0]).group(1)
+# TODO...
 #                print("specID: ", specID)
-            specObj._setAttr('id', specID )
-#TODO... other spec types that accept new?
+            specObj._setAttr('id', specID)
+# TODO... other spec types that accept new?
 
-        # refresh our object against the freshly saved spec to get updated timestamps and so on
+        # refresh our object against the freshly saved spec to get updated
+        # timestamps and so on
         self.refreshSpec(specObj)
 
         return True
-
 
     def deleteSpec(self, specObj, force=False):
         specType = specObj._SPECOBJ_TYPE
@@ -226,20 +230,23 @@ class _P4OOP4Python(_P4OOConnection):
 
         # If there's no modified spec or ID, then there's nothing to save
         if modifiedSpec is None and specID is None:
-#TODO throw an exception?
+# TODO throw an exception?
             return False
 
-        # If specObj isn't already initialized (it should be), then initialize it.
+        # If specObj isn't already initialized (it should be), then
+        # initialize it.
         if p4SpecObj is None:
-            # We need specID first here to initialize empty spec properly.. see if we have it in modifiedSpec
+            # We need specID first here to initialize empty spec properly..
+            # see if we have it in modifiedSpec
             if specID is None and modifiedSpec is not None:
                 if idAttr in modifiedSpec:
-                    specID = specObj._setAttr('id', modifiedSpec[idAttr] )
+                    specID = specObj._setAttr('id', modifiedSpec[idAttr])
 
             try:
                 self.readSpec(specObj)
             except P4Exception:
-                # Ignore exceptions for objects that don't exist, we might be creating them here
+                # Ignore exceptions for objects that don't exist, we might
+                # be creating them here
                 pass
 
             # refresh the local variables for spec after read
@@ -257,34 +264,38 @@ class _P4OOP4Python(_P4OOConnection):
         if specID is None:
             # We'll set the object's specID if it was not defined..if we can.
             if p4IdAttr in p4SpecObj:
-                # At this point the SpecObj is initialized enough for this to work...
-                specObj._setAttr('id', p4SpecObj[p4IdAttr] )
+                # At this point the SpecObj is initialized enough for this
+                # to work...
+                specObj._setAttr('id', p4SpecObj[p4IdAttr])
                 specID = p4SpecObj[p4IdAttr]
-#TODO be throwing exceptions...
+# TODO be throwing exceptions...
 
         p4Output = None
         if force:
             if not specCmdObj.isForceable():
-                raise _P4OOFatal("Command %s doesn't support force" % (specCmd,) )
+                raise _P4OOFatal("Command %s doesn't support force" %
+                                 (specCmd,))
 
-#TODO hardcoded forceoption should be config produced..
+# TODO hardcoded forceoption should be config produced..
             p4Output = self._execCmd(specCmd, "-d", "-f", specID)
         else:
             p4Output = self._execCmd(specCmd, "-d", specID)
 
-        # If we made it this far, nothing fatal happened inside Perforce, but spec was not necessarily deleted.
-#TODO I'm just guessing that all spec deletions follow this format of "^p4IdAttr specID (can't be )?deleted.$"
-        m = re.match(r'^%s %s (.*)deleted.$' % (re.escape(p4IdAttr), re.escape(specID)), p4Output[0])
+        # If we made it this far, nothing fatal happened inside Perforce,
+        # but spec was not necessarily deleted.
+# TODO I'm just guessing that all spec deletions follow this format of "^p4IdAttr specID (can't be )?deleted.$"
+        m = re.match(r'^%s %s (.*)deleted.$' % (re.escape(p4IdAttr),
+                                                re.escape(specID)),
+                     p4Output[0])
         if not m or m.group(1) != '':
             raise _P4OOFatal(p4Output)
 
         return True
 
-
     def runCommand(self, cmdName, rawOutput=False, **kwargs):
         ''' Wrapper around _execCmd that orchestrates validating the
             commandline arguments from P4OO Spec/Set objects, executing
-            the command through P4Python, and parsing the returned output 
+            the command through P4Python, and parsing the returned output
             back into P4OO Spec/Set objects.
         '''
         query = dict(kwargs)
@@ -302,22 +313,23 @@ class _P4OOP4Python(_P4OOConnection):
 
 #        print("p4Config: ", p4Config )
         p4Out = self._execCmd(cmdName, execArgs, **p4Config)
-## TODO... subcommands?
-##                'counter' => { 'specCmd'      => 'counter',
-##                               'singularID'   => 'counter',
-##                               'queryCmd'     => 'counters',
-##                               'pluralID'     => 'counter',
-##                               'idAttr'       => 'counter',
-##     p4 counter name
-##     p4 counter [-f] name value
-##     p4 counter [-f] -d name
-##     p4 counter [-i] name
-##
-###subcommands:
-### increment
-### delete
-### set
-##                            },
+
+# TODO... subcommands?
+#                'counter' => { 'specCmd'      => 'counter',
+#                               'singularID'   => 'counter',
+#                               'queryCmd'     => 'counters',
+#                               'pluralID'     => 'counter',
+#                               'idAttr'       => 'counter',
+#     p4 counter name
+#     p4 counter [-f] name value
+#     p4 counter [-f] -d name
+#     p4 counter [-i] name
+#
+# subcommands:
+#  increment
+#  delete
+#  set
+#                            },
 
         # If no special output massaging is needed, we're done!
 
@@ -325,7 +337,6 @@ class _P4OOP4Python(_P4OOConnection):
             return p4Out
 
         return self._parseOutput(cmdName, p4Out)
-
 
     def _parseOutput(self, cmdName, p4Out):
 
@@ -340,9 +351,12 @@ class _P4OOP4Python(_P4OOConnection):
 
         # Make sure the caller is properly equipped to use any objects
         # we construct here.
-#        specModule = __import__("P4OO." + p4ooType, globals(), locals(), ["P4OO" + p4ooType, "P4OO" + setType], -1)
-        specModule = __import__("P4OO." + p4ooType, globals(), locals(), ["P4OO" + p4ooType, "P4OO" + setType], 0)
-#        setModule = __import__("P4OO." + setType, globals(), locals(), ["P4OO" + setType], -1)
+#        specModule = __import__("P4OO." + p4ooType, globals(), locals(),
+#                                ["P4OO" + p4ooType, "P4OO" + setType], -1)
+        specModule = __import__("P4OO." + p4ooType, globals(), locals(),
+                                ["P4OO" + p4ooType, "P4OO" + setType], 0)
+#        setModule = __import__("P4OO." + setType, globals(), locals(),
+#                               ["P4OO" + setType], -1)
         specClass = getattr(specModule, "P4OO" + p4ooType)
         setClass = getattr(specModule, "P4OO" + setType)
 
@@ -366,25 +380,26 @@ class _P4OOP4Python(_P4OOConnection):
 #                        }
 #            specObj = eval( singularType + "(specAttrs)" )
 
-
             specObj = specClass()
 
-#TODO - figure out P4.Spec objects
+# TODO - figure out P4.Spec objects
 #            specObj._setAttr('p4Spec', Spec(p4OutHash))
-#TODO - need to fix this special case for Change - need better construction logic
+# TODO - need to fix this special case for Change - need better construction logic
             if p4ooType == 'Change':
                 specObj._setAttr('id', int(p4OutHash[idAttr]))
             else:
                 specObj._setAttr('id', p4OutHash[idAttr])
 
-#TODO - This is a little awkward...
+# TODO - This is a little awkward...
             if isinstance(specObj, _P4OOSpecObj):
-                specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specObj._SPECOBJ_TYPE)
+                specCmdObj = self._p4PythonSchema.getSpecCmd(
+                    specType=specObj._SPECOBJ_TYPE)
                 self._generateModifiedSpec(specCmdObj, specObj, p4OutHash)
 #            specObj._setAttr('modifiedSpec', p4OutHash)
 #            self._logDebug( "id: ", p4OutHash[idAttr])
 
-            specObj._setAttr('_p4Conn', self)  # Make sure each of these objects can reuse this connection too
+            # Make sure each of these objects can reuse this connection too
+            specObj._setAttr('_p4Conn', self)
             objectList.append(specObj)
 
         # Wrap it with a bow
@@ -405,13 +420,13 @@ class _P4OOP4Python(_P4OOConnection):
         # copy the input tuple to a mutable list first.
         listArgs = list(args)
 
-#TODO - listArgs is an immutable tuple in P4Python...
+# TODO - listArgs is an immutable tuple in P4Python...
         if len(listArgs) > 0:
             # First strip undef args from the tail, P4PERL don't like them
             while listArgs[-1] is None or listArgs[-1] == "":
                 del listArgs[-1]
 
-            # Next look for a '-i' arg for setting input and exrtact the input arg
+            # Next look for a '-i' arg for setting input and extract the arg
             try:
                 inputIndex = listArgs.index("-i")
                 p4PythonObj.input = listArgs[inputIndex+1]
@@ -419,19 +434,18 @@ class _P4OOP4Python(_P4OOConnection):
             except ValueError:
                 pass
 
-
 #            if listArgs[0] == "-i":
 #                p4PythonObj.input = listArgs[1]
 #                self._logDebug("Setting Input:", p4PythonObj.input)
 #                listArgs = listArgs[2:]
-
 
         # override p4Python settings for this command as applicable
         origConfig = {}
         for (var, value) in p4Config.items():
             origConfig[var] = p4PythonObj.__getattribute__(var)
             p4PythonObj.__setattr__(var, value)
-            self._logDebug("overriding p4Config['%s'] = %s with %s" % (var, str(origConfig[var]), str(value)))
+            self._logDebug("overriding p4Config['%s'] = %s with %s"
+                           % (var, str(origConfig[var]), str(value)))
 
 # TODO ping server before each command?
         self._logDebug("Executing:", p4SubCmd, listArgs)
@@ -441,7 +455,8 @@ class _P4OOP4Python(_P4OOConnection):
         # restore p4Python settings changed for this command only
         for var in p4Config:
             p4PythonObj.__setattr__(var, origConfig[var])
-            self._logDebug("resetting p4Config['%s'] = %s" % (var, str(origConfig[var])))
+            self._logDebug("resetting p4Config['%s'] = %s"
+                           % (var, str(origConfig[var])))
 
 # TODO Should do something to detect disconnects, etc.
 
@@ -460,7 +475,6 @@ class _P4OOP4Python(_P4OOConnection):
 
         return p4Out
 
-
     def _connect(self):
         p4PythonObj = self._getAttr('p4PythonObj')
 
@@ -476,7 +490,6 @@ class _P4OOP4Python(_P4OOConnection):
             self._setAttr('_ownP4PythonObj', 1)
 
         return p4PythonObj
-
 
     def _disconnect(self):
         ownP4PythonObj = self._getAttr('_ownP4PythonObj')

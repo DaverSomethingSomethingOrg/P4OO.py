@@ -5,7 +5,6 @@
 #
 ######################################################################
 
-#NAME / DESCRIPTION
 '''
 Perforce Branch Object
 
@@ -28,16 +27,10 @@ Query Options:
       owner: (interchangeable with user)
 '''
 
-
-######################################################################
-# Includes
-#
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-######################################################################
-# P4Python Class Initialization
-#
+
 class P4OOBranch(_P4OOSpecObj):
     # P4OOBranch currently implements no custom logic of its own.
 
