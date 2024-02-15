@@ -1,4 +1,4 @@
-# P4OO.py - HOWTO
+# HOWTO
 
 ## Initializing a connection
 
@@ -9,7 +9,7 @@ P4OO, giving clear and direct control to the caller.
 
 #### Establish a connection using P4Python
 
-```python
+```python linenums="0"
 p4Handle = P4.P4(port="p4-server:1666", user="perforce_user").connect()
 ```
 
@@ -18,13 +18,13 @@ p4Handle = P4.P4(port="p4-server:1666", user="perforce_user").connect()
 When constructing any P4OO.py object, simply pass in your p4Handle
 object as p4PythonObj
 
-```python
+```python linenums="0"
 changeCounter = P4OOCounter(id="change", p4PythonObj=p4Handle)
 ```
 
   OR
 
-```python
+```python linenums="0"
 lastSubmittedChange = P4OOChangeSet(p4PythonObj=p4Handle).query(status="submitted", max=1)[0]
 ```
 
@@ -37,7 +37,7 @@ work with P4Python's defaults or environment.
 No special syntax, just construct P4OO.py objects without passing in
 the `p4PythonObj` argument.
 
-```python
+```python linenums="0"
 changeCounter = P4OOCounter(id="change")
 ```
 
@@ -58,7 +58,7 @@ In an offline backup situation, we might want to examine our offline
 replica and compare its content to our production server.  With P4OO.py
 it is very easy to accomplish this.
 
-```python
+```python linenums="0"
 offlineP4Port = "rsh:%s -r %s -J off -i" % (p4d_bin, p4Root,)
 
 offlineP4Handle = P4.P4(port=offlineP4Port, user=p4SysUser).connect()
@@ -81,14 +81,14 @@ be provided, it is not necessary to serialize objects within P4OO.py.
 
 Given these variables:
 
-```python
+```python linenums="0"
 userName = "dave"
 p4UserObj = P4OOCounter(id=userName, p4PythonObj=p4Handle)
 ```
 
 The following will produce the same results:
 
-```python
+```python linenums="0"
 userClients = P4OOClientSet(p4PythonObj=p4Handle).query(user=userName)
 userClients = P4OOClientSet(p4PythonObj=p4Handle).query(user=p4UserObj)
 ```
@@ -126,7 +126,7 @@ against.
 
 For instance, to find the last submitted change, the query would look like this:
 
-```python
+```python linenums="0"
 emptySet = P4OOChangeSet(p4PythonObj=p4Handle)
 submittedChangeSet = emptySet.query(status="submitted", max=1)
 lastSubmittedChangeObj = submittedChangeSet[0]
@@ -134,7 +134,7 @@ lastSubmittedChangeObj = submittedChangeSet[0]
 
 or more directly:
 
-```python
+```python linenums="0"
 lastSubmittedChangeObj = P4OOChangeSet(p4PythonObj=p4Handle).query(status="submitted", max=1)[0]
 ```
 
@@ -178,13 +178,13 @@ potential for working with Perforce.
 
 #### Find the latest change\# on a given label
 
-```bash
+```bash linenums="0"
 p4 changes -m 1 @<label>
 ```
 
  OR
 
-```python
+```python linenums="0"
 p4LabelObj.getLastChange()
 ```
 
@@ -194,43 +194,43 @@ p4LabelObj.getLastChange()
 
 ##### Across all client workspaces
 
-```python
+```python linenums="0"
 p4UserObj.listOpenedFiles()
 ```
 
 ##### In a specific client workspace
 
-```python
+```python linenums="0"
 p4UserObj.listOpenedFiles(client=p4ClientObj)
 ```
 
  OR
 
-```python
+```python linenums="0"
 p4ClientObj.getOpenedFiles(user=p4UserObj)
 ```
 
 #### Find all clients belonging to a user
 
-```python
+```python linenums="0"
 p4UserObj.listClients()
 ```
 
   OR
 
-```python
+```python linenums="0"
 P4OOClientSet().query(user=p4UserObj)
 ```
 
 #### Find all changes owned by a user
 
-```python
+```python linenums="0"
 p4UserObj.listChanges()
 ```
 
   OR
 
-```python
+```python linenums="0"
 P4OOChangeSet().query(user=p4UserObj)
 ```
 
@@ -243,16 +243,16 @@ removed.
 
 The algorithm works as follows (simplified for illustration):
 
-```bash
-for client in `p4 clients -u $user`
+```bash linenums="0"
+for client in $(p4 clients -u $user)
     p4 -c $client revert -k //$client/...
 
-for change in `p4 changes -u $user -s pending`
-    client = `p4 -ztag change -o 131 |grep -i client`
+for change in $(p4 changes -u $user -s pending)
+    client = $(p4 -ztag change -o 131 |grep -i client)
     p4 -c $client shelve -d -f -c $change
     p4 change -d -f $change
 
-for client in `p4 clients -u $user`
+for client in $(p4 clients -u $user)
     p4 client -d -f $client
 
 p4 user -d -f $user
@@ -260,6 +260,6 @@ p4 user -d -f $user
 
 The equivalent as implemented in P4OO.py:
 
-```python
+```python linenums="0"
 p4UserObj.deleteWithVengeance()
 ```

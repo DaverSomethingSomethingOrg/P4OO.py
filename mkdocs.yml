@@ -7,6 +7,13 @@ docs_dir: docs/
 
 plugins:
   - techdocs-core
+  - mkdocstrings
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.annotate
 
 markdown_extensions:
   - toc:
@@ -16,13 +23,17 @@ markdown_extensions:
   - def_list
   - tables
   - pymdownx.highlight:
-      use_pygments: false
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
   - callouts
 
 nav:
-  - 'P4OO.py Documentation': 'index.md'
-  - 'HOWTO': 'howto.md'
+  - 'index.md'
+  - 'howto.md'
   - 'Unit Test Coverage Report': 'coverage/index.html'
   - 'Pylint Report': 'pylint.html'
+  - 'reference.md'
