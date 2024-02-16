@@ -23,7 +23,6 @@ import _P4GoldenEgg
 
 # We use dependency injection with P4 for our tests
 import P4
-import P4OO._Exceptions
 import P4OO.Client
 import P4OO._SpecObj
 

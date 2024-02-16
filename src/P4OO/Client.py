@@ -41,7 +41,7 @@ Query Options:
 
 import re
 from P4OO.Change import P4OOChangeSet
-from P4OO._Exceptions import _P4Warning, _P4Fatal
+from P4OO.Exceptions import P4Warning, P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
@@ -61,7 +61,7 @@ class P4OOClient(_P4OOSpecObj):
 #        try:
 #            p4Output = self._runCommand('add', p4client=self, files=fileSpec,
 #                                        **kwargs)
-#        except _P4Warning as e:
+#        except P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
 #            else:
@@ -80,7 +80,7 @@ class P4OOClient(_P4OOSpecObj):
 #        try:
 #            p4Output = self._runCommand('add', p4client=self, files=fileSpec,
 #                                        **kwargs)
-#        except _P4Warning as e:
+#        except P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
 #            else:
@@ -122,7 +122,7 @@ class P4OOClient(_P4OOSpecObj):
 #        try:
 #            p4Output = self._runCommand('add', p4client=self,
 #                                        files=fileSpec, **kwargs)
-#        except _P4Warning as e:
+#        except P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
 #            else:
@@ -139,7 +139,7 @@ class P4OOClient(_P4OOSpecObj):
         try:
             p4Output = self._runCommand('sync', p4client=self,
                                         files=fileSpec, **kwargs)
-        except _P4Warning as e:
+        except P4Warning as e:
             if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
                 pass
             else:
@@ -153,7 +153,7 @@ class P4OOClient(_P4OOSpecObj):
         try:
             return self._runCommand('reopen', files="//%s/..."
                                     % self._getSpecID(), p4client=self)
-        except _P4Warning:
+        except P4Warning:
             return True
 
     def revertOpenedFiles(self):
@@ -162,13 +162,13 @@ class P4OOClient(_P4OOSpecObj):
             return self._runCommand('revert', noclientrefresh=True,
                                     files="//%s/..." % self._getSpecID(),
                                     p4client=self)
-        except _P4Warning:
+        except P4Warning:
             return True
 
     def deleteWithVengeance(self):
         try:
             self.deleteSpec(force=True)
-        except _P4Fatal:
+        except P4Fatal:
             # First, simplify things by removing any Host spec attr for
             # this client
             self._delSpecAttr('host')

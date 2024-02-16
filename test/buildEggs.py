@@ -32,7 +32,6 @@ import P4
 from P4OO.User import P4OOUser
 from P4OO.Client import P4OOClient
 from P4OO.Label import P4OOLabel
-from P4OO.Change import P4OOChange, P4OOChangeSet
 
 
 ######################################################################

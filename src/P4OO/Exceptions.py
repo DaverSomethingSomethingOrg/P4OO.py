@@ -11,31 +11,31 @@ P4OO Error Classes to help distinguish Warning/Error/Fatal issues
 '''
 
 
-class _P4OOError(Exception):
+class P4OOError(Exception):
     '''
     Base class for all P4OO Exceptions
     '''
 
 
-class _P4OOFatal(_P4OOError):
+class P4OOFatal(P4OOError):
     '''Generic Error - Fatal'''
 
 
-class _P4OOWarning(_P4OOError):
+class P4OOWarning(P4OOError):
     '''Generic Error - nonFatal'''
 
 
-class _P4OOBadSubClass(_P4OOFatal):
+class P4OOBadSubClass(P4OOFatal):
     '''Subclass does not comform to interface spec or cannot be found'''
 
 
-class _P4Error(_P4OOError):
+class P4Error(P4OOError):
     '''Generic Internal Error'''
 
 
-class _P4Fatal(_P4OOFatal):
-    '''Generic Internal Error'''
+class P4Fatal(P4OOFatal):
+    '''Generic Internal Error - P4Python did something we didn't expect.'''
 
 
-class _P4Warning(_P4OOWarning):
-    '''Generic Internal Warning'''
+class P4Warning(P4OOWarning):
+    '''Generic Internal Warning - P4Python did something we didn't expect.'''

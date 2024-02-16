@@ -40,4 +40,6 @@ class P4OOBranch(_P4OOSpecObj):
 
 class P4OOBranchSet(_P4OOSet):
     # P4OOBranchSet currently implements no custom logic of its own.
-    pass
+
+    # Subclasses must define SETOBJ_TYPE
+    _SETOBJ_TYPE = 'branches'

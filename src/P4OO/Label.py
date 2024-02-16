@@ -37,7 +37,7 @@ Query Options:
         type: [ string, File, FileSet ]
 '''
 
-from P4OO._Exceptions import _P4Warning
+from P4OO.Exceptions import P4Warning
 from P4OO.Change import P4OOChangeSet
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
@@ -63,7 +63,7 @@ class P4OOLabel(_P4OOSpecObj):
 #        try:
 #            p4Output = self._runCommand('add', p4client=self, files=fileSpec,
 #                                        **kwargs)
-#        except _P4Warning as e:
+#        except P4Warning as e:
 #            if re.search(r"\nWARNING: File\(s\) up-to-date\.$", str(e)):
 #                pass
 #            else:
@@ -131,7 +131,7 @@ class P4OOLabel(_P4OOSpecObj):
                                              **diffOpts)
                 diffText.extend(viewDiffs)
 
-            except _P4Warning:
+            except P4Warning:
                 # This gets thrown if no files exist in view path
                 pass
 

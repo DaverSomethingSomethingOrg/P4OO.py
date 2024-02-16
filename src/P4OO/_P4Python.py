@@ -2,17 +2,9 @@
 #  Copyright (c)2011-2012,2024 David L. Armstrong.
 #  Copyright (c)2012-2013, Cisco Systems, Inc.
 #
-#  P4OO._Connection.P4Python.py
+#  P4OO._P4Python.py
 #
 ######################################################################
-
-'''
-P4OO interface to P4Python
-
-P4OO._Connection.P4Python provides the translation from P4OO
-data-object calls into P4 subcommands, and translation of p4
-subcommand output back into P4OO data-objects.
-'''
 
 import os
 import re
@@ -20,7 +12,7 @@ import re
 # P4Python
 from P4 import P4, P4Exception, Spec
 
-from P4OO._Exceptions import _P4OOFatal, _P4Fatal, _P4Warning
+from P4OO.Exceptions import P4OOFatal, P4Fatal, P4Warning
 from P4OO._Connection import _P4OOConnection
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._P4PythonSchema import _P4OOP4PythonSchema
@@ -29,7 +21,7 @@ from P4OO._P4PythonSchema import _P4OOP4PythonSchema
 class _P4OOP4Python(_P4OOConnection):
 
     def readCounter(self, counterName):
-        '''Read the named counter from Perforce and return the value'''
+        ''' Read the named counter from Perforce and return the value. '''
 
         # Make sure we've read in the config file
         self._initialize()
@@ -41,7 +33,7 @@ class _P4OOP4Python(_P4OOConnection):
             return p4Output[0]['value']
 
     def setCounter(self, counterName, newValue):
-        '''Set the named counter in Perforce'''
+        ''' Set the named counter in Perforce. '''
 
         # Make sure we've read in the config file
         self._initialize()
@@ -90,8 +82,8 @@ class _P4OOP4Python(_P4OOConnection):
                     specID = specObj._setAttr('id', modifiedSpec[idAttr])
                 else:
                     # Nothing to do here, no id in any form from caller
-                    raise _P4OOFatal("Cannot identify %s object" %
-                                     (specType,))
+                    raise P4OOFatal("Cannot identify %s object" %
+                                    (specType,))
 
             specCmd = specCmdObj.getSpecCmd()
             p4Output = self._execCmd(specCmd, "-o", specID)
@@ -115,7 +107,7 @@ class _P4OOP4Python(_P4OOConnection):
 # HACKHACKHACK want to comment this out to leverage default specs, but other stuff breaks right now.
 # TODO fix this somehow
 #        if specType is not 'change' and 'Update' not in p4Spec:
-#            raise _P4OOFatal(specType + ": " + str(specID) + " does not exist")
+#            raise P4OOFatal(specType + ": " + str(specID) + " does not exist")
 #            return None
 
         specID = specObj._getAttr('id')
@@ -159,8 +151,8 @@ class _P4OOP4Python(_P4OOConnection):
 
         # If there's no modified spec or ID, then there's nothing to save
         if modifiedSpec is None and specID is None:
-            raise _P4OOFatal("Cannot save %s object: Nothing to save" %
-                             (specType,))
+            raise P4OOFatal("Cannot save %s object: Nothing to save" %
+                            (specType,))
 
         if p4SpecObj is None:
             # This must be a brand new spec
@@ -187,8 +179,8 @@ class _P4OOP4Python(_P4OOConnection):
         p4Output = None
         if force:
             if not specCmdObj.isForceable():
-                raise _P4OOFatal("Command %s doesn't support force" %
-                                 (specCmd,))
+                raise P4OOFatal("Command %s doesn't support force" %
+                                (specCmd,))
 
 # TODO hardcoded forceoption should be config produced..
             p4Output = self._execCmd(specCmd, "-i", p4SpecObj, "-f")
@@ -273,8 +265,8 @@ class _P4OOP4Python(_P4OOConnection):
         p4Output = None
         if force:
             if not specCmdObj.isForceable():
-                raise _P4OOFatal("Command %s doesn't support force" %
-                                 (specCmd,))
+                raise P4OOFatal("Command %s doesn't support force" %
+                                (specCmd,))
 
 # TODO hardcoded forceoption should be config produced..
             p4Output = self._execCmd(specCmd, "-d", "-f", specID)
@@ -288,7 +280,7 @@ class _P4OOP4Python(_P4OOConnection):
                                                 re.escape(specID)),
                      p4Output[0])
         if not m or m.group(1) != '':
-            raise _P4OOFatal(p4Output)
+            raise P4OOFatal(p4Output)
 
         return True
 
@@ -365,7 +357,7 @@ class _P4OOP4Python(_P4OOConnection):
         # Don't really care about the content of the output, just the specIDs.
         for p4OutHash in p4Out:
             if idAttr not in p4OutHash:
-                raise _P4OOFatal("Unexpected output from Perforce.")
+                raise P4OOFatal("Unexpected output from Perforce.")
 
             # Copy the idAttr output value to the id attribute
             #  if they aren't one and the same already
@@ -467,11 +459,11 @@ class _P4OOP4Python(_P4OOConnection):
             if len(p4PythonObj.warnings) > 0:
                 errMsg += "\nWARNING: " + "".join(p4PythonObj.warnings)
 
-            raise _P4Fatal("P4 Command Failed:\n" + errMsg)
+            raise P4Fatal("P4 Command Failed:\n" + errMsg)
 
         if len(p4PythonObj.warnings) > 0:
             warnMsg = "WARNING: " + "".join(p4PythonObj.warnings)
-            raise _P4Warning("P4 Command Warned:\n" + warnMsg)
+            raise P4Warning("P4 Command Warned:\n" + warnMsg)
 
         return p4Out
 
@@ -484,7 +476,7 @@ class _P4OOP4Python(_P4OOConnection):
                 p4PythonObj.connect()
                 p4PythonObj.exception_level = 0
             except P4Exception as exc:
-                raise _P4Fatal("P4 Connection Failed") from exc
+                raise P4Fatal("P4 Connection Failed") from exc
 
             self._setAttr('p4PythonObj', p4PythonObj)
             self._setAttr('_ownP4PythonObj', 1)

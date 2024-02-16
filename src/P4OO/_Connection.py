@@ -5,16 +5,7 @@
 #
 ######################################################################
 
-'''
-Abstract P4OO Connection interface
-
-P4OO._Connection provides the translation from P4OO
-data-object calls into P4 subcommands, and translation of p4
-subcommand output back into P4OO data-objects.
-'''
-
 from P4OO._Base import _P4OOBase
-
 
 class _P4OOConnection(_P4OOBase):
     '''

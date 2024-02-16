@@ -44,7 +44,7 @@ Query Options:
 '''
 
 
-from P4OO._Exceptions import _P4Fatal
+from P4OO.Exceptions import P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
@@ -107,7 +107,7 @@ class P4OOChange(_P4OOSpecObj):
 #                                    self._getSpecAttr('client'),
 #                                    p4client=self._getSpecAttr('client')
 #                                   )
-#        except _P4Fatal:
+#        except P4Fatal:
 
     def deleteShelf(self):
         try:
@@ -116,7 +116,7 @@ class P4OOChange(_P4OOSpecObj):
                                     change=self,
                                     force=True,
                                     p4client=self._getSpecAttr('client'))
-        except _P4Fatal:
+        except P4Fatal:
             return True
 
     def deleteWithVengeance(self):

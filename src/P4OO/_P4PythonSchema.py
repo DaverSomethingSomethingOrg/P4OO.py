@@ -17,13 +17,13 @@ from datetime import datetime
 
 import yaml
 from P4OO._SpecObj import _P4OOSpecObj
-from P4OO._Exceptions import _P4OOFatal
+from P4OO.Exceptions import P4OOFatal
 
 
 class _P4OOP4PythonSchema():
     ''' Class to abstract the contents of our p4Config.yml file,
         separate from the execution of the p4 commands done in
-        _P4Python._P4OOP4Python
+        P4OO._P4Python._P4OOP4Python
     '''
 
     def __init__(self, configFile=None):
@@ -50,7 +50,7 @@ class _P4OOP4PythonSchema():
         if cmdName in self.schemaCommands:
             return self.schemaCommands[cmdName]
 
-        raise _P4OOFatal("Unsupported Command " + cmdName)
+        raise P4OOFatal("Unsupported Command " + cmdName)
 
     def getSpecCmd(self, specType):
 
@@ -59,7 +59,7 @@ class _P4OOP4PythonSchema():
         if cmdObj.isSpecCommand():
             return self.schemaCommands[specType]
 
-        raise _P4OOFatal("Unsupported Spec type %s" % specType)
+        raise P4OOFatal("Unsupported Spec type %s" % specType)
 
 
 class _P4OOP4PythonCommand():
@@ -89,7 +89,7 @@ class _P4OOP4PythonCommand():
         if self.isSpecCommand():
             return self.commandDict['specCmd']
 
-        raise _P4OOFatal("Unsupported Spec type %s" % self.command)
+        raise P4OOFatal("Unsupported Spec type %s" % self.command)
 
     def getOutputType(self):
         if 'output' in self.commandDict and 'p4ooType' \
@@ -110,7 +110,7 @@ class _P4OOP4PythonCommand():
         if self.isSpecCommand():
             return self.commandDict['idAttr']
 
-        raise _P4OOFatal("Unsupported Spec type %s" % self.command)
+        raise P4OOFatal("Unsupported Spec type %s" % self.command)
 
     def getP4IdAttribute(self):
 
@@ -131,7 +131,7 @@ class _P4OOP4PythonCommand():
         '''
 
         if not self.isSpecCommand():
-            raise _P4OOFatal("Unsupported Spec type %s" % self.command)
+            raise P4OOFatal("Unsupported Spec type %s" % self.command)
 
         pythonSpec = {}
 
@@ -211,8 +211,8 @@ class _P4OOP4PythonCommand():
 
         allowedFilters = self.getAllowedFilters()
         if allowedFilters is None:
-            raise _P4OOFatal("Querying not supported for Command "
-                             + self.command)
+            raise P4OOFatal("Querying not supported for Command "
+                            + self.command)
 
         allowedConfigs = self.getAllowedConfigs() or {}
 
@@ -236,7 +236,7 @@ class _P4OOP4PythonCommand():
                 optionConfig = allowedFilters[lcFilterKey]
                 isConfigOpt = False
             else:
-                raise _P4OOFatal("Invalid Filter key: " + origFilterKey)
+                raise P4OOFatal("Invalid Filter key: " + origFilterKey)
 
             optionArgs = []
             if isinstance(queryValue, (_P4OOSpecObj, int, str)):
@@ -305,14 +305,14 @@ class _P4OOP4PythonCommand():
 
                     if not matchedType:
                         # Looped through all types, didn't find a match
-                        raise _P4OOFatal("Got %r, but filter key '%s' accepts arguments of only these types: "
-                                         % (optionArg, origFilterKey) + ", ".join(optionConfig['type']))
+                        raise P4OOFatal("Got %r, but filter key '%s' accepts arguments of only these types: "
+                                        % (optionArg, origFilterKey) + ", ".join(optionConfig['type']))
 
 #            print("optionConfig: ", optionConfig)
             # defined cmdline options go at the front
             if 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 0:
                 if len(cmdOptionArgs) != 0:
-                    raise _P4OOFatal("Filter key: %s accepts no arguments.\n" % origFilterKey)
+                    raise P4OOFatal("Filter key: %s accepts no arguments.\n" % origFilterKey)
 
                 if isConfigOpt:
                     p4Config[optionConfig['option']] = True
@@ -321,7 +321,7 @@ class _P4OOP4PythonCommand():
 
             elif 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 1:
                 if len(cmdOptionArgs) != 1:
-                    raise _P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey)
+                    raise P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey)
 
                 if 'bundledArgs' in optionConfig and optionConfig['bundledArgs'] is not None:
                     # join the option and its args into one string  ala "-j8"

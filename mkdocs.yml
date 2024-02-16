@@ -12,6 +12,10 @@ plugins:
       handlers:
         python:
           paths: [src]
+          options:
+#            inherited_members: true
+            filters:
+              - "!^__"
 
 theme:
   name: material
@@ -38,6 +42,9 @@ markdown_extensions:
 nav:
   - 'index.md'
   - 'howto.md'
+  - 'API Reference':
+    - 'specobjs.md'
+    - 'internals.md'
+    - 'exceptions.md'
   - 'Unit Test Coverage Report': 'coverage/index.html'
   - 'Pylint Report': 'pylint.html'
-  - 'reference.md'

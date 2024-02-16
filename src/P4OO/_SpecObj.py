@@ -16,7 +16,7 @@ objects.
 import json
 import datetime
 from P4OO._Base import _P4OOBase
-from P4OO._Exceptions import _P4OOFatal
+from P4OO.Exceptions import P4OOFatal
 
 
 class DateTimeJSONEncoder(json.JSONEncoder):
@@ -46,6 +46,7 @@ class _P4OOSpecObj(_P4OOBase):
         return self._getSpecID()
 
     def _getSpecID(self):
+
         specID = self._getAttr('id')
 
         if specID is None:
@@ -56,6 +57,7 @@ class _P4OOSpecObj(_P4OOBase):
         return specID
 
     def _getSpecAttr(self, attrName):
+
         self.__initialize()
 
         modifiedSpec = self._getAttr('modifiedSpec')
@@ -65,8 +67,8 @@ class _P4OOSpecObj(_P4OOBase):
 
         if lcAttrName not in modifiedSpec:
             specType = self._SPECOBJ_TYPE
-            raise _P4OOFatal("Invalid Spec attribute \"%s\" for type \"%s\"\n"
-                             % (lcAttrName, specType))
+            raise P4OOFatal("Invalid Spec attribute \"%s\" for type \"%s\"\n"
+                            % (lcAttrName, specType))
 
         return modifiedSpec[lcAttrName]
 

@@ -16,8 +16,9 @@ Perforce _Set unittest Class
 ######################################################################
 # Includes
 #
-# P4OO._Base brings in our Exception hierarchy
+import P4OO._Base
 import P4OO._Set
+import P4OO._OrderedSet
 #import pytest
 
 # Test an object instantiated with no attributes

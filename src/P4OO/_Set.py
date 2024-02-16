@@ -5,19 +5,16 @@
 #
 ######################################################################
 
-'''
-Perforce _Set object
-
-P4OO._Set provides common behaviors for grouping of all P4OO Spec-based
-objects.
-'''
-
 from P4OO._Base import _P4OOBase
 from P4OO._OrderedSet import OrderedSet
 
 
 class _P4OOSet(_P4OOBase, OrderedSet):
-    # Subclasses must define SETOBJ_TYPE
+    ''' _P4OOSet provides common behaviors for grouping of all P4OO Spec-based
+        objects.
+
+        Subclasses should set 'SETOBJ_TYPE' to the coresponding P4Python command
+    '''
     _SETOBJ_TYPE = None
 
     def __init__(self, iterable=None, **kwargs):
