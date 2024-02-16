@@ -17,7 +17,8 @@ Spec Attributes:
       jobview
       password
       reviews
-  datetime Attributes:
+
+datetime Attributes:
       update
       access
 
@@ -45,15 +46,18 @@ class P4OOUser(_P4OOSpecObj):
     _SPECOBJ_TYPE = 'user'
 
     def listOpenedFiles(self, client=None):
-        ''' Return a P4OOFileSet of files opened by this user.'''
+        ''' Return a P4OOFileSet of files opened by this user in the
+            specified client workspace.
+        '''
+
         return self._runCommand('opened', user=self, client=client)
 
     def listClients(self):
-        return self.query(P4OOClientSet, user=self)
+        return P4OOClientSet(_p4Conn=self._getP4Connection()).query(user=self)
 
     def listChanges(self, status=None, maxresults=None):
-        return self.query(P4OOChangeSet, user=self, status=status,
-                          maxresults=maxresults)
+        changeSet = P4OOChangeSet(_p4Conn=self._getP4Connection())
+        return changeSet.query(user=self, status=status, maxresults=maxresults)
 
     def deleteWithVengeance(self):
         # First reopen/revert files in all clients to be sure we can

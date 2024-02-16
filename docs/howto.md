@@ -90,6 +90,7 @@ The following will produce the same results:
 
 ```python linenums="0"
 userClients = P4OOClientSet(p4PythonObj=p4Handle).query(user=userName)
+
 userClients = P4OOClientSet(p4PythonObj=p4Handle).query(user=p4UserObj)
 ```
 
@@ -119,23 +120,17 @@ have to.
 #### Querying all objects for specific attributes
 
 Perforce querying is provided by the `_P4OOSet.query()` method.  It is
-inherited by all `_P4OOSet` subclasses directly, and `_P4OOSpec`
-subclasses can access it through a helper method in `_P4OOBase`.
+inherited by all `_P4OOSet` subclasses directly.
+
 The easiest way to use it is to create an empty set object to call query
 against.
 
 For instance, to find the last submitted change, the query would look like this:
 
 ```python linenums="0"
-emptySet = P4OOChangeSet(p4PythonObj=p4Handle)
-submittedChangeSet = emptySet.query(status="submitted", max=1)
+changeSet = P4OOChangeSet(p4PythonObj=p4Handle)
+submittedChangeSet = changeSet.query(status="submitted", max=1)
 lastSubmittedChangeObj = submittedChangeSet[0]
-```
-
-or more directly:
-
-```python linenums="0"
-lastSubmittedChangeObj = P4OOChangeSet(p4PythonObj=p4Handle).query(status="submitted", max=1)[0]
 ```
 
 The supported attributes for query are the same that the 'p4 changes'

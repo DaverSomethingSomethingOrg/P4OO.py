@@ -1,6 +1,6 @@
-# Spec Objects
+# P4OO.User
 
-::: P4OO._SpecObj
+::: P4OO.User
     options:
       show_root_heading: false
       show_source: false

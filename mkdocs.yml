@@ -39,11 +39,27 @@ markdown_extensions:
   - pymdownx.superfences
   - callouts
 
+watch:
+  - docs/
+  - src/
+
 nav:
   - 'index.md'
+  - 'About P4OO.py': 'about.md'
   - 'howto.md'
   - 'API Reference':
+    - 'P4OOBranch.md'
+    - 'P4OOChange.md'
+    - 'P4OOClient.md'
+    - 'P4OOCounter.md'
+    - 'P4OODepot.md'
+    - 'P4OOFile.md'
+    - 'P4OOGroup.md'
+    - 'P4OOJob.md'
+    - 'P4OOLabel.md'
+    - 'P4OOUser.md'
     - 'specobjs.md'
+    - 'setobjs.md'
     - 'internals.md'
     - 'exceptions.md'
   - 'Unit Test Coverage Report': 'coverage/index.html'

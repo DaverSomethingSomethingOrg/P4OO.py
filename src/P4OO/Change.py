@@ -50,7 +50,6 @@ from P4OO._Set import _P4OOSet
 
 
 class P4OOChange(_P4OOSpecObj):
-    ''' P4OOChange currently implements no custom logic of its own. '''
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'change'
@@ -78,8 +77,11 @@ class P4OOChange(_P4OOSpecObj):
 
             fileChangeRange = '%s@%d,%d' % (viewSpec[0], firstChange,
                                             lastChange)
-            viewChanges = self.query(P4OOChangeSet, files=fileChangeRange,
-                                     longOutput=1)
+
+            changeSet = P4OOChangeSet(_p4Conn=self._getP4Connection())
+            viewChanges = changeSet.query(files=fileChangeRange,
+                                          longOutput=1)
+
             aggregatedChanges |= viewChanges
 
         return aggregatedChanges

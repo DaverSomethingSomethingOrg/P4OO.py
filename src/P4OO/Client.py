@@ -93,15 +93,16 @@ class P4OOClient(_P4OOSpecObj):
 
         # Asking a Client for its changes is implemented as querying
         # Changes filtered by Client
-        return self.query(P4OOChangeSet, client=self, status=status)
+        changeSet = P4OOChangeSet(_p4Conn=self._getP4Connection())
+        return changeSet.query(client=self, status=status)
 
     def getLatestChange(self):
         ''' find the latest change this client "has" '''
 
         # Asking a Client for its latest change is just querying the first
         # change record.  Nifty.
-        p4Changes = self.query(P4OOChangeSet, files="#have", maxresults=1,
-                               client=self)
+        changeSet = P4OOChangeSet(_p4Conn=self._getP4Connection())
+        p4Changes = changeSet.query(files="#have", maxresults=1, client=self)
 
         # We only expect one result, we only return one result.
         return p4Changes[0]

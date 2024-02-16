@@ -1,4 +1,4 @@
-# Internals 
+# Internals
 
 ::: P4OO._Base
     options:

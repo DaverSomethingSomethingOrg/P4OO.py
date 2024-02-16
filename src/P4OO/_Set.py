@@ -5,6 +5,13 @@
 #
 ######################################################################
 
+'''
+    _P4OOSet objects are primarily used for querying.  We want to
+    encourage use cases that take advantage of set operations operating
+    on multiple objects at once, rather than iterating through individual
+    objects.
+'''
+
 from P4OO._Base import _P4OOBase
 from P4OO._OrderedSet import OrderedSet
 

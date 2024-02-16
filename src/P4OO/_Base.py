@@ -58,12 +58,6 @@ class _P4OOBase():
 
         return p4Conn.runCommand(cmdName, **kwargs)
 
-    def query(self, setClass, **kwargs ):
-        p4ConnObj = self._getP4Connection()
-
-        # Inject our connection, but let the class's object method do the work for us.
-        return setClass(**{'_p4Conn': p4ConnObj}).query(**kwargs)
-
     def _getP4Connection(self):
         from P4OO._P4Python import _P4OOP4Python
         p4Conn = self._getAttr('_p4Conn')

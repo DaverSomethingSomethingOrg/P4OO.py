@@ -78,8 +78,9 @@ class P4OOLabel(_P4OOSpecObj):
         '''
 
         changeFileRevRange = "@" + self._getSpecID()
-        p4Changes = self.query(P4OOChangeSet, files=changeFileRevRange,
-                               maxresults=1)
+
+        changeSet = P4OOChangeSet(_p4Conn=self._getP4Connection())
+        p4Changes = changeSet.query(files=changeFileRevRange, maxresults=1)
 
         if len(p4Changes) == 0:
             return None
