@@ -5,11 +5,11 @@
 #
 ######################################################################
 
-'''
+"""
 Provide a set of objects that allow for interaction and translation
 between P4Python output and our internally maintained Python-friendly
 versions of Spec objects and Command Output.
-'''
+"""
 
 import os
 import re
@@ -21,10 +21,10 @@ from P4OO.Exceptions import P4OOFatal
 
 
 class _P4OOP4PythonSchema():
-    ''' Class to abstract the contents of our p4Config.yml file,
+    """ Class to abstract the contents of our p4Config.yml file,
         separate from the execution of the p4 commands done in
         P4OO._P4Python._P4OOP4Python
-    '''
+    """
 
     def __init__(self, configFile=None):
         self.configFile = configFile
@@ -34,9 +34,9 @@ class _P4OOP4PythonSchema():
         self.schemaCommands = self.readSchema(self.configFile)
 
     def readSchema(self, configFile):
-        ''' Read in our YAML p4Config.yml file and return a dict of
+        """ Read in our YAML p4Config.yml file and return a dict of
             supported commands as _P4OOP4PythonCommand objects
-        '''
+        """
 
         with open(configFile, 'r', encoding="utf-8") as stream:
             data = yaml.load(stream, Loader=yaml.Loader)
@@ -119,7 +119,7 @@ class _P4OOP4PythonCommand():
         return self.commandDict['specAttrs'][pyIdAttr]
 
     def translateP4SpecToPython(self, p4OutputSpec):
-        ''' Translate a P4Python provided dictionary into something more
+        """ Translate a P4Python provided dictionary into something more
             Python-friendly.
 
             P4Python is pretty lazy and only outputs string versions of
@@ -128,7 +128,7 @@ class _P4OOP4PythonCommand():
 
             As defined in the config, we'll rename attributes to internally
             consistent names, and we'll do any necessary type conversion.
-        '''
+        """
 
         if not self.isSpecCommand():
             raise P4OOFatal("Unsupported Spec type %s" % self.command)
@@ -167,9 +167,9 @@ class _P4OOP4PythonCommand():
         return pythonSpec
 
     def translatePySpecToP4(self, pythonSpec, p4SpecDict):
-        ''' Copy any modified non-date attributes to the Perforce-generated
+        """ Copy any modified non-date attributes to the Perforce-generated
             dictionary ignoring any date attribtues we don't modify
-        '''
+        """
 
         if p4SpecDict is None:
             p4SpecDict = {}
@@ -200,14 +200,14 @@ class _P4OOP4PythonCommand():
         return None
 
     def validateQuery(self, queryDict):
-        ''' Take a dict of name=[list] args and separate out p4 config
+        """ Take a dict of name=[list] args and separate out p4 config
             arguments from command arguments.
 
             Validate each argument and its list of values, convert the
             list of values to p4 commandline string arguments as needed (if
             they are P4OO_ objects), and return the validated configuration
             and commandline arguments.
-        '''
+        """
 
         allowedFilters = self.getAllowedFilters()
         if allowedFilters is None:

@@ -8,6 +8,6 @@
 from P4OO._Base import _P4OOBase
 
 class _P4OOConnection(_P4OOBase):
-    '''
+    """
     Empty class, just providing the inheritance path for now.
-    '''
+    """

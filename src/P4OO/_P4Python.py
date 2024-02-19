@@ -21,7 +21,7 @@ from P4OO._P4PythonSchema import _P4OOP4PythonSchema
 class _P4OOP4Python(_P4OOConnection):
 
     def readCounter(self, counterName):
-        ''' Read the named counter from Perforce and return the value. '''
+        """ Read the named counter from Perforce and return the value. """
 
         # Make sure we've read in the config file
         self._initialize()
@@ -33,7 +33,7 @@ class _P4OOP4Python(_P4OOConnection):
             return p4Output[0]['value']
 
     def setCounter(self, counterName, newValue):
-        ''' Set the named counter in Perforce. '''
+        """ Set the named counter in Perforce. """
 
         # Make sure we've read in the config file
         self._initialize()
@@ -45,24 +45,24 @@ class _P4OOP4Python(_P4OOConnection):
             return p4Output[0]['value']
 
     def refreshSpec(self, specObj):
-        ''' Clear the cached objects and modifiedSpec and re-read spec
+        """ Clear the cached objects and modifiedSpec and re-read spec
             from Perforce.
 
             Any changes made via _setSpecAttr will be lost!
-        '''
+        """
 
         specObj._delAttr('p4SpecObj')
         specObj._delAttr('modifiedSpec')
         self.readSpec(specObj)
 
     def readSpec(self, specObj):
-        ''' Query Perforce for the specified object's spec and load it
+        """ Query Perforce for the specified object's spec and load it
             into the provided object doing any appropriate data conversions
             along the way.
 
             If the spec has already been read and is present, no action
             is taken.
-        '''
+        """
 
         # Make sure we've read in the config file
         self._initialize()
@@ -285,11 +285,11 @@ class _P4OOP4Python(_P4OOConnection):
         return True
 
     def runCommand(self, cmdName, rawOutput=False, **kwargs):
-        ''' Wrapper around _execCmd that orchestrates validating the
+        """ Wrapper around _execCmd that orchestrates validating the
             commandline arguments from P4OO Spec/Set objects, executing
             the command through P4Python, and parsing the returned output
             back into P4OO Spec/Set objects.
-        '''
+        """
         query = dict(kwargs)
 
         # Make sure we've read in the config file

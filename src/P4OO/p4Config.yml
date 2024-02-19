@@ -38,6 +38,14 @@ COMMANDS:
         option: -u
         multiplicity: 1
       owner: *branches_user
+      namefilter:
+        type: [ string ]
+        option: -e
+        multiplicity: 1
+      maxresults:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
 
 
   change: &change
@@ -155,6 +163,14 @@ COMMANDS:
       idAttr: depot
       p4ooType: Depot
     queryOptions:
+      depottype:
+        type: [ string ]
+        option: -t
+        multiplicity: 1
+      namefilter:
+        type: [ string ]
+        option: -e
+        multiplicity: 1
 
 
   group:
@@ -169,16 +185,36 @@ COMMANDS:
       maxresults: MaxResults
       maxscanrows: MaxScanRows
       maxlocktime: MaxLockTime
-      timeout: Timeout
+      maxopenfiles: MaxOpenFiles
+      maxmemory: MaxMemory
+      sessiontimeout: Timeout
+      passwordtimeout: PasswordTimeout
       subgroups: Subgroups
+    forceOption: -f
   groups:
     output:
       idAttr: group
       p4ooType: Group
     queryOptions:
-      user:
+      group:
+        type: [ string, Group ]
+        option: -g
+        multiplicity: 1
+      member:
         type: [ string, User ]
         option: -u
+        multiplicity: 1
+      owner:
+        type: [ string, User ]
+        option: -o
+        multiplicity: 1
+      indirect:
+        type: [ string, User, Group ]
+        option: -i
+        multiplicity: 1
+      maxresults:
+        type: [ integer ]
+        option: -m
         multiplicity: 1
 
 
@@ -203,6 +239,13 @@ COMMANDS:
       jobview:
         type: [ string ]
         option: -e
+        multiplicity: 1
+      longoutput:
+        option: -l
+        multiplicity: 0
+      maxresults:
+        type: [ integer ]
+        option: -m
         multiplicity: 1
       files:
         type: [ string, File, FileSet ]
@@ -291,6 +334,14 @@ COMMANDS:
       idAttr: counter
       p4ooType: Counter
     queryOptions:
+      maxresults:
+        type: [ integer ]
+        option: -m
+        multiplicity: 1
+      namefilter:
+        type: [ string ]
+        option: -e
+        multiplicity: 1
 
 #TODO
 ###subcommands:
@@ -390,11 +441,6 @@ COMMANDS:
       idAttr: depotFile
       p4ooType: File
     queryOptions:
-      diffoptions:
-        type: [ string ]
-        option: -d
-        multiplicity: 1
-        bundledArgs: 1
       maxresults:
         type: [ integer ]
         option: -m
@@ -404,6 +450,9 @@ COMMANDS:
         multiplicity: 0
       allrevisions:
         option: -a
+        multiplicity: 0
+      excludeDeleted:
+        option: -e
         multiplicity: 0
       files:
         type: [ string, File, FileSet ]
@@ -710,4 +759,3 @@ COMMANDS:
         multiplicity: 1
       files:
         type: [ string, File, FileSet ]
-  

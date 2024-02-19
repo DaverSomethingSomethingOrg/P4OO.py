@@ -5,35 +5,6 @@
 #
 ######################################################################
 
-'''
-Perforce User Object
-
-P4OO.User provides standard P4OO._SpecObj behaviors
-
-Spec Attributes:
-      user
-      fullname
-      email
-      jobview
-      password
-      reviews
-
-datetime Attributes:
-      update
-      access
-
-
-Query Options:
-      maxresults:
-        type: [ string ]
-        multiplicity: 1
-      allusers:
-        multiplicity: 0
-      longoutput:
-        multiplicity: 0
-      users:
-        type: [ string, User, UserSet ]
-'''
 
 from P4OO.Client import P4OOClientSet
 from P4OO.Change import P4OOChangeSet
@@ -42,13 +13,36 @@ from P4OO._Set import _P4OOSet
 
 
 class P4OOUser(_P4OOSpecObj):
+    """
+    Perforce User Spec Object
+
+    id Required: No
+
+    Forcible: Yes
+
+    Attributes:
+        user (str): Username of the user
+        type (str): [service|operator|standard] Type of user
+        fullname (str): Full name of the user
+        email (str): Email address of the user
+        jobview (str): Jobs to include in changelist creation
+        password (str): P4PASSWD setting is required?
+        authmethod (str): [`perforce`|`perforce+2fa`|`ldap`|`ldap+2fa`]
+        reviews (str): Depot files to be reviewed by user
+        update (datetime): Time of last update to the spec
+        access (datetime): Time of last access of the spec
+
+    See Also:
+        Perforce Helix Core Command Reference:
+        https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_user.html
+    """
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'user'
 
     def listOpenedFiles(self, client=None):
-        ''' Return a P4OOFileSet of files opened by this user in the
+        """ Return a P4OOFileSet of files opened by this user in the
             specified client workspace.
-        '''
+        """
 
         return self._runCommand('opened', user=self, client=client)
 
@@ -84,7 +78,29 @@ class P4OOUser(_P4OOSpecObj):
 
 
 class P4OOUserSet(_P4OOSet):
-    ''' P4OOUserSet currently implements no custom logic of its own. '''
+    """ `P4OOSet` of `P4OOUser` objects """
 
-    # Subclasses must define SETOBJ_TYPE
-    _SETOBJ_TYPE = 'users'
+    def query(self, allusers: bool=None, longoutput: bool=None,
+              maxresults: int=None, users: str=None, **kwargs):
+        """
+        Executes 'p4 users' query
+
+        Args:
+            allusers (bool, optional): include service users in results
+            longoutput (bool, optional): include the full changelist
+                descriptions
+            maxresults (int, optional): Return only the first <max> results
+            users (P4OOUserSet | P4OOUserFile | str, optional): The set of
+                users to query
+
+        Returns:
+            (P4OOUserSet): `P4OOSet` of `P4OOUser` objects matching query
+                parameters
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_users.html
+        """
+        return self._query(setObjType='users', allusers=allusers,
+                           longoutput=longoutput, maxresults=maxresults,
+                           users=users, **kwargs)

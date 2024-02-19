@@ -6,36 +6,6 @@
 #
 ######################################################################
 
-'''
-Perforce Label Object
-
-P4OO.Label provides standard P4OO._SpecObj behaviors
-
-Spec Attributes:
-      label
-      description
-      owner
-      options
-      revision
-      view
-  datetime Attributes:
-      update
-      access
-
-Query Options:
-      user:
-        type: [ string, P4OOUser ]
-        multiplicity: 1
-      owner: (interchangeable with user)
-      maxresults:
-        type: [ integer ]
-        multiplicity: 1
-      namefilter:
-        type: [ string ]
-        multiplicity: 1
-      files:
-        type: [ string, File, FileSet ]
-'''
 
 from P4OO.Exceptions import P4Warning
 from P4OO.Change import P4OOChangeSet
@@ -44,16 +14,38 @@ from P4OO._Set import _P4OOSet
 
 
 class P4OOLabel(_P4OOSpecObj):
+    """
+    Perforce Label Spec Object
+
+    id Required: Yes
+
+    Forcible: Yes
+
+    Attributes:
+        label (str): Name of the label
+        owner (P4OOUser): User that owns the label spec
+        description (str): Description field
+        options (str): [`locked`|`unlocked`|`autoreload`|`noautoreload`]
+        revision (str): optional revision specification for automatic label
+        view (str): View spec mappings
+        update (datetime): Time of last update to the spec
+        access (datetime): Time of last access of the spec
+
+    See Also:
+        Perforce Helix Core Command Reference:
+        https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_label.htm
+    """
+
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'label'
 
     def getRevision(self):
-        ''' Return the revision spec attribute of the label '''
+        """ Return the revision spec attribute of the label """
 
         return self._getSpecAttr('Revision')
 
     def tagFiles(self, *fileSpec, **kwargs):
-        ''' Tag the specified files against label (self) '''
+        """ Tag the specified files against label (self) """
 
         p4Output = None
         p4Output = self._runCommand('tag', label=self, files=fileSpec,
@@ -72,10 +64,10 @@ class P4OOLabel(_P4OOSpecObj):
         return p4Output
 
     def getLastChange(self):
-        ''' Return the latest change incorporated into the label
+        """ Return the latest change incorporated into the label
 
             Return None if the label sees no changes (empty depot).
-        '''
+        """
 
         changeFileRevRange = "@" + self._getSpecID()
 
@@ -89,13 +81,13 @@ class P4OOLabel(_P4OOSpecObj):
         return p4Changes[0]
 
     def getChangesFromLabels(self, otherLabel, client):
-        ''' Fetch the list of changes from this label to another one.
+        """ Fetch the list of changes from this label to another one.
 
             Assumptions:
             - self represents the lower of the two labels.  If the other
               direction is desired, then make the call against the other
               label instead.
-        '''
+        """
 
         if not isinstance(otherLabel, P4OOLabel):
             raise TypeError(otherLabel)
@@ -106,7 +98,7 @@ class P4OOLabel(_P4OOSpecObj):
         return firstChange.getChangesFromChangeNums(lastChange, client)
 
     def getDiffsFromLabels(self, otherLabel, client, **diffOpts):
-        ''' Fetch the list of diffs from this label to another one '''
+        """ Fetch the list of diffs from this label to another one """
 
         if not isinstance(otherLabel, P4OOLabel):
             raise TypeError(otherLabel)
@@ -140,7 +132,28 @@ class P4OOLabel(_P4OOSpecObj):
 
 
 class P4OOLabelSet(_P4OOSet):
-    ''' P4OOLabelSet currently implements no custom logic of its own. '''
+    """ `P4OOSet` of `P4OOLabel` objects """
 
-    # Subclasses must define SETOBJ_TYPE
-    _SETOBJ_TYPE = 'labels'
+    def query(self, user: str=None, maxresults: int=None,
+              namefilter: str=None, files: str=None, **kwargs):
+        """
+        Executes 'p4 labels' query
+
+        Args:
+            user (P4OOUser | str, optional): The user that owns the label
+            maxresults (int, optional): Return only the first <max> results
+            namefilter (str, optional): Case-sensitive filter on label name
+            files (P4OOFileSet | P4OOFile | str, optional): The set of file
+                revisions to query
+
+        Returns:
+            (P4OOLabelSet): `P4OOSet` of `P4OOLabel` objects matching query
+                parameters
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_labels.html
+        """
+        return self._query(setObjType='labels', user=user,
+                           maxresults=maxresults, namefilter=namefilter,
+                           files=files, **kwargs)

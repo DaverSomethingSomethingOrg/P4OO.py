@@ -1,4 +1,4 @@
-''' OrderedSet
+""" OrderedSet
 
 Copied from http://code.activestate.com/recipes/576694/
 
@@ -7,7 +7,7 @@ Licensed under the MIT License
 
 Modified by David L. Armstrong to avoid use of 'next' keyword
 and add indexing support
-'''
+"""
 
 import collections.abc
 

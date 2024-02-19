@@ -5,41 +5,59 @@
 #
 ######################################################################
 
-'''
-Perforce Branch Object
-
-P4OO.Branch provides standard P4OO._SpecObj behaviors
-
-Spec Attributes:
-      branch
-      description
-      owner
-      options
-      view
-  datetime Attributes:
-      update
-      access
-
-Query Options:
-      user:
-        type: [ string, P4OOUser ]
-        multiplicity: 1
-      owner: (interchangeable with user)
-'''
 
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
 
 class P4OOBranch(_P4OOSpecObj):
-    # P4OOBranch currently implements no custom logic of its own.
+    """
+    Perforce Branch Spec Object
+
+    id Required: Yes
+
+    Forcible: Yes
+
+
+    Attributes:
+        branch (str): Name of the branch
+        owner (P4OOUser): User that created the branch spec
+        description (str): Description field
+        options (str): [unlocked|locked]
+        view (str): View spec mappings
+        update (datetime): Time of last update to the spec
+        access (datetime): Time of last access of the spec
+
+    See Also:
+        Perforce Helix Core Command Reference:
+        https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_branch.html
+    """
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'branch'
 
 
 class P4OOBranchSet(_P4OOSet):
-    # P4OOBranchSet currently implements no custom logic of its own.
+    """ `P4OOSet` of `P4OOBranch` objects """
 
-    # Subclasses must define SETOBJ_TYPE
-    _SETOBJ_TYPE = 'branches'
+    def query(self, user: str=None, maxresults: int=None,
+              namefilter: str=None, **kwargs):
+        """
+        Executes 'p4 branches' query
+
+        Args:
+            user (P4OOUser | str, optional): The user that created the branch
+            maxresults (int, optional): Return only the first <max> results
+            namefilter (str, optional): Case-sensitive filter on branch name
+
+        Returns:
+            (P4OOBranchSet): `P4OOSet` of `P4OOBranch` objects matching query
+                parameters
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_branches.html
+        """
+        return self._query(setObjType='branches', user=user,
+                           maxresults=maxresults, namefilter=namefilter,
+                           **kwargs)

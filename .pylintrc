@@ -428,6 +428,8 @@ disable=
         import-outside-toplevel,
         unnecessary-dunder-call,
         arguments-renamed,
+        too-many-arguments,
+        missing-module-docstring,
         consider-using-f-string,
         fixme,
 

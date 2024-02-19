@@ -6,12 +6,12 @@
 #
 ######################################################################
 
-'''
+"""
 Perforce _P4OOSpecObj object
 
 P4OO._SpecObj provides common behaviors for all P4OO Spec-based
 objects.
-'''
+"""
 
 import json
 import datetime
@@ -20,7 +20,7 @@ from P4OO.Exceptions import P4OOFatal
 
 
 class DateTimeJSONEncoder(json.JSONEncoder):
-    ''' JSON Encoder subclass for _toJSON to leverage '''
+    """ JSON Encoder subclass for _toJSON to leverage """
 
     def default(self, o):
         if isinstance(o, datetime.datetime):
@@ -39,9 +39,9 @@ class _P4OOSpecObj(_P4OOBase):
         return '%s(%s)' % (self.__class__.__name__, self._getSpecID())
 
     def _uniqueID(self):
-        ''' _uniqueID overrides the _Base definition to use
+        """ _uniqueID overrides the _Base definition to use
             self._getSpecID() instead
-        '''
+        """
 
         return self._getSpecID()
 

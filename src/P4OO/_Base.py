@@ -6,12 +6,12 @@
 #
 ######################################################################
 
-'''
+"""
 Perforce _Base Class
 
  P4OO._Base provides consistent construction and attribute handling
 methods for all P4OO objects.
-'''
+"""
 
 import logging
 

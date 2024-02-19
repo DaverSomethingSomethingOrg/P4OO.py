@@ -6,52 +6,46 @@
 #
 ######################################################################
 
-'''
-Perforce Client object
-
-P4OO.Client provides standard P4OO._SpecObj behaviors
-
-Spec Attributes:
-      client
-      description
-      owner
-      host
-      root
-      altroots
-      options
-      submitoptions
-      lineend
-      view
-  datetime Attributes:
-      update
-      access
-
-Query Options:
-      user:
-        type: [ string, P4OOUser ]
-        multiplicity: 1
-      owner: (interchangeable with user)
-      namefilter:
-        type: [ string ]
-        multiplicity: 1
-      maxresults:
-        type: [ integer ]
-        multiplicity: 1
-'''
 
 import re
-from P4OO.Change import P4OOChangeSet
 from P4OO.Exceptions import P4Warning, P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
+from P4OO.Change import P4OOChangeSet
 
 
 class P4OOClient(_P4OOSpecObj):
+    """
+    Perforce Client Spec Object
+
+    id Required: No
+
+    Forcible: Yes
+
+    Attributes:
+        client (str): Name of the client
+        owner (P4OOUser): User that created the client spec
+        description (str): Description field
+        host (str): Name of the host where this client root exists
+        root (str): Root directory on <host> where client exists
+        altroots (str): Alternate directories to locate root
+        options (str): Client options (see Command Reference for details)
+        submitoptions (str): How `submit` should handle unchanged files
+        lineend (str): [`local`|`unix`|`mac`|`win`|`share`] CRLF handling
+        view (str): View spec mappings
+        update (datetime): Time of last update to the spec
+        access (datetime): Time of last access of the spec
+
+    See Also:
+        Perforce Helix Core Command Reference:
+        https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_client.html
+    """
+
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'client'
 
     def addFiles(self, *fileSpec, **kwargs):
-        ''' Add the specified files as new '''
+        """ Add the specified files as new """
 
         p4Output = None
         p4Output = self._runCommand('add', p4client=self, files=fileSpec,
@@ -70,7 +64,7 @@ class P4OOClient(_P4OOSpecObj):
         return p4Output
 
     def editFiles(self, *fileSpec, **kwargs):
-        ''' Open the specified files for edit '''
+        """ Open the specified files for edit """
 
         p4Output = None
         p4Output = self._runCommand('edit', p4client=self, files=fileSpec,
@@ -89,7 +83,7 @@ class P4OOClient(_P4OOSpecObj):
         return p4Output
 
     def getChanges(self, status=None):
-        ''' Find all changes this client "has" sync'd '''
+        """ Find all changes this client "has" sync'd """
 
         # Asking a Client for its changes is implemented as querying
         # Changes filtered by Client
@@ -97,7 +91,7 @@ class P4OOClient(_P4OOSpecObj):
         return changeSet.query(client=self, status=status)
 
     def getLatestChange(self):
-        ''' find the latest change this client "has" '''
+        """ find the latest change this client "has" """
 
         # Asking a Client for its latest change is just querying the first
         # change record.  Nifty.
@@ -108,12 +102,12 @@ class P4OOClient(_P4OOSpecObj):
         return p4Changes[0]
 
     def getOpenedFiles(self, user=None):
-        ''' Return a P4OOFileSet of files opened in this client. '''
+        """ Return a P4OOFileSet of files opened in this client. """
 
         return self._runCommand('opened', user=user, client=self)
 
     def submitChange(self, *fileSpec, **kwargs):
-        ''' Add the specified files as new '''
+        """ Add the specified files as new """
 
         p4Output = None
         p4Output = self._runCommand('submit', p4client=self, files=fileSpec,
@@ -132,9 +126,9 @@ class P4OOClient(_P4OOSpecObj):
         return p4Output
 
     def sync(self, *fileSpec, **kwargs):
-        ''' Sync the client (p4 sync) using the optional supplied
+        """ Sync the client (p4 sync) using the optional supplied
             fileSpec(s)
-        '''
+        """
 
         p4Output = None
         try:
@@ -185,7 +179,26 @@ class P4OOClient(_P4OOSpecObj):
 
 
 class P4OOClientSet(_P4OOSet):
-    ''' P4OOClientSet currently implements no custom logic of its own. '''
+    """ `P4OOSet` of `P4OOClient` objects """
 
-    # Subclasses must define SETOBJ_TYPE
-    _SETOBJ_TYPE = 'clients'
+    def query(self, user: str=None, maxresults: int=None,
+              namefilter: str=None, **kwargs):
+        """
+        Executes 'p4 clients' query
+
+        Args:
+            user (P4OOUser | str, optional): The user that created the change
+            maxresults (int, optional): Return only the first <max> results
+            namefilter (str, optional): Case-sensitive filter on client name
+
+        Returns:
+            (P4OOClientSet): `P4OOSet` of `P4OOClient` objects matching query
+                parameters
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_clients.html
+        """
+        return self._query(setObjType='clients', user=user,
+                           maxresults=maxresults, namefilter=namefilter,
+                           **kwargs)

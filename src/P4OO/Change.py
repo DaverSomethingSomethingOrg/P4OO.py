@@ -6,43 +6,6 @@
 #
 ######################################################################
 
-'''
-Perforce Change Object
-
-P4OO.Change provides standard P4OO._SpecObj behaviors
-
-Spec Attributes:
-      change
-      description
-      client
-      user
-      status
-      type
-      jobs
-      files
-  datetime Attributes:
-      date
-
-Query Options:
-      user:
-        type: [ string, P4OOUser ]
-        multiplicity: 1
-      owner: (interchangeable with user)
-      client:
-        type: [ string, P4OOClient ]
-        multiplicity: 1
-      status:
-        type: [ string ]
-        multiplicity: 1
-      maxresults:
-        type: [ integer ]
-        multiplicity: 1
-      longoutput:
-        multiplicity: 0
-      files:
-        type: [ string, P4OOFile, P4OOFileSet ]
-'''
-
 
 from P4OO.Exceptions import P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
@@ -50,18 +13,39 @@ from P4OO._Set import _P4OOSet
 
 
 class P4OOChange(_P4OOSpecObj):
+    """
+    Perforce Change Spec Object
+
+    id Required: Yes
+
+    Forcible: Yes
+
+    Attributes:
+        change (int): Change #
+        user (P4OOUser): User that created the change spec
+        description (str): Description field
+        client (P4OOClient | str): Current client workspace
+        status (str): [`pending`|`shelved`|`submitted`|`new`]
+        type (str): [`restricted`|`public`]
+        jobs (P4OOJobSet | P4OOJob | str): List of jobs that are fixed by this change
+        date (datetime): Time of last update to the spec
+
+    See Also:
+        Perforce Helix Core Command Reference:
+        https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_change.html
+    """
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'change'
 
     def getChangesFromChangeNums(self, otherChange, client):
-        ''' Fetch the list of changes from this change to another one.
+        """ Fetch the list of changes from this change to another one.
 
             ASSUMPTIONS:
             - self represents the lower of the two changes.  If the other
               direction is desired, then make the call against the other
               change instead.
-        '''
+        """
 
         if not isinstance(otherChange, P4OOChange):
             raise TypeError(otherChange)
@@ -130,7 +114,34 @@ class P4OOChange(_P4OOSpecObj):
 
 
 class P4OOChangeSet(_P4OOSet):
-    ''' P4OOChangeSet currently implements no custom logic of its own. '''
+    """ `P4OOSet` of `P4OOChange` objects """
 
-    # Subclasses must define SETOBJ_TYPE
-    _SETOBJ_TYPE = 'changes'
+    def query(self, client: str=None, user: str=None, maxresults: int=None,
+              status: str=None, files: str=None, longoutput: bool=None,
+              **kwargs):
+        """
+        Executes 'p4 changes' query
+
+        Args:
+            client (P4OOClient | str, optional): The client (viewspec) to
+                filter file revisions through
+            user (P4OOUser | str, optional): The user that created the change
+            maxresults (int, optional): Return only the first <max> results
+            status (str, optional): Filter changes by status:
+                [`pending`|`shelved`|`submitted`]
+            files (P4OOFileSet | P4OOFile | str, optional): The set of file
+                revisions to query
+            longoutput (bool, optional): include the full changelist
+                descriptions
+
+        Returns:
+            (P4OOChangeSet): `P4OOSet` of `P4OOChange` objects matching query
+                parameters
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_changes.html
+        """
+        return self._query(setObjType='changes', client=client, user=user,
+                           maxresults=maxresults, status=status, files=files,
+                           longoutput=longoutput, **kwargs)
