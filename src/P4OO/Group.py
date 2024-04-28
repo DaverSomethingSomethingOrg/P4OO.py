@@ -56,7 +56,7 @@ class P4OOGroupSet(_P4OOSet):
     def query(self, group: str=None, member: str=None, owner: str=None,
               indirect: str=None, maxresults: int=None, **kwargs):
         """
-        Executes 'p4 groups' query
+        Executes `p4 groups` query
 
         Args:
             group (P4OOGroup | str, optional): List groups that `group`
@@ -67,7 +67,7 @@ class P4OOGroupSet(_P4OOSet):
                 is an owner of
             indirect (P4OOUser | P4OOGroup | str, optional): List
                 indirect/transitive memberships as well as direct
-            maxresults (int, optional): Return only the first <max> results
+            maxresults (int, optional): Return only the first [max] results
 
         Returns:
             (P4OOGroupSet): `P4OOSet` of `P4OOGroup` objects matching query
@@ -77,6 +77,7 @@ class P4OOGroupSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_groups.html
         """
+
         return self._query(setObjType='groups', group=group, member=member,
                            indirect=indirect, owner=owner,
                            maxresults=maxresults, **kwargs)

@@ -79,6 +79,17 @@ class P4OOChange(_P4OOSpecObj):
 #                               )
 
     def revertOpenedFiles(self):
+        """
+        Executes `p4 revert -k` command for all files in this change
+
+        Returns:
+            (list(str)): Output returned from _P4OOBase._runCommand()
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_revert.html
+        """
+
 #        self.reopenFiles()
         return self._runCommand('revert',
                                 change=self,
@@ -96,6 +107,17 @@ class P4OOChange(_P4OOSpecObj):
 #        except P4Fatal:
 
     def deleteShelf(self):
+        """
+        Executes `p4 shelve -d` command for this change
+
+        Returns:
+            (list(str)): Output returned from _P4OOBase._runCommand()
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_shelve.html
+        """
+
         try:
             return self._runCommand('shelve',
                                     delete=True,
@@ -106,11 +128,23 @@ class P4OOChange(_P4OOSpecObj):
             return True
 
     def deleteWithVengeance(self):
+        """
+        Performs all operations necessary to delete this (pending) change.
+
+        - Delete shelf
+        - Delete change spec
+
+        Returns:
+            (Boolean): Result from _P4OOSpecObj.deleteSpec()
+
+        See Also:
+            Perforce Helix Core Knowledge Base:
+            https://portal.perforce.com/s/article/3452
+        """
+
 #        self.revertOpenedFiles()
         self.deleteShelf()
-        self.deleteSpec(force=True)
-
-        return True
+        return self.deleteSpec(force=True)
 
 
 class P4OOChangeSet(_P4OOSet):
@@ -120,13 +154,13 @@ class P4OOChangeSet(_P4OOSet):
               status: str=None, files: str=None, longoutput: bool=None,
               **kwargs):
         """
-        Executes 'p4 changes' query
+        Executes `p4 changes` query
 
         Args:
             client (P4OOClient | str, optional): The client (viewspec) to
                 filter file revisions through
             user (P4OOUser | str, optional): The user that created the change
-            maxresults (int, optional): Return only the first <max> results
+            maxresults (int, optional): Return only the first [max] results
             status (str, optional): Filter changes by status:
                 [`pending`|`shelved`|`submitted`]
             files (P4OOFileSet | P4OOFile | str, optional): The set of file
@@ -142,6 +176,7 @@ class P4OOChangeSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_changes.html
         """
+
         return self._query(setObjType='changes', client=client, user=user,
                            maxresults=maxresults, status=status, files=files,
                            longoutput=longoutput, **kwargs)

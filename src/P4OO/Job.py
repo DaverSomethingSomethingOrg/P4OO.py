@@ -41,12 +41,12 @@ class P4OOJobSet(_P4OOSet):
               files: str=None, longoutput: bool=None,
               **kwargs):
         """
-        Executes 'p4 jobs' query
+        Executes `p4 jobs` query
 
         Args:
             jobview (str, optional): List only those jobs matching
                 specified job view
-            maxresults (int, optional): Return only the first <max> results
+            maxresults (int, optional): Return only the first [max] results
             files (P4OOFileSet | P4OOFile | str, optional): The set of file
                 revisions to query
             longoutput (bool, optional): include the full changelist
@@ -60,6 +60,7 @@ class P4OOJobSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_jobs.html
         """
+
         return self._query(setObjType='jobs', jobview=jobview,
                            maxresults=maxresults, files=files,
                            longoutput=longoutput, **kwargs)

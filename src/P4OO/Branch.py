@@ -43,7 +43,7 @@ class P4OOBranchSet(_P4OOSet):
     def query(self, user: str=None, maxresults: int=None,
               namefilter: str=None, **kwargs):
         """
-        Executes 'p4 branches' query
+        Executes `p4 branches` query
 
         Args:
             user (P4OOUser | str, optional): The user that created the branch
@@ -58,6 +58,7 @@ class P4OOBranchSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_branches.html
         """
+
         return self._query(setObjType='branches', user=user,
                            maxresults=maxresults, namefilter=namefilter,
                            **kwargs)

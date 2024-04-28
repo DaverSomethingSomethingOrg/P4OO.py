@@ -9,5 +9,8 @@ from P4OO._Base import _P4OOBase
 
 class _P4OOConnection(_P4OOBase):
     """
-    Empty class, just providing the inheritance path for now.
+    Mostly Empty class, providing the inheritance path to _Base.
     """
+    def __init__(self, **kwargs ):
+        super().__init__(**kwargs)
+        self._p4PythonSchema = None

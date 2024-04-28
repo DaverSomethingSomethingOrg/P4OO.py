@@ -74,7 +74,7 @@ class _P4OOP4PythonCommand():
 
         return False
 
-    def isForceable(self):
+    def isForcible(self):
         if 'forceOption' in self.commandDict:
             return True
 

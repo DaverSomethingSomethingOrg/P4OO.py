@@ -178,7 +178,7 @@ class _P4OOP4Python(_P4OOConnection):
 
         p4Output = None
         if force:
-            if not specCmdObj.isForceable():
+            if not specCmdObj.isForcible():
                 raise P4OOFatal("Command %s doesn't support force" %
                                 (specCmd,))
 
@@ -264,7 +264,7 @@ class _P4OOP4Python(_P4OOConnection):
 
         p4Output = None
         if force:
-            if not specCmdObj.isForceable():
+            if not specCmdObj.isForcible():
                 raise P4OOFatal("Command %s doesn't support force" %
                                 (specCmd,))
 

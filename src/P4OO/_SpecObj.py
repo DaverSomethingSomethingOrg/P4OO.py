@@ -26,7 +26,7 @@ class DateTimeJSONEncoder(json.JSONEncoder):
         if isinstance(o, datetime.datetime):
             return o.isoformat()
 
-        return super(DateTimeJSONEncoder, self).default(o)
+        return super().default(o)
 
 
 class _P4OOSpecObj(_P4OOBase):

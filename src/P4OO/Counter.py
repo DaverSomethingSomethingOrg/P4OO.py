@@ -46,9 +46,6 @@ class P4OOCounter(_P4OOBase):
         """
         Retrieve the current value of the counter
 
-        Args:
-            None
-
         Returns:
             (int): Current value of the counter
         """
@@ -76,10 +73,10 @@ class P4OOCounterSet(_P4OOSet):
 
     def query(self, maxresults: int=None, namefilter: str=None, **kwargs):
         """
-        Executes 'p4 counters' query
+        Executes `p4 counters` query
 
         Args:
-            maxresults (int, optional): Return only the first <max> results
+            maxresults (int, optional): Return only the first [max] results
             namefilter (str, optional): Case-sensitive filter on counter name
 
         Returns:
@@ -90,5 +87,6 @@ class P4OOCounterSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_counters.html
         """
+
         return self._query(setObjType='counters', maxresults=maxresults,
                            namefilter=namefilter, **kwargs)

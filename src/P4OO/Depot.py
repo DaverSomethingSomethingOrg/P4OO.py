@@ -42,7 +42,7 @@ class P4OODepotSet(_P4OOSet):
 
     def query(self, depottype: str=None, namefilter: str=None, **kwargs):
         """
-        Executes 'p4 depots' query
+        Executes `p4 depots` query
 
         Args:
             depottype (str, optional):
@@ -57,5 +57,6 @@ class P4OODepotSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_depots.html
         """
+
         return self._query(setObjType='depots', depottype=depottype,
                            namefilter=namefilter, **kwargs)

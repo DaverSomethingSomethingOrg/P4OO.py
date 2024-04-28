@@ -43,7 +43,7 @@ This module requires these other modules and libraries:
 
     For direct Perforce connection, P4Python is required, provided by
     Perforce under their own license and Copyright.
-    <https://www.perforce.com/manuals/p4python/Content/P4Python/chapter.python.html>
+    <https://www.perforce.com/manuals/p4python/Content/P4Python/Home-p4python.html>
 
 - **PyYAML**
 

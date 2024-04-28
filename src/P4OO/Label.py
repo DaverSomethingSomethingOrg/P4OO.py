@@ -137,11 +137,11 @@ class P4OOLabelSet(_P4OOSet):
     def query(self, user: str=None, maxresults: int=None,
               namefilter: str=None, files: str=None, **kwargs):
         """
-        Executes 'p4 labels' query
+        Executes `p4 labels` query
 
         Args:
             user (P4OOUser | str, optional): The user that owns the label
-            maxresults (int, optional): Return only the first <max> results
+            maxresults (int, optional): Return only the first [max] results
             namefilter (str, optional): Case-sensitive filter on label name
             files (P4OOFileSet | P4OOFile | str, optional): The set of file
                 revisions to query
@@ -154,6 +154,7 @@ class P4OOLabelSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_labels.html
         """
+
         return self._query(setObjType='labels', user=user,
                            maxresults=maxresults, namefilter=namefilter,
                            files=files, **kwargs)

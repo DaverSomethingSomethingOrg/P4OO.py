@@ -126,7 +126,7 @@ class P4OOClient(_P4OOSpecObj):
         return p4Output
 
     def sync(self, *fileSpec, **kwargs):
-        """ Sync the client (p4 sync) using the optional supplied
+        """ Sync the client (`p4 sync`) using the optional supplied
             fileSpec(s)
         """
 
@@ -143,6 +143,19 @@ class P4OOClient(_P4OOSpecObj):
         return p4Output
 
     def reopenFiles(self):
+        """
+        Reopen all opened files in this client to be owned by the current user
+
+        - First removes `host` attribute from client spec if specified
+
+        Returns:
+            (list(str)): Output returned from `_P4OOBase._runCommand('reopen')`
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_reopen.html
+        """
+
         self._delSpecAttr('host')
         self.saveSpec()
         try:
@@ -152,6 +165,19 @@ class P4OOClient(_P4OOSpecObj):
             return True
 
     def revertOpenedFiles(self):
+        """
+        Revert all opened files in this client
+
+        - First reopens all files to be owned by the current user
+
+        Returns:
+            (list(str)): Output returned from `_P4OOBase._runCommand('revert')`
+
+        See Also:
+            Perforce Helix Core Command Reference:
+            https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_revert.html
+        """
+
         self.reopenFiles()
         try:
             return self._runCommand('revert', noclientrefresh=True,
@@ -161,8 +187,22 @@ class P4OOClient(_P4OOSpecObj):
             return True
 
     def deleteWithVengeance(self):
+        """
+        Performs all operations necessary to remove a client.
+
+        - Remove `host` attribute
+        - Remove all pending changelists
+        - Remove client spec
+
+        Returns:
+            (Boolean): Result from _P4OOSpecObj.deleteSpec()
+
+        See Also:
+            Perforce Helix Core Knowledge Base:
+            https://portal.perforce.com/s/article/1283
+        """
         try:
-            self.deleteSpec(force=True)
+            return self.deleteSpec(force=True)
         except P4Fatal:
             # First, simplify things by removing any Host spec attr for
             # this client
@@ -173,9 +213,7 @@ class P4OOClient(_P4OOSpecObj):
             changes = self.getChanges(status="pending")
             for change in changes:
                 change.deleteWithVengeance()
-            self.deleteSpec(force=True)
-
-        return True
+            return self.deleteSpec(force=True)
 
 
 class P4OOClientSet(_P4OOSet):
@@ -184,11 +222,11 @@ class P4OOClientSet(_P4OOSet):
     def query(self, user: str=None, maxresults: int=None,
               namefilter: str=None, **kwargs):
         """
-        Executes 'p4 clients' query
+        Executes `p4 clients` query
 
         Args:
             user (P4OOUser | str, optional): The user that created the change
-            maxresults (int, optional): Return only the first <max> results
+            maxresults (int, optional): Return only the first [max] results
             namefilter (str, optional): Case-sensitive filter on client name
 
         Returns:
@@ -199,6 +237,7 @@ class P4OOClientSet(_P4OOSet):
             Perforce Helix Core Command Reference:
             https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_clients.html
         """
+
         return self._query(setObjType='clients', user=user,
                            maxresults=maxresults, namefilter=namefilter,
                            **kwargs)
