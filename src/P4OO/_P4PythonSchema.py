@@ -46,6 +46,8 @@ class _P4OOP4PythonSchema():
                 for (command, commandDict) in data["COMMANDS"].items()}
 
     def getCmd(self, cmdName):
+        """ Return the schema definition for a given command
+        """
 
         if cmdName in self.schemaCommands:
             return self.schemaCommands[cmdName]
@@ -53,6 +55,9 @@ class _P4OOP4PythonSchema():
         raise P4OOFatal("Unsupported Command " + cmdName)
 
     def getSpecCmd(self, specType):
+        """ Return the schema definition for a given command if it's
+            a Perforce Spec type
+        """
 
         cmdObj = self.getCmd(specType)
 
@@ -227,6 +232,7 @@ class _P4OOP4PythonCommand():
 
             lcFilterKey = origFilterKey.lower()
 
+            # Separate global configuration options from query options
             optionConfig = None
             isConfigOpt = False
             if lcFilterKey in allowedConfigs:
@@ -247,66 +253,9 @@ class _P4OOP4PythonCommand():
             # Check option argument types, and replace option args with
             # IDs for P4::OO objects passed in.
             # Take the opportunity to expand any Set objects we find.
-            cmdOptionArgs = []
-            if optionConfig is not None:
-
-#                        'queryOptions': { 'user': { 'type': [ 'string',
-#                                                              'P4OO.User.User',
-#                                                            ],
-#                                                    'option': '-u',
-#                                                    'multiplicity': 1,
-#                                                  }
-
-                for optionArg in optionArgs:
-                    matchedType = False
-                    if 'type' not in optionConfig:
-                        matchedType = True
-                    else:
-                        for checkType in optionConfig['type']:
-                            if matchedType:
-                                break
-
-                            if checkType == "string":
-                                if isinstance(optionArg, str):
-                                    cmdOptionArgs.append(optionArg)
-                                    matchedType = True
-                            elif checkType == "integer":
-                                if isinstance(optionArg, int):
-                                    cmdOptionArgs.append(optionArg)
-                                    matchedType = True
-                            else:
-                                # Must be a P4OO type!  To check P4OO types, we need to import.
-
-                                # First, break down setType/SpecType from the checkType to perform the import
-                                m = re.match(r'^(.+)Set$', checkType)
-                                if m:
-                                    specType = m.group(1)
-                                    setType = checkType
-                                else:
-                                    specType = checkType
-                                    setType = checkType + "Set"
-
-                                # Second, import specType and SetType
-# TODO need to look into this issue
-#                                specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], -1)
-                                specModule = __import__("P4OO." + specType, globals(), locals(), ["P4OO" + specType, "P4OO" + setType], 0)
-                                specClass = getattr(specModule, "P4OO" + specType)
-                                setClass = getattr(specModule, "P4OO" + setType)
-
-                                # Third, do the actual type check and append optionArgs as appropriate
-                                if checkType == setType and isinstance(optionArg, setClass):
-                                    # Special Set expansion...this gets weird, eh?
-                                    cmdOptionArgs.extend(optionArg.listObjectIDs())
-                                    matchedType = True
-
-                                elif checkType == specType and isinstance(optionArg, specClass):
-                                    cmdOptionArgs.append(optionArg._uniqueID())
-                                    matchedType = True
-
-                    if not matchedType:
-                        # Looped through all types, didn't find a match
-                        raise P4OOFatal("Got %r, but filter key '%s' accepts arguments of only these types: "
-                                        % (optionArg, origFilterKey) + ", ".join(optionConfig['type']))
+            cmdOptionArgs = self.getOptionArgs(optionConfig=optionConfig,
+                                               optionArgs=optionArgs,
+                                               origFilterKey=origFilterKey)
 
 #            print("optionConfig: ", optionConfig)
             # defined cmdline options go at the front
@@ -316,10 +265,12 @@ class _P4OOP4PythonCommand():
 
                 if isConfigOpt:
                     p4Config[optionConfig['option']] = True
-                else:
-                    execArgs.insert(0, optionConfig['option'])
+                    continue
 
-            elif 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 1:
+                execArgs.insert(0, optionConfig['option'])
+                continue
+
+            if 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 1:
                 if len(cmdOptionArgs) != 1:
                     raise P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey)
 
@@ -327,19 +278,107 @@ class _P4OOP4PythonCommand():
                     # join the option and its args into one string  ala "-j8"
                     bundledArg = optionConfig['option'] + "".join(cmdOptionArgs)
                     execArgs.insert(0, bundledArg)
+                    continue
 # TODO - ignoring p4Config here because it won't be needed... I think
-                else:
-                    if isConfigOpt:
-                        p4Config[optionConfig['option']] = cmdOptionArgs[0]
-                    else:
-                        # "unshift" one at a time in reverse order
-                        for arg in reversed(cmdOptionArgs):
-                            execArgs.insert(0, arg)
-                        execArgs.insert(0, optionConfig['option'])
-            else:
-                if 'option' in optionConfig:
+
+                if isConfigOpt:
+                    p4Config[optionConfig['option']] = cmdOptionArgs[0]
+                    continue
+
+                # "unshift" one at a time in reverse order
+                for arg in reversed(cmdOptionArgs):
+                    execArgs.insert(0, arg)
+                execArgs.insert(0, optionConfig['option'])
+                continue
+
+            if 'option' in optionConfig:
 # TODO - ignoring p4Config here because it won't be needed... I think
-                    execArgs.append(optionConfig['option'])
-                execArgs.extend(cmdOptionArgs)
+                execArgs.append(optionConfig['option'])
+
+            execArgs.extend(cmdOptionArgs)
 
         return (execArgs, p4Config)
+
+
+    def getOptionArgs(self, optionConfig, optionArgs, origFilterKey):
+        """ For a given option, verify all passed in arguments match
+            valid types for the option according to the schema config.
+        """
+
+        cmdOptionArgs = []
+        if optionConfig is None:
+            return cmdOptionArgs
+
+#        'queryOptions': { 'user': { 'type': [ 'string',
+#                                              'P4OO.User.User',
+#                                            ],
+#                                    'option': '-u',
+#                                    'multiplicity': 1,
+#                                  }
+
+        for optionArg in optionArgs:
+            matchedType = False
+
+            if 'type' not in optionConfig:
+                matchedType = True
+                continue
+
+            for checkType in optionConfig['type']:
+
+                if checkType == "string":
+                    if isinstance(optionArg, str):
+                        cmdOptionArgs.append(optionArg)
+                        matchedType = True
+                        break
+                    continue
+
+                if checkType == "integer":
+                    if isinstance(optionArg, int):
+                        cmdOptionArgs.append(optionArg)
+                        matchedType = True
+                        break
+                    continue
+
+                # Must be a P4OO type!  To check P4OO types, we need to import.
+
+                # First, break down setType/SpecType from the checkType to perform the import
+                m = re.match(r'^(.+)Set$', checkType)
+                if m:
+                    specType = m.group(1)
+                    setType = checkType
+                else:
+                    specType = checkType
+                    setType = checkType + "Set"
+
+                # Second, import specType and SetType
+# TODO need to look into this issue
+#                specModule = __import__("P4OO." + specType,
+#                                        globals(), locals(),
+#                                        ["P4OO" + specType, "P4OO" + setType], -1)
+                specModule = __import__("P4OO." + specType,
+                                        globals(), locals(),
+                                        ["P4OO" + specType, "P4OO" + setType], 0)
+
+                specClass = getattr(specModule, "P4OO" + specType)
+                setClass = getattr(specModule, "P4OO" + setType)
+
+                # Third, do the actual type check and append optionArgs as appropriate
+                if checkType == setType and isinstance(optionArg, setClass):
+                    # Special Set expansion...this gets weird, eh?
+                    cmdOptionArgs.extend(optionArg.listObjectIDs())
+                    matchedType = True
+                    break
+
+                if checkType == specType and isinstance(optionArg, specClass):
+                    cmdOptionArgs.append(optionArg._uniqueID())
+                    matchedType = True
+                    break
+
+            if not matchedType:
+                # Looped through all types, didn't find a match
+                raise P4OOFatal("Got %r, but filter key '%s'"
+                                  % (optionArg, origFilterKey)
+                                + " accepts arguments of only these types: "
+                                + ", ".join(optionConfig['type']))
+
+        return cmdOptionArgs

@@ -275,7 +275,8 @@ class _P4OOP4Python(_P4OOConnection):
 
         # If we made it this far, nothing fatal happened inside Perforce,
         # but spec was not necessarily deleted.
-# TODO I'm just guessing that all spec deletions follow this format of "^p4IdAttr specID (can't be )?deleted.$"
+# TODO I'm just guessing that all spec deletions follow this format
+# TODO   of "^p4IdAttr specID (can't be )?deleted.$"
         m = re.match(r'^%s %s (.*)deleted.$' % (re.escape(p4IdAttr),
                                                 re.escape(specID)),
                      p4Output[0])
@@ -366,9 +367,10 @@ class _P4OOP4Python(_P4OOConnection):
 
             # HACK - Instead of eval'ing this through the type's
             # constructor, we'll just use the base class and bless
+#            # Construct the new spec dictionary, copying our own _p4Conn attribute
 #            specAttrs = { 'p4Spec':  p4OutHash,
 #                          'id':      p4OutHash[idAttr],
-#                          '_p4Conn': self,  # Make sure each of these objects can reuse this connection too
+#                          '_p4Conn': self,
 #                        }
 #            specObj = eval( singularType + "(specAttrs)" )
 
