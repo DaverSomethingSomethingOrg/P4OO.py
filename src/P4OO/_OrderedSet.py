@@ -15,6 +15,8 @@ KEY, PREV, NEXT = range(3)
 
 
 class OrderedSet(collections.abc.MutableSet):
+    """ Set that remembers original insertion order.
+    """
 
     def __init__(self, iterable=None):
         self.end = end = []

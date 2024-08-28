@@ -226,9 +226,10 @@ class _P4OOP4PythonCommand():
 
         for (origFilterKey, queryValue) in queryDict.items():
 
-            # none is used to remove options
+            # None is used to remove options
             if queryValue is None:
                 continue
+
 
             lcFilterKey = origFilterKey.lower()
 
@@ -259,31 +260,29 @@ class _P4OOP4PythonCommand():
 
 #            print("optionConfig: ", optionConfig)
             # defined cmdline options go at the front
-            if 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 0:
-                if len(cmdOptionArgs) != 0:
-                    raise P4OOFatal("Filter key: %s accepts no arguments.\n" % origFilterKey)
+            if 'multiplicity' in optionConfig:
+
+                if len(cmdOptionArgs) != optionConfig['multiplicity']:
+                    raise P4OOFatal("Filter key: %s accepts %d arguments. %d provided.\n"
+                                    % (origFilterKey,
+                                       optionConfig['multiplicity'],
+                                       len(cmdOptionArgs)))
 
                 if isConfigOpt:
                     p4Config[optionConfig['option']] = True
                     continue
 
-                execArgs.insert(0, optionConfig['option'])
-                continue
-
-            if 'multiplicity' in optionConfig and optionConfig['multiplicity'] == 1:
-                if len(cmdOptionArgs) != 1:
-                    raise P4OOFatal("Filter key: %s accepts exactly 1 argument.\n" % origFilterKey)
-
-                if 'bundledArgs' in optionConfig and optionConfig['bundledArgs'] is not None:
-                    # join the option and its args into one string  ala "-j8"
-                    bundledArg = optionConfig['option'] + "".join(cmdOptionArgs)
-                    execArgs.insert(0, bundledArg)
+                if optionConfig['multiplicity'] == 0:
+                    execArgs.insert(0, optionConfig['option'])
                     continue
+
+                if optionConfig['multiplicity'] == 1:
+                    if 'bundledArgs' in optionConfig and optionConfig['bundledArgs'] is not None:
+                        # join the option and its args into one string  ala "-j8"
+                        bundledArg = optionConfig['option'] + "".join(cmdOptionArgs)
+                        execArgs.insert(0, bundledArg)
+                        continue
 # TODO - ignoring p4Config here because it won't be needed... I think
-
-                if isConfigOpt:
-                    p4Config[optionConfig['option']] = cmdOptionArgs[0]
-                    continue
 
                 # "unshift" one at a time in reverse order
                 for arg in reversed(cmdOptionArgs):
@@ -340,37 +339,9 @@ class _P4OOP4PythonCommand():
                     continue
 
                 # Must be a P4OO type!  To check P4OO types, we need to import.
-
-                # First, break down setType/SpecType from the checkType to perform the import
-                m = re.match(r'^(.+)Set$', checkType)
-                if m:
-                    specType = m.group(1)
-                    setType = checkType
-                else:
-                    specType = checkType
-                    setType = checkType + "Set"
-
-                # Second, import specType and SetType
-# TODO need to look into this issue
-#                specModule = __import__("P4OO." + specType,
-#                                        globals(), locals(),
-#                                        ["P4OO" + specType, "P4OO" + setType], -1)
-                specModule = __import__("P4OO." + specType,
-                                        globals(), locals(),
-                                        ["P4OO" + specType, "P4OO" + setType], 0)
-
-                specClass = getattr(specModule, "P4OO" + specType)
-                setClass = getattr(specModule, "P4OO" + setType)
-
-                # Third, do the actual type check and append optionArgs as appropriate
-                if checkType == setType and isinstance(optionArg, setClass):
-                    # Special Set expansion...this gets weird, eh?
-                    cmdOptionArgs.extend(optionArg.listObjectIDs())
-                    matchedType = True
-                    break
-
-                if checkType == specType and isinstance(optionArg, specClass):
-                    cmdOptionArgs.append(optionArg._uniqueID())
+                p4ooOptionArgs = self.getP4ooTypeOptionArgs(checkType, optionArg)
+                if p4ooOptionArgs is not None:
+                    cmdOptionArgs.extend(p4ooOptionArgs)
                     matchedType = True
                     break
 
@@ -382,3 +353,43 @@ class _P4OOP4PythonCommand():
                                 + ", ".join(optionConfig['type']))
 
         return cmdOptionArgs
+
+
+    def getP4ooTypeOptionArgs(self, checkType, optionArg):
+        """ If an option type that might be a P4OO type, do the following:
+             - dynamically import the appropriate P4OO module
+             - validate that the type matches the expected type
+             - return the enumeration of the optionArg's objects
+        """
+
+        # First, break down setType/SpecType from the checkType to perform the import
+        m = re.match(r'^(.+)Set$', checkType)
+        if m:
+            specType = m.group(1)
+            setType = checkType
+        else:
+            specType = checkType
+            setType = checkType + "Set"
+
+        # Second, import specType and SetType
+# TODO need to look into this issue
+#        specModule = __import__("P4OO." + specType,
+#                                globals(), locals(),
+#                                ["P4OO" + specType, "P4OO" + setType], -1)
+        specModule = __import__("P4OO." + specType,
+                                globals(), locals(),
+                                ["P4OO" + specType, "P4OO" + setType], 0)
+
+        specClass = getattr(specModule, "P4OO" + specType)
+        setClass = getattr(specModule, "P4OO" + setType)
+
+        # Third, do the actual type check and append optionArgs as appropriate
+        if checkType == setType and isinstance(optionArg, setClass):
+            # Special Set expansion...this gets weird, eh?
+            return optionArg.listObjectIDs()
+
+        if checkType == specType and isinstance(optionArg, specClass):
+            # Wrap it in a list just to return something consistent
+            return [ optionArg._uniqueID() ]
+
+        return None
