@@ -5,11 +5,12 @@
 #
 ######################################################################
 
+from dataclasses import dataclass, field
 
 from P4OO._Base import _P4OOBase
 from P4OO._Set import _P4OOSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOFile(_P4OOBase):
     """
     Perforce File Object
@@ -37,7 +38,7 @@ class P4OOFile(_P4OOBase):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self._getAttr('id'))
 
-
+@dataclass
 class P4OOFileSet(_P4OOSet):
     """ `P4OOSet` of `P4OOFile` objects """
 

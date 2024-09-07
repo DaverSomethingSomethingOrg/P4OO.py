@@ -12,22 +12,29 @@
     objects.
 """
 
+from dataclasses import dataclass, field, InitVar
 from P4OO._Base import _P4OOBase
 from P4OO._OrderedSet import OrderedSet
 
-
-class _P4OOSet(_P4OOBase, OrderedSet):
+#@dataclass(repr=False, eq=False, order=False)
+@dataclass(repr=False, eq=False, order=False, init=False)
+class _P4OOSet(OrderedSet, _P4OOBase):
     """ _P4OOSet provides common behaviors for grouping of all P4OO Spec-based
         objects.
 
     """
+#    iterable: list = field(default_factory=list, compare=False)
+    iterable: InitVar[list] = field(default=None)
 
-    def __init__(self, iterable=None, **kwargs):
+#    def __init__(self, iterable=None, **kwargs):
+#        _P4OOBase.__init__(self)
+#        OrderedSet.__init__(self, iterable)
+
+    def __post_init__(self, iterable):
         """ We want _P4OOBase-like attribute handling, but Orderedset
             repr and operators
         """
-
-        _P4OOBase.__init__(self, **kwargs)
+#        _P4OOBase.__init__(self)
         OrderedSet.__init__(self, iterable)
 
 # TODO - document this

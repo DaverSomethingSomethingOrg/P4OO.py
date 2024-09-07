@@ -5,11 +5,12 @@
 #
 ######################################################################
 
+from dataclasses import dataclass, field
 
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOGroup(_P4OOSpecObj):
     """
     Perforce Group Spec Object
@@ -49,7 +50,7 @@ class P4OOGroup(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'group'
 
-
+@dataclass
 class P4OOGroupSet(_P4OOSet):
     """ `P4OOSet` of `P4OOGroup` objects """
 

@@ -5,11 +5,12 @@
 #
 ######################################################################
 
+from dataclasses import dataclass, field
 
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOBranch(_P4OOSpecObj):
     """
     Perforce Branch Spec Object
@@ -36,7 +37,7 @@ class P4OOBranch(_P4OOSpecObj):
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = 'branch'
 
-
+@dataclass
 class P4OOBranchSet(_P4OOSet):
     """ `P4OOSet` of `P4OOBranch` objects """
 

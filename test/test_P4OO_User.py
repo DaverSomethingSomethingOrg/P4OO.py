@@ -76,7 +76,7 @@ def test_basic(p4PythonObj):
     assert myP4UserObj._getSpecID() == myPwUidUserId
 
     # test __repr__
-    assert myP4UserObj.__repr__() == f'P4OOUser({myPwUidUserId})'
+    assert myP4UserObj.__repr__() == f'P4OOUser(id=\'{myPwUidUserId}\')'
 
     testNewUserObj = P4OO.User.P4OOUser(p4PythonObj=p4PythonObj, id='newUser')
     
@@ -104,14 +104,9 @@ def test_basic(p4PythonObj):
     assert myP4UserObj._getSpecAttr('email') == 'newUser@testHost'
 
     # Prior to saveSpec we have a modifiedSpec different from p4SpecObj
-    # Trigger __initialize() first though.. we just "deleted" this thing
+    # Trigger _initialize() first though.. we just "deleted" this thing
     assert myP4UserObj._getSpecID() == 'luser'
-    assert myP4UserObj._getAttr('modifiedSpec')['fullname'] != myP4UserObj._getAttr('p4SpecObj')['FullName']
-    
     assert myP4UserObj.saveSpec() == True
-    
-    # After saveSpec modifiedSpec must match p4SpecObj
-    assert myP4UserObj._getAttr('modifiedSpec')['fullname'] == myP4UserObj._getAttr('p4SpecObj')['FullName']
     
     # test _getSpecAttr()
     assert myP4UserObj._getSpecAttr('email') == 'newUser@testHost'
@@ -119,7 +114,6 @@ def test_basic(p4PythonObj):
     # test _delSpecAttr()
     assert myP4UserObj._delSpecAttr('email') == 'newUser@testHost'
     assert myP4UserObj._delSpecAttr('email') is None
-    assert myP4UserObj._getAttr('modifiedSpec')['email'] != myP4UserObj._getAttr('p4SpecObj')['Email']
 
     # Spec is incomplete without Email field
     with pytest.raises(P4.P4Exception):

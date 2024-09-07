@@ -6,13 +6,14 @@
 #
 ######################################################################
 
+from dataclasses import dataclass, field
 
 from P4OO.Exceptions import P4Warning
 from P4OO.Change import P4OOChangeSet
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOLabel(_P4OOSpecObj):
     """
     Perforce Label Spec Object
@@ -131,6 +132,7 @@ class P4OOLabel(_P4OOSpecObj):
         return diffText
 
 
+@dataclass
 class P4OOLabelSet(_P4OOSet):
     """ `P4OOSet` of `P4OOLabel` objects """
 

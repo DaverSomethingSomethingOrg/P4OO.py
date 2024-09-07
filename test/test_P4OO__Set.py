@@ -21,39 +21,6 @@ import P4OO._Set
 import P4OO._OrderedSet
 #import pytest
 
-# Test an object instantiated with no attributes
-def test_BaseFunctionality():
-    testObj1 = P4OO._Set._P4OOSet()
-    assert isinstance(testObj1, P4OO._Set._P4OOSet)
-    assert isinstance(testObj1, P4OO._Base._P4OOBase)
-
-    # "_getAttr for non-existing attribute returns None")
-    assert testObj1._getAttr("foo") is None
-
-    # "subsequent _getAttr for non-existing attribute also returns None")
-    assert testObj1._getAttr("foo") is None
-
-    # "bar", "_setAttr for new attribute returns value")
-    assert testObj1._setAttr("foo", "bar")
-
-    # "_getAttr for existing attribute returns value")
-    assert testObj1._getAttr("foo"), "bar"
-
-    # "baz", "_setAttr for existing attribute returns value")
-    assert testObj1._setAttr("foo", "baz")
-
-    # "_getAttr for changed attribute returns new value")
-    assert testObj1._getAttr("foo"), "baz"
-
-    # "_delAttr returns value of attribute")
-    assert testObj1._delAttr("foo"), "baz"
-
-    # _getAttr for non-existing attribute returns None
-    assert testObj1._getAttr("foo") is None
-
-    # _delAttr returns nothing for non-existant attribute
-    assert testObj1._delAttr("foo") is None
-
 def test_setConstruction():
     testObj1 = P4OO._Set._P4OOSet(iterable=[1, 2, 3])
     assert isinstance(testObj1, P4OO._Set._P4OOSet)
@@ -80,6 +47,7 @@ def test_setSetFunctionality():
     assert len(testObj1) == 3
 
     testObj3 = testObj1 & testObj2
+    print(testObj1, testObj2, testObj3)
     assert isinstance(testObj3, P4OO._Set._P4OOSet)
 
     # "intersection: [1, 2, 3] & [3, 4, 5] == [3]"

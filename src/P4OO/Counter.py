@@ -20,10 +20,11 @@ times it's likely a use case where the counter is expected to have
 changed.
 """
 
+from dataclasses import dataclass, field
 from P4OO._Base import _P4OOBase
 from P4OO._Set import _P4OOSet
 
-
+@dataclass
 class P4OOCounter(_P4OOBase):
     """
     Perforce Counter Object
@@ -33,14 +34,16 @@ class P4OOCounter(_P4OOBase):
     Forcible: No
 
     Attributes:
-        counter (str): Name of the Counter
+        id (str): Name of the Counter
 
     See Also:
         Perforce Helix Core Command Reference:
         https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_counter.html
     """
+    id: str = field(default=None, compare=True)
+
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self._getAttr('id'))
+        return '%s(%s)' % (self.__class__.__name__, self.id)
 
     def getValue(self):
         """
@@ -51,7 +54,7 @@ class P4OOCounter(_P4OOBase):
         """
 
         p4ConnObj = self._getP4Connection()
-        return p4ConnObj.readCounter(self._getAttr('id'))
+        return p4ConnObj.readCounter(self.id)
 
     def setValue(self, newValue):
         """
@@ -65,7 +68,7 @@ class P4OOCounter(_P4OOBase):
         """
 
         p4ConnObj = self._getP4Connection()
-        return p4ConnObj.setCounter(self._getAttr('id'), newValue)
+        return p4ConnObj.setCounter(self.id, newValue)
 
 
 class P4OOCounterSet(_P4OOSet):

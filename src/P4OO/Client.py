@@ -8,12 +8,14 @@
 
 
 import re
+from dataclasses import dataclass, field
+
 from P4OO.Exceptions import P4Warning, P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 from P4OO.Change import P4OOChangeSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOClient(_P4OOSpecObj):
     """
     Perforce Client Spec Object
@@ -216,6 +218,7 @@ class P4OOClient(_P4OOSpecObj):
             return self.deleteSpec(force=True)
 
 
+@dataclass
 class P4OOClientSet(_P4OOSet):
     """ `P4OOSet` of `P4OOClient` objects """
 

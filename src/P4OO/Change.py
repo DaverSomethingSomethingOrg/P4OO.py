@@ -6,12 +6,13 @@
 #
 ######################################################################
 
+from dataclasses import dataclass, field
 
 from P4OO.Exceptions import P4Fatal
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOChange(_P4OOSpecObj):
     """
     Perforce Change Spec Object
@@ -147,6 +148,7 @@ class P4OOChange(_P4OOSpecObj):
         return self.deleteSpec(force=True)
 
 
+@dataclass
 class P4OOChangeSet(_P4OOSet):
     """ `P4OOSet` of `P4OOChange` objects """
 

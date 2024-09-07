@@ -8,6 +8,7 @@
 
 import os
 import re
+from dataclasses import dataclass, field
 
 # P4Python
 from P4 import P4, P4Exception, Spec
@@ -17,9 +18,12 @@ from P4OO._Connection import _P4OOConnection
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._P4PythonSchema import _P4OOP4PythonSchema
 
-
+@dataclass
 class _P4OOP4Python(_P4OOConnection):
 
+    def __post_init__(self):
+        self._ownP4PythonObj = None
+    
     def readCounter(self, counterName):
         """ Read the named counter from Perforce and return the value. """
 
@@ -51,8 +55,8 @@ class _P4OOP4Python(_P4OOConnection):
             Any changes made via _setSpecAttr will be lost!
         """
 
-        specObj._delAttr('p4SpecObj')
-        specObj._delAttr('modifiedSpec')
+        specObj._p4SpecObj = None
+        specObj._modifiedSpec = None
         self.readSpec(specObj)
 
     def readSpec(self, specObj):
@@ -68,9 +72,9 @@ class _P4OOP4Python(_P4OOConnection):
         self._initialize()
 
         specType = specObj._SPECOBJ_TYPE
-        specID = specObj._getAttr('id')
-        p4SpecObj = specObj._getAttr('p4SpecObj')
-        modifiedSpec = specObj._getAttr('modifiedSpec')
+        specID = specObj.id
+        p4SpecObj = specObj._p4SpecObj
+        modifiedSpec = specObj._modifiedSpec
 
         specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specType)
         idAttr = specCmdObj.getPyIdAttribute()
@@ -79,7 +83,7 @@ class _P4OOP4Python(_P4OOConnection):
         if p4SpecObj is None:
             if specID is None and specCmdObj.isIdRequired():
                 if modifiedSpec is not None and idAttr in modifiedSpec:
-                    specID = specObj._setAttr('id', modifiedSpec[idAttr])
+                    specID = specObj.id = modifiedSpec[idAttr]
                 else:
                     # Nothing to do here, no id in any form from caller
                     raise P4OOFatal("Cannot identify %s object" %
@@ -91,7 +95,7 @@ class _P4OOP4Python(_P4OOConnection):
             # Since we muck with the Spec replacing date fields with
             # datetime objects, we just flatten the objects.
             p4SpecObj = p4Output[0]
-            specObj._setAttr('p4SpecObj', p4SpecObj)
+            specObj._p4SpecObj = p4SpecObj
 
         p4Spec = dict(p4SpecObj)
         return self._generateModifiedSpec(specCmdObj, specObj, p4Spec)
@@ -110,10 +114,10 @@ class _P4OOP4Python(_P4OOConnection):
 #            raise P4OOFatal(specType + ": " + str(specID) + " does not exist")
 #            return None
 
-        specID = specObj._getAttr('id')
+        specID = specObj.id
 
         # Here we take the spec from P4 and make it something useful
-        modifiedSpec = specObj._getAttr('modifiedSpec')
+        modifiedSpec = specObj._modifiedSpec
         if modifiedSpec is None:
             modifiedSpec = {}
 
@@ -125,12 +129,12 @@ class _P4OOP4Python(_P4OOConnection):
             if specAttr not in modifiedSpec:
                 modifiedSpec[specAttr] = pythonSpecDict[specAttr]
 
-        specObj._setAttr('modifiedSpec', modifiedSpec)
+        specObj._modifiedSpec = modifiedSpec
 
         # We'll set the object's specID if it was not defined..if we can.
         if specID is None:
             idAttr = specCmdObj.getPyIdAttribute()
-            specObj._setAttr('id', modifiedSpec[idAttr])
+            specObj.id = modifiedSpec[idAttr]
 
         return modifiedSpec
 
@@ -141,13 +145,13 @@ class _P4OOP4Python(_P4OOConnection):
         self.readSpec(specObj)
 
         specType = specObj._SPECOBJ_TYPE
-        specID = specObj._getAttr('id')
+        specID = specObj.id
 
         specCmdObj = self._p4PythonSchema.getSpecCmd(specType=specType)
         specCmd = specCmdObj.getSpecCmd()
 
-        p4SpecObj = specObj._getAttr('p4SpecObj')
-        modifiedSpec = specObj._getAttr('modifiedSpec')
+        p4SpecObj = specObj._p4SpecObj
+        modifiedSpec = specObj._modifiedSpec
 
         # If there's no modified spec or ID, then there's nothing to save
         if modifiedSpec is None and specID is None:
@@ -168,7 +172,7 @@ class _P4OOP4Python(_P4OOConnection):
             if specID is None:
                 # At this point the SpecObj is initialized enough for
                 # this to work...
-                specObj._setAttr('id', p4SpecObj[p4IdAttr])
+                specObj.id = p4SpecObj[p4IdAttr]
         else:
             if specCmdObj.isIdRequired():
                 if specID is not None:
@@ -197,7 +201,7 @@ class _P4OOP4Python(_P4OOConnection):
                                    p4Output[0]).group(1)
 # TODO...
 #                print("specID: ", specID)
-            specObj._setAttr('id', specID)
+            specObj.id = specID
 # TODO... other spec types that accept new?
 
         # refresh our object against the freshly saved spec to get updated
@@ -208,7 +212,7 @@ class _P4OOP4Python(_P4OOConnection):
 
     def deleteSpec(self, specObj, force=False):
         specType = specObj._SPECOBJ_TYPE
-        specID = specObj._getAttr('id')
+        specID = specObj.id
 
         # Make sure we've read in the config file
         self._initialize()
@@ -217,8 +221,8 @@ class _P4OOP4Python(_P4OOConnection):
         idAttr = specCmdObj.getPyIdAttribute()
         specCmd = specCmdObj.getSpecCmd()
 
-        p4SpecObj = specObj._getAttr('p4SpecObj')
-        modifiedSpec = specObj._getAttr('modifiedSpec')
+        p4SpecObj = specObj._p4SpecObj
+        modifiedSpec = specObj._modifiedSpec
 
         # If there's no modified spec or ID, then there's nothing to save
         if modifiedSpec is None and specID is None:
@@ -232,7 +236,7 @@ class _P4OOP4Python(_P4OOConnection):
             # see if we have it in modifiedSpec
             if specID is None and modifiedSpec is not None:
                 if idAttr in modifiedSpec:
-                    specID = specObj._setAttr('id', modifiedSpec[idAttr])
+                    specID = specObj.id = modifiedSpec[idAttr]
 
             try:
                 self.readSpec(specObj)
@@ -242,9 +246,9 @@ class _P4OOP4Python(_P4OOConnection):
                 pass
 
             # refresh the local variables for spec after read
-            specID = specObj._getAttr('id')
-            p4SpecObj = specObj._getAttr('p4SpecObj')
-            modifiedSpec = specObj._getAttr('modifiedSpec')
+            specID = specObj.id
+            p4SpecObj = specObj._p4SpecObj
+            modifiedSpec = specObj._modifiedSpec
 
         if p4SpecObj is None:
             # This must be a brand new spec... nothing to delete
@@ -258,7 +262,7 @@ class _P4OOP4Python(_P4OOConnection):
             if p4IdAttr in p4SpecObj:
                 # At this point the SpecObj is initialized enough for this
                 # to work...
-                specObj._setAttr('id', p4SpecObj[p4IdAttr])
+                specObj.id = p4SpecObj[p4IdAttr]
                 specID = p4SpecObj[p4IdAttr]
 # TODO be throwing exceptions...
 
@@ -380,9 +384,9 @@ class _P4OOP4Python(_P4OOConnection):
 #            specObj._setAttr('p4Spec', Spec(p4OutHash))
 # TODO - need to fix this special case for Change - need better construction logic
             if p4ooType == 'Change':
-                specObj._setAttr('id', int(p4OutHash[idAttr]))
+                specObj.id = int(p4OutHash[idAttr])
             else:
-                specObj._setAttr('id', p4OutHash[idAttr])
+                specObj.id = p4OutHash[idAttr]
 
 # TODO - This is a little awkward...
             if isinstance(specObj, _P4OOSpecObj):
@@ -393,13 +397,13 @@ class _P4OOP4Python(_P4OOConnection):
 #            self._logDebug( "id: ", p4OutHash[idAttr])
 
             # Make sure each of these objects can reuse this connection too
-            specObj._setAttr('_p4Conn', self)
+            specObj._p4Conn = self
             objectList.append(specObj)
 
         # Wrap it with a bow
         setObj = setClass()
 
-        setObj._setAttr('_p4Conn', self)
+        setObj._p4Conn = self
         setObj.addObjects(objectList)
         return setObj
 
@@ -470,7 +474,7 @@ class _P4OOP4Python(_P4OOConnection):
         return p4Out
 
     def _connect(self):
-        p4PythonObj = self._getAttr('p4PythonObj')
+        p4PythonObj = self.p4PythonObj
 
         if p4PythonObj is None:
             p4PythonObj = P4()
@@ -480,23 +484,23 @@ class _P4OOP4Python(_P4OOConnection):
             except P4Exception as exc:
                 raise P4Fatal("P4 Connection Failed") from exc
 
-            self._setAttr('p4PythonObj', p4PythonObj)
-            self._setAttr('_ownP4PythonObj', 1)
+            self.p4PythonObj = p4PythonObj
+            self._ownP4PythonObj = 1
 
         return p4PythonObj
 
     def _disconnect(self):
-        ownP4PythonObj = self._getAttr('_ownP4PythonObj')
+        ownP4PythonObj = self._ownP4PythonObj
 
         if ownP4PythonObj:
             # We instantiated the connection, so we'll tear it down too
-            p4PythonObj = self._getAttr('p4PythonObj')
+            p4PythonObj = self.p4PythonObj
 
             if p4PythonObj is not None:
                 p4PythonObj.disconnect()
 
-        self._setAttr('_ownP4PythonObj', None)
-        self._setAttr('p4PythonObj', None)
+        self._ownP4PythonObj = None
+        self.p4PythonObj = None
         return True
 
     def _initialize(self):

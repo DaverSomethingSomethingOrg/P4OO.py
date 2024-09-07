@@ -5,13 +5,14 @@
 #
 ######################################################################
 
+from dataclasses import dataclass, field
 
 from P4OO.Client import P4OOClientSet
 from P4OO.Change import P4OOChangeSet
 from P4OO._SpecObj import _P4OOSpecObj
 from P4OO._Set import _P4OOSet
 
-
+@dataclass(unsafe_hash=True)
 class P4OOUser(_P4OOSpecObj):
     """
     Perforce User Spec Object
@@ -118,6 +119,7 @@ class P4OOUser(_P4OOSpecObj):
         return self.deleteSpec(force=True)
 
 
+@dataclass
 class P4OOUserSet(_P4OOSet):
     """ `P4OOSet` of `P4OOUser` objects """
 

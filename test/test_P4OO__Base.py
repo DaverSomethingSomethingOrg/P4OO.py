@@ -16,10 +16,15 @@ Perforce _Base unittest Class
 ######################################################################
 # Includes
 #
+import unittest
+from dataclasses import dataclass, field
+
 # P4OO._Base brings in our Exception hierarchy
 import P4OO._Base
-import unittest
 
+@dataclass
+class testBase(P4OO._Base._P4OOBase):
+    foo: str = field(default=None)
 
 #class TestSequenceFunctions(unittest.TestCase):
 class TestP4OO_Base(unittest.TestCase):
@@ -34,27 +39,24 @@ class TestP4OO_Base(unittest.TestCase):
 
     # Test an object instantiated with no attributes
     def test_initEmpty(self):
-        testObj1 = P4OO._Base._P4OOBase()
+#        testObj1 = P4OO._Base._P4OOBase()
+        testObj1 = testBase()
         self.assertTrue(isinstance(testObj1, P4OO._Base._P4OOBase))
-        self.assertEqual(testObj1._getAttr("foo"), None, "_getAttr for non-existing attribute returns None")
-        self.assertEqual(testObj1._getAttr("foo"), None, "subsequent _getAttr for non-existing attribute also returns None")
-        self.assertEqual(testObj1._setAttr("foo", "bar"), "bar", "_setAttr for new attribute returns value")
-        self.assertEqual(testObj1._getAttr("foo"), "bar", "_getAttr for existing attribute returns value")
-        self.assertEqual(testObj1._setAttr("foo", "baz"), "baz", "_setAttr for existing attribute returns value")
-        self.assertEqual(testObj1._getAttr("foo"), "baz", "_getAttr for changed attribute returns new value")
-        self.assertEqual(testObj1._delAttr("foo"), "baz", "_delAttr returns value of attribute")
-        self.assertEqual(testObj1._getAttr("foo"), None, "_getAttr for non-existing attribute returns None")
-        self.assertEqual(testObj1._delAttr("foo"), None, "_delAttr returns nothing for non-existant attribute")
+        self.assertEqual(testObj1.foo, None, "default value is None")
+        testObj1.foo="bar"
+        self.assertEqual(testObj1.foo, "bar", "mutable attribute set to new value")
+        testObj1.foo="baz"
+        self.assertEqual(testObj1.foo, "baz", "mutable attribute reset to new value")
 
     def test_init1Attr(self):
-        testObj1 = P4OO._Base._P4OOBase(foo="bar")
+        testObj1 = testBase(foo="bar")
         self.assertTrue(isinstance(testObj1, P4OO._Base._P4OOBase))
-        self.assertEqual(testObj1._getAttr("foo"), "bar", "_getAttr for existing attribute returns value")
-        self.assertEqual(testObj1._setAttr("foo", "baz"), "baz", "_setAttr for existing attribute returns value")
-        self.assertEqual(testObj1._getAttr("foo"), "baz", "_getAttr for changed attribute returns new value")
+        self.assertEqual(testObj1.foo, "bar", "non-default attribute returns expected value")
+        testObj1.foo="baz"
+        self.assertEqual(testObj1.foo, "baz", "mutable attribute set to new value")
 
     def test_basicMethods(self):
-        testObj1 = P4OO._Base._P4OOBase()
+        testObj1 = testBase()
         self.assertEqual(testObj1._uniqueID(), id(testObj1), "default _uniqueID returns id() value")
         self.assertEqual(testObj1._initialize(), 1, "default _initialize returns 1")
 

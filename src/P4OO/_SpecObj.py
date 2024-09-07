@@ -15,6 +15,7 @@ objects.
 
 import json
 import datetime
+from dataclasses import dataclass, field
 from P4OO._Base import _P4OOBase
 from P4OO.Exceptions import P4OOFatal
 
@@ -28,15 +29,15 @@ class DateTimeJSONEncoder(json.JSONEncoder):
 
         return super().default(o)
 
-
+@dataclass(unsafe_hash=True)
 class _P4OOSpecObj(_P4OOBase):
+
+    id: str = field(default=None, compare=True)
+    _modifiedSpec: dict = field(default=None, compare=False, repr=False)
+    _p4SpecObj: dict = field(default=None, compare=False, repr=False)
 
     # Subclasses must define SPECOBJ_TYPE
     _SPECOBJ_TYPE = None
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self._getSpecID())
 
     def _uniqueID(self):
         """ _uniqueID overrides the _Base definition to use
@@ -47,11 +48,11 @@ class _P4OOSpecObj(_P4OOBase):
 
     def _getSpecID(self):
 
-        specID = self._getAttr('id')
+        specID = self.id
 
         if specID is None:
             self.__initialize()
-            specID = self._getAttr('id')
+            specID = self.id
 
         # If specID is still undef, oh well.
         return specID
@@ -60,7 +61,7 @@ class _P4OOSpecObj(_P4OOBase):
 
         self.__initialize()
 
-        modifiedSpec = self._getAttr('modifiedSpec')
+        modifiedSpec = self._modifiedSpec
 
         # Allow the caller to use any case for the spec attribute
         lcAttrName = attrName.lower()
@@ -75,11 +76,11 @@ class _P4OOSpecObj(_P4OOBase):
     def _setSpecAttr(self, attrName, value):
 #        self.__initialize()
 
-        modifiedSpec = self._getAttr('modifiedSpec')
-
         # Allow caller to create a new spec this way
-        if modifiedSpec is None:
-            modifiedSpec = self._setAttr('modifiedSpec', {})
+        if self._modifiedSpec is None:
+            self._modifiedSpec = {}
+
+        modifiedSpec = self._modifiedSpec
 
         # Allow the caller to use any case for the spec attribute
         lcAttrName = attrName.lower()
@@ -89,7 +90,7 @@ class _P4OOSpecObj(_P4OOBase):
     def _delSpecAttr(self, attrName):
         self.__initialize()
 
-        modifiedSpec = self._getAttr('modifiedSpec')
+        modifiedSpec = self._modifiedSpec
 
         # Allow the caller to use any case for the spec attribute
         lcAttrName = attrName.lower()
@@ -111,21 +112,17 @@ class _P4OOSpecObj(_P4OOBase):
 
     def _toJSON(self):
         self.__initialize()
-        modifiedSpec = self._getAttr('modifiedSpec')
 
-        return DateTimeJSONEncoder().encode(modifiedSpec)
+        return DateTimeJSONEncoder().encode(self._modifiedSpec)
 
     ######################################################################
     # Internal (private) methods
     #
     def __initialize(self):
 
-        p4SpecObj = self._getAttr('p4SpecObj')
-
-        if p4SpecObj is None:
+        if self._p4SpecObj is None:
             p4ConnObj = self._getP4Connection()
 
-            # We don't save this attribute because _P4Python does that for us
-            p4SpecObj = p4ConnObj.readSpec(self)
+            self._p4SpecObj = p4ConnObj.readSpec(self)
 
-        return p4SpecObj
+        return self._p4SpecObj
