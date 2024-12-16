@@ -269,7 +269,7 @@ class _P4OOP4PythonCommand():
                                        len(cmdOptionArgs)))
 
                 if isConfigOpt:
-                    p4Config[optionConfig['option']] = True
+                    p4Config[optionConfig['option']] = cmdOptionArgs[0]
                     continue
 
                 if optionConfig['multiplicity'] == 0:

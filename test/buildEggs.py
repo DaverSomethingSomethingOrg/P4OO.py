@@ -121,7 +121,8 @@ def createEgg_Label():
 
     # Create 'testClient1' Workspace and our test files
     p4ClientRoot = os.path.abspath(tempfile.mkdtemp(dir=tmpDir))
-    p4cl1 = P4OOClient(p4PythonObj=p4PythonObj, id="testClient1", root=p4ClientRoot)
+    #p4cl1 = P4OOClient(p4PythonObj=p4PythonObj, id="testClient1", root=p4ClientRoot)
+    p4cl1 = P4OOClient(p4PythonObj=p4PythonObj, id="testClient1")
     p4cl1._setSpecAttr("root", p4ClientRoot)
     p4cl1.saveSpec()
 

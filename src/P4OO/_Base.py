@@ -20,8 +20,6 @@ import logging
 
 @dataclass(unsafe_hash=True)
 class _P4OOBase:
-#    _p4Conn: P4 = field(default=None, compare=False, repr=False)
-#    p4PythonObj: P4 = field(default=None, compare=False, repr=False)
     _p4Conn: P4 = field(default=None, compare=False, repr=False)
     p4PythonObj: P4 = field(default=None, compare=False, repr=False)
 

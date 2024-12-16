@@ -16,7 +16,6 @@ from dataclasses import dataclass, field, InitVar
 from P4OO._Base import _P4OOBase
 from P4OO._OrderedSet import OrderedSet
 
-#@dataclass(repr=False, eq=False, order=False)
 @dataclass(repr=False, eq=False, order=False, init=False)
 class _P4OOSet(OrderedSet, _P4OOBase):
     """ _P4OOSet provides common behaviors for grouping of all P4OO Spec-based
