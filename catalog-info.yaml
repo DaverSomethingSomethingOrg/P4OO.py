@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: P4OO.py
+  description: Backstage Dev application.
+  annotations:
+    github.com/project-slug: DaverSomethingSomethingOrg/P4OO.py
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: website
+  owner: user:daversomethingsomething
+  lifecycle: experimental
