@@ -2,10 +2,9 @@
 
 ## Introduction
 
-Welcome to P4OO.py!  P4OO.py (based on the Perl P4::OO module) provides
-a layer of first class objects on top of P4Python.  The concept is to
-bring order to managing Perforce in a programmatic fashion, rather than
-simply treating Perforce as a set of commands to be run in sequence.
+Welcome to P4OO.py!  P4OO.py provides a layer of first class objects on
+top of P4Python.  The concept is to bring order to managing Perforce in
+a programmatic fashion, building on top of the command-driven API.
 
 The standard C, Perl, and Python APIs for Perforce are essentially
 equivalent to the commandline client, with some rudimentary capabilities
